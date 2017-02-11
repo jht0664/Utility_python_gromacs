@@ -4,7 +4,7 @@
 import argparse
 parser = argparse.ArgumentParser(
 	formatter_class=argparse.ArgumentDefaultsHelpFormatter, 
-	description='1D Density profile')
+	description='Number Probability of identically selected atoms in a trajectory')
 ## args
 parser.add_argument('-i', '--input', default='traj.trr', nargs='?', 
 	help='input trajectory file')

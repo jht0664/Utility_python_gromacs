@@ -2,8 +2,8 @@
 # traverse npt-subdirectories in a current directory
 # with command-line $1 (ex. ~/Utility/n-prof.sh) 
 
-INIT=8
-FINAL=19
+INIT=$1
+FINAL=$2
 str1="npt"
 
 until [ $INIT -gt $FINAL ]
@@ -12,7 +12,7 @@ do
 	cd $strdir
 	pwd
 # do a command-line
-	$1 $2
+	$3 $4 $5
 	let INIT=INIT+1
 	cd ..
 done >trav-npt.log

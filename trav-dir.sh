@@ -10,7 +10,7 @@ do
 # show current directory
 	echo $dir
 # do a command-line
-	$1 $2
+	$1 $2 $3
 # show current pwd
 	popd 
 done >traverse-dir.log

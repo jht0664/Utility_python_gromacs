@@ -14,6 +14,8 @@ parser.add_argument('-select', '--select', nargs='?',
 	help='a file with a command-line for select_atoms in MDAnalysis')
 parser.add_argument('-bin', '--bin', default=2.0, nargs='?', 
 	help='bin size (A), defult 2A')
+parser.add_argument('-nbin', '--nbin', nargs='?', 
+	help='number of bins, otherwise we use the bin size')
 parser.add_argument('-axis', '--axis', default=2, nargs='?', 
 	help='which axis for histogram (x axis (0), y axis (1), z axis (2))')
 parser.add_argument('--nojump', action='store_true',
@@ -37,6 +39,7 @@ args.bin = args.bin if args.bin is not None else 2.0
 args.axis = args.axis if args.axis is not None else 2
 args.bin = float(args.bin)
 args.axis = int(args.axis)
+args.nbin = int(args.nbin)
 
 ## Check arguments for log
 print("===============================")
@@ -46,6 +49,7 @@ if args.input is not None:
 	print("select filename  = ", args.select)
 print("No Jump if yes   = ", args.nojump)
 print("bin size (A)     = ", args.bin)
+print("number of bins   = ", args.nbin)
 print("axis [0:2]       = ", args.axis)
 print("output number trajectory filename = ", args.outputnumber)
 print("output bin trajectory filename = ", args.outputbin)
@@ -56,6 +60,11 @@ if args.bin < 1.0:
 	raise ValueError("Too small bin size is usually not valid for histogram")
 if args.axis < 0 or args.axis > 2:
 	raise ValueError("wrong input of axis for histogram")
+if args.nbin is not None:
+	print("BE AWARE: You use number of bins, instead of bin size")
+	use_nbin = True
+else:
+	use_nbin = False
 
 ## timer
 import time
@@ -173,16 +182,22 @@ unit_cells_1d = unit_cells[:,args.axis]
 #			[[x1(t0), x2(t0), x3(t0), ...], [x1(t1), x2(t1), x3(t1)], ...]
 # 		 box_t is box dimension sets along time (t1, t2, ...)
 #			[box_x(t0), box_x(t1), ...]
-#        args.bin is which axis you want to do histogram
+#        bin_size is which axis you want to do histogram
+#		 nbin is the number of bins you want 
+#		 use_nbin is true if you want to use nbin instead of bin_size. otherwise, false
 # output: histo_t is a new 1d-number profile trajectory
 #		  bin_t is a bin position array for the 1d histogram 
-def histo_t_1d(x_t, box_x_t, bin_size):
+def histo_t_1d(x_t, box_x_t, bin_size, nbin, use_nbin):
 	import numpy as np
 	# check n_frames of x_t and box_x_t
 	if len(x_t) != len(box_x_t):
 		raise ValueError("# of time frame is not the same for input arrarys")
 	# set number of bins (const) using input and initial box dimension
-	n_bins = int(np.around(box_x_t[0]/bin_size))
+	if use_nbin:
+		print("bin size = %d", box_x_t[0]/float(nbin))
+		n_bins = nbin
+	else:
+		n_bins = int(np.around(box_x_t[0]/bin_size))
 	# initailize variables
 	n_frames = len(x_t)
 	histo_t = np.zeros((n_frames, n_bins))
@@ -196,7 +211,7 @@ def histo_t_1d(x_t, box_x_t, bin_size):
 
 ## number histograms for each frame 
 print("===============================")
-number_t_1d, bin_t_1d = histo_t_1d(coordinates_1d, unit_cells_1d, args.bin) 
+number_t_1d, bin_t_1d = histo_t_1d(coordinates_1d, unit_cells_1d, args.bin, args.nbin, use_nbin) 
 print("Done: making number trajectory with respect to bins")
 
 ## save number histograms
