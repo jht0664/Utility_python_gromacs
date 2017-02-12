@@ -9,9 +9,9 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-deg', '--degree', nargs='?', 
 	help='Degree of polymerization, n, of R1-[CH2-O-CH2]n-R1')
 parser.add_argument('-r1', '--r1', nargs='?', 
-	help='Beginning group, R1, -CH2OH for PEG')
+	help='Beginning group, R1, CH2OH for PEG')
 parser.add_argument('-r2', '--r2', nargs='?', 
-	help='End group, R2, -CH3OCH3 for PEG/PEO')
+	help='End group, R2, CH3OCH3 for PEG/PEO')
 parser.add_argument('-o', '--output', default='bond.pair', nargs='?', 
 	help='output file for bond pairs for topology file of PEG/PEO')
 parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1')
@@ -79,7 +79,7 @@ with open(args.output, 'w') as output_file:
 		output_file.write(" %d   %d   1\n" %(index+4,index+7))
 		index = index + 7
 	else:
-		raise ValueError("Not supported yet for end group, %s" %args.r1)
+		raise ValueError("Not supported yet for end group, %s" %args.r2)
 
 	print("Total # atoms = %d" %index)
 	if index != natoms:
