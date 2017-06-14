@@ -1,0 +1,8 @@
+topolbuild version 1.3
+Command line:
+     ./topolbuild -n ../../PEDOT.mol2 -dir ../dat/antechamber/ -ff gaff
+
+Fatal error.
+Source code file: readmol2.c, line: 307
+Cannot open file ../../PEDOT.mol2.mol2
+

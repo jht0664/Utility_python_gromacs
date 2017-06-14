@@ -1,0 +1,34 @@
+../../trjcat-mc.sh 0 53
+cp ../../select* ./
+ python3 ~/python/dn-auto.py -i traj_out.xtc -s conf.gro -select select.txt -nbin 60 -tol 0 -axis 2 -o a.dnums
+ python3 ~/python/dn-auto.py -i traj_out.xtc -s conf.gro -select select2.txt -nbin 60 -tol 0 -axis 2 -o b.dnums
+python3 ~/python/dnum-avg.py -i a.dnums.align -avg a.dnums -b 2000 -tol 0 | tee a.dnum-avg.log
+python3 ~/python/dnum-avg.py -i b.dnums.align -avg b.dnums -b 2000 -tol 0 | tee b.dnum-avg.log
+
+plot 'a.dnums.align.avg' u ($0/60):1:2 w ye
+f(x) = wp+0.5*(wr-wp)*(tanh((x-b+c)/lamda)-tanh((x-b-c)/lamda))
+wr=120;wp=18;b=0.5;c=0.23;lamda=0.1
+plot 'a.dnums.align.avg' u ($0/60):1:2 w ye, f(x)
+fit f(x) 'a.dnums.align.avg' u ($0/60):1 via wr, wp, b, c, lamda
+fit f(x) 'a.dnums.align.avg' u ($0/60):1:2 via wr, wp, b, c, lamda
+plot 'a.dnums.align.avg' u ($0/60):1:2 w ye lt 4 lc 1 title "data at 420 K", f(x) lw 2 lc 1 title "fit"
+
+plot 'b.dnums.align.avg' u ($0/60):1:2 w ye
+f(x) = wp+0.5*(wr-wp)*(tanh((x-b+c)/lamda)-tanh((x-b-c)/lamda))
+wr=120;wp=18;b=0.5;c=0.23;lamda=0.1
+plot 'b.dnums.align.avg' u ($0/60):1:2 w ye, f(x)
+fit f(x) 'b.dnums.align.avg' u ($0/60):1 via wr, wp, b, c, lamda
+fit f(x) 'b.dnums.align.avg' u ($0/60):1:2 via wr, wp, b, c, lamda
+plot 'b.dnums.align.avg' u ($0/60):1:2 w ye lt 4 lc 1 title "data at 420 K", f(x) lw 2 lc 1 title "fit"
+
+python3 ~/python/massf-prof.py -i traj_out.xtc -s conf.gro -m select.mass -select1 select.txt -select2 select2.txt -nbin 60 -axis 2 -o a.massf
+ python3 ~/python/savetxt-avg.py -i a.massf.align -tol 0 -b 2000
+
+plot 'a.massf.align.avg' u ($0/60):1:2 w ye
+f(x) = wp+0.5*(wr-wp)*(tanh((x-b+c)/lamda)-tanh((x-b-c)/lamda))
+wr=0.85;wp=0.15;b=0.5;c=0.23;lamda=0.1
+plot 'a.massf.align.avg' u ($0/60):1:2 w ye, f(x)
+fit f(x) 'a.massf.align.avg' u ($0/60):1 via wr, wp, b, c, lamda
+fit f(x) 'a.massf.align.avg' u ($0/60):1:2 via wr, wp, b, c, lamda
+plot 'a.massf.align.avg' u ($0/60):1:2 w ye lt 4 lc 1 title "data at 420 K", f(x) lw 2 lc 1 title "fit"
+

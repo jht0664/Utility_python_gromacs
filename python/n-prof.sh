@@ -9,6 +9,7 @@ fi
 
 peo_select="../../../ndx/peo.select"
 b_select="../../../ndx/b.select"
+#b_select="../../../ndx/tip4p.select"
 
 echo $peo_select
 if [ -f "$peo_select" ]
@@ -33,4 +34,5 @@ fi
 #~/anaconda3/bin/python3 ~/Utility/python/dens.py -select $b_select -bin $1 -onum b.nums -obin b.bins -o b.prob
 ~/anaconda3/bin/python3 ~/Utility/python/n-prof.py -select $peo_select -nbin $1 -onum peo.nums -obin peo.bins -o peo.prob
 ~/anaconda3/bin/python3 ~/Utility/python/n-prof.py -select $b_select -nbin $1 -onum b.nums -obin b.bins -o b.prob
-
+#~/anaconda3/bin/python3 ~/Utility/python/n-prof.py -select $peo_select -nbin $1 -onum peo.nums -obin peo.bins -o peo.prob
+#~/anaconda3/bin/python3 ~/Utility/python/n-prof.py -select $b_select -nbin $1 -onum w.nums -obin w.bins -o w.prob

@@ -21,7 +21,7 @@ parser.add_argument('-axis', '--axis', default=2, nargs='?',
 parser.add_argument('--nojump', action='store_true',
 	help='re-positioning (x,y,z) within an unit cell (option)')
 parser.add_argument('-onum', '--outputnumber', default='traj.nums', nargs='?', 
-	help='output file for number trajectory')
+	help='output file for number histogram trajectory')
 parser.add_argument('-obin', '--outputbin', default='traj.bins', nargs='?', 
 	help='output file for bin trajectory')
 parser.add_argument('-o', '--output', default='traj.nprob', nargs='?', 
@@ -175,7 +175,19 @@ if args.nojump:
 
 ## reduce 3d-coordinates to 1d-coordinates
 coordinates_1d = coordinates[:,:,args.axis]
-unit_cells_1d = unit_cells[:,args.axis]
+# gromace version
+if 'tpr' in args.structure and 'trr' in args.input:
+	unit_cells_1d = unit_cells[:,args.axis]
+# openmm version (pdb, dcd file)
+if 'pdb' in args.structure and 'dcd' in args.input:
+	if args.axis == 0:
+		unit_cells_1d = unit_cells[:,0]
+	elif args.axis == 1:
+		unit_cells_1d = unit_cells[:,2]
+	elif args.axis == 2:
+		unit_cells_1d = unit_cells[:,5]
+	else:
+		raise ValueError("wrong input of axis for histogram")
 
 # make 1D histograms every single frame using 1d-coordinates
 # input: x_t is 1d-coordinate of atoms along time (t1, t2, ...)
@@ -194,7 +206,7 @@ def histo_t_1d(x_t, box_x_t, bin_size, nbin, use_nbin):
 		raise ValueError("# of time frame is not the same for input arrarys")
 	# set number of bins (const) using input and initial box dimension
 	if use_nbin:
-		print("bin size = %d", box_x_t[0]/float(nbin))
+		print("bin size = %f" %(box_x_t[0]/float(nbin)))
 		n_bins = nbin
 	else:
 		n_bins = int(np.around(box_x_t[0]/bin_size))
@@ -219,7 +231,7 @@ print("===============================")
 import numpy as np
 np.savetxt(args.outputnumber, number_t_1d, fmt='%d')
 np.savetxt(args.outputbin, bin_t_1d)
-print("Finished saving files of number and bin trajectory")
+print("Finished saving files of number histogram and bin trajectory")
 
 # merge all arraylists to one arraylist in order to remove time info.
 # input: x_t is array along time (t1, t2, ...)
