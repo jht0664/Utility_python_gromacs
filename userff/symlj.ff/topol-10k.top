@@ -1,0 +1,14 @@
+; Include forcefield parameters
+#include "ffepm2aa.itp"
+#include "lj-a.itp"
+#include "lj-c.itp"
+
+[ system ]
+; Name
+lj-mix_10k
+
+[ molecules ]
+; Compound        #mols
+LJA  2000
+LJC  8000
+

@@ -1,0 +1,11 @@
+[ atomtypes ]
+; full atom descriptions are available in ffoplsaa.atp
+; name  bond_type    mass    charge   ptype          sigma      epsilon
+lj_001   A    1       39.950     0.00000       A    0.350400e+00  1.28874e+00
+lj_002   B    1       39.950     0.00000       A    0.350400e+00  1.49660e+00
+; epsilon/kb = 155 K -> epsilon = 155 * 1.38064852 * 10^-23 * 6.022140857 * 10^23 / 1000 =  (kJ/mol)
+
+[ nonbond_params ]
+;i j func V(c6) W(c12)
+lj_001 lj_002 1  0.35040e+00 1.11081e+00
+ 

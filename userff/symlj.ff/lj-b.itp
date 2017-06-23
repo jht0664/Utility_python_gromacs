@@ -1,0 +1,7 @@
+[ moleculetype ]
+; Name            nrexcl
+LJB             3
+
+[ atoms ]
+;   nr       type  resnr residue  atom   cgnr     charge       mass  typeB    chargeB      massB
+     1       lj_002       1     LJB       B       1  0.00000

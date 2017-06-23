@@ -27,6 +27,8 @@ cp $path$init$str1"/topol.tpr" ./
 #~/Utility/python/dn-auto-openmm.sh $3 $4 | tee dn-auto.log
 #~/Utility/python/massf-prof-openmm.sh $3 | tee massf.log
 
+# dnum avg
+
 # massf avg 
 #python ~/Utility/python/savetxt-avg.py -i peo.massf.align -b 7500 -tol $4 | tee massf-avg.log
 

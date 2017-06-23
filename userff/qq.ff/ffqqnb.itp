@@ -1,0 +1,17 @@
+[ atomtypes ]
+; name  bond_type    mass    charge   ptype          sigma      epsilon
+; originially the charges were 0.24 and 0.48, 
+; but due to the dimensionless number A=(e^2/4*PI*Permitivity_Vacuum) 678.6 written in the PRE paper
+; I converted to fit Gromacs (using the number, A = 138.936).
+qa_c1   qa_c1       0.00000   -1.0608       A    4.00000e+00  4.00000e+00 
+qb_c1   qb_c1       0.00000    1.0608       A    4.00000e+00  4.00000e+00
+qa_m1   qa_m1       1.00000    0.5304       A    0.00000e+00  0.00000e+00
+qa_m2   qa_m2       1.00000    0.5304       A    0.00000e+00  0.00000e+00
+qb_m1   qb_m1       1.00000   -0.5304       A    0.00000e+00  0.00000e+00
+qb_m2   qb_m2       1.00000   -0.5304       A    0.00000e+00  0.00000e+00
+
+[ nonbond_params ]
+; i j func V(c6) W(c12)
+; table_QA_QB inclues shift function on Van der Waals interactions.
+qa_c1   qb_c1      1       1.00000e+00  1.00000e+00 
+

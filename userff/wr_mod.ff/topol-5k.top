@@ -1,0 +1,14 @@
+; Include forcefield parameters
+#include "ffwr.itp"
+#include "lj-a.itp"
+#include "lj-b.itp"
+
+[ system ]
+; Name
+wr_lj-mix_5k
+
+[ molecules ]
+; Compound        #mols
+LJA  1024
+LJB  1024
+

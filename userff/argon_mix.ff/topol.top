@@ -1,0 +1,14 @@
+; Include forcefield parameters
+#include "ffepm2aa.itp"
+#include "arg1.itp"
+#include "arg2.itp"
+
+[ system ]
+; Name
+arg1_arg2
+
+[ molecules ]
+; Compound        #mols
+ARG1  1
+ARG2  1
+

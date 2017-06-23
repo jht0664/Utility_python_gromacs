@@ -1,8 +1,7 @@
 #!/bin/bash
 # make average 1d-number profile from .dnums file
 # $1 : begin frame
-# $2 : end frame
-# $3 : tolerance for block avg
+# $2 : tolerance for block avg
 i1="b"
 i2="peo"
 

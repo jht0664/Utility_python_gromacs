@@ -1,0 +1,8 @@
+[ moleculetype ]
+; Name            nrexcl
+QC               0
+
+[ atoms ]
+;   nr       type  resnr residue  atom   cgnr     charge       mass  typeB    chargeB      massB
+     1       qc      1     QC       C       1    ; 0.48000    0.00000
+

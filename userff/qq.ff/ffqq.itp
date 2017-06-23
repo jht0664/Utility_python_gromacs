@@ -1,0 +1,15 @@
+#define _FF_OPLS
+#define _FF_OPLSAA
+
+; This force field uses a format that requires Gromacs 3.1.4 or later.
+;
+; References for the quadrupolar molecules: 
+; CMasatoshi Toda, Shinji Kajimoto, Shuichi Toyouchi, Toshihiro Kawakatsu, Yohji Akama, Motoko Kotani, and Hiroshi Fukumura PHYSICAL REVIEW E 94, 052601 (2016)
+;
+
+[ defaults ]
+; nbfunc	comb-rule	gen-pairs	fudgeLJ	fudgeQQ
+1		1		no		0.0     0.0	
+
+#include "ffqqnb.itp"
+

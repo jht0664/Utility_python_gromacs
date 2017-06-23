@@ -1,0 +1,104 @@
+; Generalized AMBER force field (GAFF) in GROMACS Format
+; from amber16\dat\leap\parm\gaff.dat
+; by Hyuntae Jung, 3/12/2017
+
+[ atomtypes ]
+; If "MOD4 RE", Amber [Rmin[A]/2,epsilon[kcal/mol]] pairs to [sigma[nm],epsilon[kJ/mol]] 
+;  using sigma = (2^(-1/6))*Rmin/10 and epsilon[kJ] = epsilon[kcal]*523/125
+; for mixing rule, should use option type2.
+; name  bond_type    mass    charge   ptype          sigma      epsilon
+h1  1      1.008     0.000       A    2.47135E-01  6.56888E-02 ; Veenstra et al JCC,8,(1992),963 
+h2  1      1.008     0.000       A    2.29317E-01  6.56888E-02 ; Veenstra et al JCC,8,(1992),963 
+h3  1      1.008     0.000       A    2.11499E-01  6.56888E-02 ; Veenstra et al JCC,8,(1992),963 
+h4  1      1.008     0.000       A    2.51055E-01  6.27600E-02 ; Spellmeyer, one electrowithdr. neighbor
+h5  1      1.008     0.000       A    2.42146E-01  6.27600E-02 ; Spellmeyer, two electrowithdr. neighbor
+ha  1      1.008     0.000       A    2.59964E-01  6.27600E-02 ; Spellmeyer 
+hc  1      1.008     0.000       A    2.64953E-01  6.56888E-02 ; OPLS
+hn  1      1.008     0.000       A    1.06908E-01  6.56888E-02 ; Ferguson base pair geom.
+ho  1      1.008     0.000       A    0.00000E+00  0.00000E+00 ; OPLS Jorgensen, JACS,110,(1988),1657
+hp  1      1.008     0.000       A    1.06908E-01  6.56888E-02 ; same to hs (be careful !) 
+hs  1      1.008     0.000       A    1.06908E-01  6.56888E-02 ; W. Cornell CH3SH --> CH3OH FEP
+hw  1      1.008     0.000       A    0.00000E+00  0.00000E+00 ; OPLS Jorgensen, JACS,110,(1988),1657
+hx  1      1.008     0.000       A    1.95998E-01  6.56888E-02 ; Veenstra et al JCC,8,(1992),963
+o   8      16.00     0.000       A    2.95992E-01  8.78640E-01 ; OPLS
+oh  8      16.00     0.000       A    3.06647E-01  8.80314E-01 ; OPLS 
+os  8      16.00     0.000       A    3.00001E-01  7.11280E-01 ; OPLS ether
+ow  8      16.00     0.000       A    3.15075E-01  6.35968E-01 ; TIP3P water model
+c   6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+c1  6      12.01     0.000       A    3.39967E-01  8.78640E-01 ; cp C DLM 11/2007 well depth from OPLS replacing 0.0860
+c2  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; sp2 atom in the middle of C=CD-CD=C
+c3  6      12.01     0.000       A    3.39967E-01  4.57730E-01 ; OPLS
+ca  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+cc  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+cd  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+ce  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+cf  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+cg  6      12.01     0.000       A    3.39967E-01  8.78640E-01 ; DLM 12/2007 as c1
+ch  6      12.01     0.000       A    3.39967E-01  8.78640E-01 ; DLM 12/2007 as c1
+cp  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+cq  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+cu  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+cv  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+cx  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+cy  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+cz  6      12.01     0.000       A    3.39967E-01  3.59824E-01 ; OPLS
+n   7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+n1  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+n2  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+n3  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+n4  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+na  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+nb  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+nc  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+nd  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+ne  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+nf  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+nh  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+no  7      14.01     0.000       A    3.25000E-01  7.11280E-01 ; OPLS
+s   16     32.06     0.000       A    3.56359E-01  1.04600E+00 ; W. Cornell CH3SH and CH3SCH3 FEP's
+s2  16     32.06     0.000       A    3.56359E-01  1.04600E+00 ; W. Cornell CH3SH and CH3SCH3 FEP's
+s4  16     32.06     0.000       A    3.56359E-01  1.04600E+00 ; W. Cornell CH3SH and CH3SCH3 FEP's
+s6  16     32.06     0.000       A    3.56359E-01  1.04600E+00 ; W. Cornell CH3SH and CH3SCH3 FEP's
+sx  16     32.06     0.000       A    3.56359E-01  1.04600E+00 ; W. Cornell CH3SH and CH3SCH3 FEP's
+sy  16     32.06     0.000       A    3.56359E-01  1.04600E+00 ; W. Cornell CH3SH and CH3SCH3 FEP's
+sh  16     32.06     0.000       A    3.56359E-01  1.04600E+00 ; W. Cornell CH3SH and CH3SCH3 FEP's
+ss  16     32.06     0.000       A    3.56359E-01  1.04600E+00 ; W. Cornell CH3SH and CH3SCH3 FEP's
+p2  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+p3  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+p4  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+p5  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+pb  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+pc  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+pd  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+pe  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+pf  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+px  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+py  15     30.97     0.000       A    3.74177E-01  8.36800E-01 ; JCC,7,(1986),230; 
+f   9      19.00     0.000       A    3.11815E-01  2.55224E-01 ; Gough et al. JCC 13,(1992),963.
+cl  17     35.45     0.000       A    3.47094E-01  1.10876E+00 ; Fox, JPCB,102,8070,(98),flex.mdl CHCl3
+br  35     79.90     0.000       A    3.59923E-01  1.75728E+00 ; Junmei, 2010
+i   53     126.9     0.000       A    3.83086E-01  2.09200E+00 ; Junmei, 2010
+;; added from amber99sb.ff
+;; following are from gromacs v5.1.4 source folder
+HW           1       1.008   0.0000  A   0.00000e+00  0.00000e+00
+Cl          17      35.45    0.0000  A   4.40104e-01  4.18400e-01
+Na          11      22.99    0.0000  A   3.32840e-01  1.15897e-02
+OW           8      16.00    0.0000  A   3.15061e-01  6.36386e-01
+; spc water - use only with spc.itp & settles
+OW_spc       8      15.9994  0.0000  A   3.16557e-01  6.50629e-01
+HW_spc       1       1.0080  0.0000  A   0.00000e+00  0.00000e+00
+Li           3       6.94    0.0000  A   2.02590e-01  7.65672e-02
+Zn          30      65.4     0.0000  A   1.95998e-01  5.23000e-02
+;tip4p-EW
+HW_tip4pew   1       1.008   0.0000  A   0.00000e+00  0.00000e+00
+OW_tip4pew   8      16.00    0.0000  A   3.16435e-01  6.80946e-01
+; tip4p
+HW_tip4p     1       1.008   0.0000  A   0.00000e+00  0.00000e+00
+OW_tip4p     8      16.00    0.0000  A   3.15365e-01  6.48520e-01
+;tip5p
+HW_tip5p     1       1.008   0.0000  A   0.00000e+00  0.00000e+00
+OW_tip5p     8      16.00    0.0000  A   3.12000e-01  6.69440e-01
+; dummy defs
+; MW=Dummy mass for tip4p/EW/5p water extra point charge
+MW           0       0.0000  0.0000  D   0.00000e+00  0.00000e+00
+

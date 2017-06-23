@@ -1,0 +1,14 @@
+; Include forcefield parameters
+#include "ffsymlj.itp"
+#include "lj-a.itp"
+#include "lj-c.itp"
+
+[ system ]
+; Name
+sym_lj-mix_5k
+
+[ molecules ]
+; Compound        #mols
+LJA  2500
+LJB  2500
+

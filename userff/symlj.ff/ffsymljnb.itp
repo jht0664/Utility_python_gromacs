@@ -1,0 +1,6 @@
+[ atomtypes ]
+; name  bond_type    mass    charge   ptype          sigma      epsilon
+lj_001   A    1       1.00000     0.00000       A    1.00000e+00  1.00000e+00
+lj_002   B    1       1.00000     0.00000       A    1.00000e+00  1.00000e+00
+lj_003   C    1       1.00000     0.00000       A    1.00000e+00  1.00000e+00
+

@@ -1,0 +1,16 @@
+#define _FF_GAFF
+#define _FF_GAFFAA
+
+; This force field uses a format that requires Gromacs 3.1.4 or later.
+;
+
+#define _FF_AMBER
+#define _FF_GAFF
+
+[ defaults ]
+; nbfunc	comb-rule	gen-pairs	fudgeLJ	fudgeQQ
+1		2		yes		0.5	0.8333
+
+#include "ffnonbonded.itp"
+#include "ffbonded.itp"
+

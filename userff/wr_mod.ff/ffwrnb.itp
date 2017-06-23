@@ -1,0 +1,10 @@
+[ atomtypes ]
+; name  bond_type    mass    charge   ptype          sigma      epsilon
+lj_001   lj_001    1.00000     0.00000       A    0.00000e+00  0.00000e+00
+lj_002   lj_002    1.00000     0.00000       A    0.00000e+00  0.00000e+00
+
+[ nonbond_params ]
+; i j func V(c6) W(c12)
+lj_001   lj_001      1       0.00000e+00  0.00000e+00
+lj_001   lj_002      1       0.00000e+00  1.00000e+00
+lj_002   lj_002      1       0.00000e+00  0.00000e+00

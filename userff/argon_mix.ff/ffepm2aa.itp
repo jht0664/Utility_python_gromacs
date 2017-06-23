@@ -1,0 +1,17 @@
+#define _FF_OPLS
+#define _FF_OPLSAA
+
+; This force field uses a format that requires Gromacs 3.1.4 or later.
+;
+; References for the EPM2 force field: 
+; J. G. Harris and K. H. Yung, J. Phys. Chem. 99, 12021 (1995)
+;
+
+[ defaults ]
+; nbfunc	comb-rule	gen-pairs	fudgeLJ	fudgeQQ
+1		2		no			
+; comb-rule 2 means Lorentz-Berthelot rules
+
+#include "ffepm2aanb.itp"
+;#include "ffepm2aabon.itp"
+

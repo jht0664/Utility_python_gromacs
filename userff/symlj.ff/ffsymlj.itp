@@ -1,0 +1,15 @@
+#define _FF_OPLS
+#define _FF_OPLSAA
+
+; This force field uses a format that requires Gromacs 3.1.4 or later.
+;
+; References for the symmetrical Lennard-Jones binary mixture force field: 
+; F. J. Martínez-Ruiz, A. I. Moreno-Ventas Bravo, and F. J. Blas, J. Chem. Phys. 143, 104706 (2015)
+;
+
+[ defaults ]
+; nbfunc	comb-rule	gen-pairs	fudgeLJ	fudgeQQ
+1		1		no		0.0     0.0	
+
+#include "ffsymljnb.itp"
+

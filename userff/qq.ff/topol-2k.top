@@ -1,0 +1,14 @@
+; Include forcefield parameters
+#include "ffqq.itp"
+#include "qa.itp"
+#include "qb.itp"
+
+[ system ]
+; Name
+qq_mix_2k
+
+[ molecules ]
+; Compound        #mols
+QA  1024
+QB  1024
+
