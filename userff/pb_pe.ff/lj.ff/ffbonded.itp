@@ -1,0 +1,15 @@
+; On the Scaling of the Critical Solution Temperature of Binary Polymer Blends with Chain Length
+; Fernando A. Escobedo and Juan J. de Pablo
+; Macromolecules, 1999, 32 (3), pp 900–910  
+; DOI: 10.1021/ma9812276
+; by Hyuntae Jung, 6/16/2017
+
+[ constrainttypes ]
+   A    A  1    0.96000
+   B    B  1    0.96000
+
+[ bondtypes ]
+   A    A  1    0.96000 1000
+   B    B  1    0.96000 1000
+
+
