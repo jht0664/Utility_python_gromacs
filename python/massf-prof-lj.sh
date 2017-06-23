@@ -2,10 +2,10 @@
 # make trajectory using index file 
 # $1 : nbins
 
-a_select="../../ndx/a.select"
-b_select="../../ndx/b.select"
-mass_info="../../ndx/select.mass"
-mass_info2="../../ndx/select.mass2"
+a_select="../../../ndx/a.select"
+b_select="../../../ndx/b.select"
+mass_info="../../../ndx/select.mass"
+mass_info2="../../../ndx/select.mass2"
 
 echo $a_select
 if [ -f "$a_select" ]
@@ -35,6 +35,6 @@ fi
 ## extract trajectory
 ## for bin size
 python3 ~/Utility/python/massf-prof.py -i traj.trr -s topol.tpr -m $mass_info -select1 $a_select -select2 $b_select -nbin $1 -axis 2 -o a.massf 
-python3 ~/Utility/python/massf-prof.py -i traj.trr -s topol.tpr -m $mass_info2 -select1 $b_select -select2 $a_select -nbin $1 -axis 2 -o b.massf
+#python3 ~/Utility/python/massf-prof.py -i traj.trr -s topol.tpr -m $mass_info2 -select1 $b_select -select2 $a_select -nbin $1 -axis 2 -o b.massf
 
 

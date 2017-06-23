@@ -3,8 +3,8 @@
 # $1 : nbins
 # $2 : tolerance
 
-a_select="../../ndx/a.select"
-b_select="../../ndx/b.select"
+a_select="../../../ndx/a.select"
+b_select="../../../ndx/b.select"
 
 echo $a_select
 if [ -f "$a_select" ]
