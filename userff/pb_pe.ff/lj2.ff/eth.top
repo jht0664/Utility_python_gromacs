@@ -1,0 +1,68 @@
+
+[ moleculetype ]
+; Name            nrexcl
+Ethane         3
+
+[ atoms ]
+;   nr       type  resnr residue  atom   cgnr     charge       mass  typeB    chargeB      massB
+     1         c3      1   ETH     CA      1     0.0000      12.01   ; 
+     2         hc      1   ETH   HCA1      2     0.0000      1.008   ; 
+     3         hc      1   ETH   HCA2      3     0.0000      1.008   ; 
+     4         hc      1   ETH   HCA3      4     0.0000      1.008   ; 
+     5         c3      1   ETH     CB      5     0.0000      12.01   ; 
+     6         hc      1   ETH   HCB1      6     0.0000      1.008   ;
+     7         hc      1   ETH   HCB2      7     0.0000      1.008   ;
+     8         hc      1   ETH   HCB3      8     0.0000      1.008   ;
+
+
+[ bonds ]
+;  ai    aj funct            c0            c1            c2            c3
+    1     2     1 
+    1     3     1 
+    1     4     1 
+    1     5     1 
+    5     6     1
+    5     7     1
+    5     8     1
+
+
+[ pairs ]
+;  ai    aj funct            c0            c1            c2            c3
+    2     6     1 
+    2     7     1 
+    2     8     1 
+    3     6     1 
+    3     7     1 
+    3     8     1 
+    4     6     1 
+    4     7     1 
+    4     8     1 
+
+[ angles ]
+;  ai    aj    ak funct            c0            c1            c2            c3
+    2     1     3     1 
+    2     1     4     1 
+    2     1     5     1 
+    3     1     4     1 
+    3     1     5     1 
+    4     1     5     1 
+    1     5     6     1
+    1     5     7     1
+    1     5     8     1
+    6     5     7     1
+    6     5     8     1
+    7     5     8     1
+
+[ dihedrals ]
+;  ai    aj    ak    al funct            c0            c1            c2            c3            c4            c5
+    2     1     5     6     9 
+    2     1     5     7     9 
+    2     1     5     8     9 
+    3     1     5     6     9 
+    3     1     5     7     9 
+    3     1     5     8     9 
+    4     1     5     6     9 
+    4     1     5     7     9 
+    4     1     5     8     9 
+    
+  

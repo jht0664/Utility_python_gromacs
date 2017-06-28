@@ -23,6 +23,9 @@ def reduce_unitcells_3d_to_1d(unit_cells, axis, structure, trajectory):
 	if 'tpr' in structure and 'trr' in trajectory:
 		print("We assume the input files are from Gromacs.")
 		return unit_cells[:,axis]
+	elif 'gro' in structure and 'trr' in trajectory:
+		print("We assume the input files are from Gromacs.")
+		return unit_cells[:,axis]
 	# openmm version
 	elif 'pdb' in structure and 'dcd' in input:
 		print("We assume the input files are from OpenMM.")

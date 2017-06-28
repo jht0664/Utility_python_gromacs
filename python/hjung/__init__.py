@@ -1,2 +1,2 @@
-__all__ = ['io', 'coord', 'array', 'analyze', 'extraClass']
+__all__ = ['io', 'coord', 'array', 'analyze', 'extraClass', 'blockavg']
 

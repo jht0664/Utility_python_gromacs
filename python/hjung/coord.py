@@ -75,7 +75,7 @@ def dist_beyond_box(unit_t, select_dist):
 # output: box_avg, box_std  
 # Example: box_avg, box_std = box_1d(box_1d)
 def box_1d(box_1d):
-	print("Analyzing ....")
+	print("coord.box_1d: ")
 	import numpy as np
 	box_avg = np.mean(box_1d)
 	box_std = np.std(box_1d)

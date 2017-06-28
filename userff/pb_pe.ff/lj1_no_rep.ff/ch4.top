@@ -1,0 +1,28 @@
+
+[ moleculetype ]
+; Name            nrexcl
+Methane         3
+
+[ atoms ]
+;   nr       type  resnr residue  atom   cgnr     charge       mass  typeB    chargeB      massB
+     1         c3      1   MET     CA      1     0.0000      12.01   ; 
+     2         hc      1   MET   HCA1      2     0.0000      1.008   ; 
+     3         hc      1   MET   HCA2      3     0.0000      1.008   ; 
+     4         hc      1   MET   HCA3      4     0.0000      1.008   ; 
+     5         hc      1   MET   HCA4      5     0.0000      1.008   ; 
+
+[ bonds ]
+;  ai    aj funct            c0            c1            c2            c3
+    1     2     1 
+    1     3     1 
+    1     4     1 
+    1     5     1 
+
+[ angles ]
+;  ai    aj    ak funct            c0            c1            c2            c3
+    2     1     3     1 
+    2     1     4     1 
+    2     1     5     1 
+    3     1     4     1 
+    3     1     5     1 
+    4     1     5     1 

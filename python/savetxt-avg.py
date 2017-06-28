@@ -19,12 +19,18 @@ parser.add_argument('-o', '--output', default='INPUT.avg', nargs='?',
 parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1')
 # read args
 args = parser.parse_args()
+
+## import modules
+import hjung
+from hjung import *
+import numpy as np
+
 # default for args
 if args.output is 'INPUT.avg':
 	args.output = args.input+'.avg'
 args.begin = int(args.begin)
 args.end = int(args.end)
-args.tol = float(args.tol)
+args.tol = hjung.blockavg.default(args.tol, 0.0)
 
 ## Check arguments for log
 print("===============================")
@@ -34,12 +40,7 @@ if args.end != -1:
 	print("index of end frame = ", args.end)
 else:
 	print("Set end frame is the end.")
-if args.tol == 0.0:
-	print("Set no bloack average")
-elif args.tol <= 1.0: 
-	print("tolerance for block average = %f" %args.tol)
-elif args.tol > 1.0:
-	print("set block length = %d" %(int(args.tol)))
+hjung.blockavg.print_init(args.tol)
 print("output filename = ", args.output)
 
 ## timer
@@ -47,18 +48,8 @@ import time
 start_clock = time.clock() # process time
 start_wall = time.time() # wall time
 
-## import modules
-import hjung
-from hjung import *
-import numpy as np
-
 ## check argument
-if args.tol < 0.0:
-	raise ValueError("wrong input of tolerance, %f" %args.tol)
-elif args.tol >= 1.0: 
-	print("Warning: tolerance %f is assigned to block_size, %d" %(args.tol, int(args.tol)))
-else:
-	print("="*30)
+args.tol = hjung.blockavg.check(args.tol)
 
 ## read input file
 print("="*30)
@@ -72,11 +63,9 @@ else:
 	data_1d_t = data_1d_t[args.begin:args.end]
 print("Done: reading input file")
 
-## block average
+## block average to get stable volume (or number density)
 print("="*30)
-block_length = hjung.analyze.opt_block_length_1d_t(data_1d_t,args.tol) 
-data_1d_t = hjung.analyze.block_average_1d(data_1d_t,block_length)
-print("Done: Block average")
+data_1d_t, block_length = hjung.blockavg.main_1d(data_1d_t, None, args.tol) 
 
 ## make average and std
 # use numpy.mean(array,axis=0) to avoid transpose cost

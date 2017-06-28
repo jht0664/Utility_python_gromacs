@@ -130,6 +130,19 @@ def rdf_cut_dt(group1_coord, group2_coord, box, cutoff):
 	print('%d interactions are found' % n_dist)
 	return output[0:n_dist]
 
+# The best way to get all the divisors of a number
+# http://stackoverflow.com/questions/171765/what-is-the-best-way-to-get-all-the-divisors-of-a-number
+def divisors(number):
+	n = 1
+	list_n = []
+	while(n<number):
+		if(number%n==0):
+			list_n.append(n)
+		else:
+			pass
+		n += 1
+	return list_n
+
 # get the optimum block length for block average using tolerance of std of data
 # all averages of blocks should be less than (average of total data +- tolerance*std)
 # input: data_1d is 1D-data trajectory
@@ -140,6 +153,7 @@ def rdf_cut_dt(group1_coord, group2_coord, box, cutoff):
 # Assume: if mod(length of data, block_length) != 0, only last trajectory is considered, not beginning.
 def opt_block_length_1d(data_1d, tolerance):
 	import numpy as np
+	print("# will be removed later")
 
 	#print("opt_block_length_1d: ")
 	
@@ -207,19 +221,6 @@ def opt_block_length_1d(data_1d, tolerance):
 		#print(" -> After bloack average = %f +- %f " %(out_avg,out_std))
 		return opt_block_length
 
-# The best way to get all the divisors of a number
-# http://stackoverflow.com/questions/171765/what-is-the-best-way-to-get-all-the-divisors-of-a-number
-def divisors(number):
-	n = 1
-	list_n = []
-	while(n<number):
-		if(number%n==0):
-			list_n.append(n)
-		else:
-			pass
-		n += 1
-	return list_n
-
 # get the optimum block length for block average using tolerance of std of data
 # all averages of blocks should be less than (average of total data +- tolerance*std)
 # input: data_1d is 1D-data trajectory
@@ -229,7 +230,7 @@ def divisors(number):
 # Example: opt_block_length = opt_block_length_1d(unit_cell_1d, tolerance)
 # Assume: if mod(length of data, block_length) != 0, only last trajectory is considered, not beginning.
 def opt_block_length_1d_t(data_1d_t, tolerance):
-	print("opt_block_length_1d_t: ")
+	print("opt_block_length_1d_t: # will be removed later")
 	import numpy as np
 	if tolerance > 0.0 and tolerance <= 1.0:
 		print("optimize block length under tolerance")
@@ -258,10 +259,10 @@ def opt_block_length_1d_t(data_1d_t, tolerance):
 # Assume: data_t matrix size is homogeneous. In other words, all element array in data_t is the same size
 def block_average_1d(data_t, block_length):
 	import numpy as np
-	print("block_average_1d: ")
+	print("block_average_1d: # will be removed later")
 	
 	if block_length == 1: # no block average
-		print("No block average")
+		print(" No block average")
 		return data_t
 	
 	nitems = len(data_t[0])

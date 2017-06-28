@@ -1,0 +1,11 @@
+; by Hyuntae Jung, 6/16/2017
+
+[ atomtypes ]
+; atomname atomnumber mass charge ptype sigma epsilon
+A  1    1.00000  0.00000  A  1.00000 1.00000
+B  1    1.00000  0.00000  A  1.00000 1.00000
+
+[ nonbond_params ]
+; i j func V(c6) W(c12)
+A   B      1       1.00000e+00  0.90000e+00
+

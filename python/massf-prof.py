@@ -2,6 +2,7 @@
 # ver 0.1 - coding python by Hyuntae Jung on 02/25/2017
 # ver 0.2 - support pdb and dcd files for openmm on 5/8/2017
 # ver 0.3 - support xtc trajectory files for Monte Carlo using "reduce_unitcells_3d_to_1d" on 6/6/2017
+# ver 0.4 - support block average module on 6/26/2017
 
 import argparse
 parser = argparse.ArgumentParser(
@@ -20,13 +21,21 @@ parser.add_argument('-select2', '--select2', nargs='?',
 	help='a file2 with a command-line for select_atoms in MDAnalysis')
 parser.add_argument('-nbin', '--nbin', nargs='?', 
 	help='number of bins, otherwise we use the bin size')
+parser.add_argument('-tol', '--tol', default=0.0, nargs='?', 
+	help='tolerance for block average (> 0 and < 1). (recommend 1.0 for 1st trial). If 0, no block average. If > 1, # frames to average')
 parser.add_argument('-axis', '--axis', default=2, nargs='?', 
 	help='which axis for histogram (x axis (0), y axis (1), z axis (2))')
 parser.add_argument('-o', '--output', default='traj.massf', nargs='?', 
 	help='output prefix for unalign and align mass1 fraction trajectory')
-parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1')
+parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.4')
 # read args
 args = parser.parse_args()
+
+## import modules
+import hjung
+from hjung import *
+import numpy as np
+
 # default for args
 args.input = args.input if args.input is not None else 'traj.trr'
 args.structure = args.structure if args.structure is not None else 'topol.tpr'
@@ -35,6 +44,7 @@ args.oalign = args.output + '.align'
 args.axis = args.axis if args.axis is not None else 2
 args.axis = int(args.axis)
 args.nbin = int(args.nbin)
+args.tol = hjung.blockavg.default(args.tol, 0.0)
 
 ## Check arguments for log
 print("===============================")
@@ -43,6 +53,7 @@ print("str filename     = ", args.structure)
 print("mass info filename = ", args.mass)
 print("select1 filename  = ", args.select1)
 print("select2 filename  = ", args.select2)
+hjung.blockavg.print_init(args.tol)
 print("number of bins   = ", args.nbin)
 print("axis [0:2]       = ", args.axis)
 print("output mass frac filename  = ", args.output)
@@ -51,11 +62,7 @@ print("output align mass frac filename  = ", args.oalign)
 ## check vaulable setting
 if args.axis < 0 or args.axis > 2:
 	raise ValueError("wrong input of axis for histogram")
-
-## import modules
-import hjung
-from hjung import *
-import numpy as np
+args.tol = hjung.blockavg.check(args.tol)
 
 ## timer
 import time
@@ -73,9 +80,9 @@ coordinates2_1d = coordinates2[:,:,args.axis]
 unit_cells_1d = hjung.array.reduce_unitcells_3d_to_1d(unit_cells, args.axis, args.structure, args.input)
 
 box_axis_avg, box_axis_std = hjung.coord.box_1d(unit_cells_1d)
-print("box length avg = %f" %box_axis_avg)
-print("bin size avg = %f" %(box_axis_avg/float(args.nbin)))
-print("box length std = %f" %box_axis_std)
+print(" box length avg = %f" %box_axis_avg)
+print(" bin size avg = %f" %(box_axis_avg/float(args.nbin)))
+print(" box length std = %f" %box_axis_std)
 
 ## number histograms for each frame 
 print("="*30)
@@ -111,9 +118,16 @@ mass2_1d_t = number2_1d_t*mw[1]/divider[1]
 #print("mass2_1d_t %s" %mass2_1d_t)
 massfrac_1d_t = mass1_1d_t/(mass1_1d_t+mass2_1d_t)
 #print("massfrac_1d_t %s" %massfrac_1d_t)
+
+## block average
+print("="*30)
+massfrac_1d_t, block_length = hjung.blockavg.main_1d(massfrac_1d_t, unit_cells_1d, args.tol) 
+
+## save number histogram trajectory
 np.savetxt(args.output, massfrac_1d_t, 
-	header='[%d, %d], mass1 fraction by ACF and molecules in nbins, %d' \
+	header='[%d, %d], mass1 fraction by molecules in nbins, %d' \
 	%(len(mass1_1d_t),args.nbin,args.nbin), fmt='%f', comments='# ')
+
 ## Align mass fractions using autocorrelation function
 acf_1d_t_wrap = hjung.analyze.autocorr_1d_t(massfrac_1d_t, 'wrap') 
 align_massfrac_1d_t =  hjung.analyze.align_acf(massfrac_1d_t, acf_1d_t_wrap, 'wrap') 
