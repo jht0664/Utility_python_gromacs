@@ -183,3 +183,31 @@ def read_coord_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1
 				print("may be in NPT ensemble")
 				
 	return coordinates1, coordinates2, unit_cells
+
+# rename the existing filename if the filename already exists
+# input: filename is a filename what you want to rename if the filename already exists 
+# Example: rename_existing_file("../../fit.plot")
+# ref: http://code.activestate.com/recipes/578116-move-files-with-rename-if-required/
+def rename_existing_file(filename):
+	import sys, os
+	print('backup_existing_file:')
+
+	if not os.path.exists(filename):
+		print(" %s does not exist." %filename)
+		return
+	# get info
+	dirname = os.path.dirname(filename)
+	basename = os.path.basename(filename) # basename is a fiilname excluding path. e.g. ../../fit.plot -> fit.plot
+	head, tail = os.path.splitext(basename) # head = fit, tail = .plot
+	#dst_file = os.path.join(dst_dir, basename) # dst_dir is target folder path
+
+	# find better filename (= filename2)
+	filename2 = filename
+	count = 0
+	while os.path.exists(filename2):
+		filename2 = os.path.join(dirname, '{0}.{1}{2}'.format(head, count, tail))
+		count += 1
+	print(" rename {0} to {1}".format(filename,filename2))
+	os.rename(filename, filename2)
+
+
