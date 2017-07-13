@@ -76,9 +76,10 @@ def overlap(new_index,coordinates,nmola,distance,box):
 	import numpy as np
 	for i in range(nmola):
 		dxyz = coordinates[i] - coordinates[new_index]
-		dxyz = dxyz - box * np.floor(dxyz/box)
+		dxyz = dxyz - box * np.around(dxyz/box)
 		if np.linalg.norm(dxyz) < distance:
 			return 1 # overlap!
+	#print("avoid overlap {}".format(new_index))
 	return 0 # success for insertion
 
 print("="*30)
@@ -130,6 +131,8 @@ if args.maxtry > 0:
 		dist = 0.5*(args.sizea + args.sizeb)
 		success = overlap(curr_index,coordinates,args.nmola,dist,box)
 		if success == 0:
+			#print("succees {0}".format(curr_index))
+			#print("succees {} {} {}".format(coordinates[curr_index][0],coordinates[curr_index][1],coordinates[curr_index][2]))
 			curr_index = curr_index + 1
 		ntry = ntry + 1
 else:
@@ -221,14 +224,17 @@ elif args.format == 'GRO':
 elif args.format == 'MC':
 	# fortran MC version 'composite.ic'
 	output_file = open(args.output, 'w')
-	output_file.write('{}  #NUMBER OF B particle \n'.format(args.nmolb))
-	output_file.write('{}  #NUMBER OF A particle \n'.format(args.nmola))
-	output_file.write('{}  #SIZE OF B \n'.format(args.sizeb))
+	output_file.write('{} {} #NUMBER OF A particle \n'.format(args.nmola, 1))
+	output_file.write('{} {} #NUMBER OF B particle \n'.format(args.nmolb, 1))
 	output_file.write('{}  #SIZE OF A \n'.format(args.sizea))
+	output_file.write('{}  #SIZE OF B \n'.format(args.sizeb))
 	output_file.write('{} {} {}  # BOX SIZE \n'.format(box[0],box[1],box[2]))
 	# coordinates of A, then B
 	for i in range(ntot):
-		output_file.write('{} {} {} {} {}\n'.format(i,i,coordinates[i][0],coordinates[i][1],coordinates[i][2]))
+		if i < args.nmola:
+		  output_file.write('{} {} A {} {} {}\n'.format(i,i,coordinates[i][0],coordinates[i][1],coordinates[i][2]))
+		else:
+		  output_file.write('{} {} B {} {} {}\n'.format(i,i,coordinates[i][0],coordinates[i][1],coordinates[i][2]))
 	output_file.close()
 else:
 	raise RuntimeError("Sometime wrong!")
