@@ -2,7 +2,6 @@ SUBROUTINE gr12_init
   use rdf, only: nbin, gr12
   IMPLICIT NONE
   integer :: ierr
-
   write(*,*) "gr12_init: "
   allocate(gr12(nbin),stat=ierr)
   gr12 = 0.0D0
@@ -18,6 +17,7 @@ SUBROUTINE gr12_cal
   integer :: i, k, kbin
   double precision :: dxo, dyo, dzo, dx, dy, dz, dist
   double precision :: rhot, const, x1, x2, rlower, rupper, rideal, vol12
+  DOUBLE PRECISION, PARAMETER :: pi=3.141592653589793D0
 
 !  write(*,*) "gr12_cal: "
   ndum = 0
@@ -62,9 +62,9 @@ END SUBROUTINE gr12_cal
 SUBROUTINE gr12_save(filename, naver)
   use rdf
   IMPLICIT NONE
-  CHARACTER(LEN=100) :: filename
+  CHARACTER(LEN=*) :: filename
   integer :: i, naver
-  double precision :: distr, gdiff
+  double precision :: distr
 
   write(*,*) "gr12_save: "
   ! save g(r)_12.out

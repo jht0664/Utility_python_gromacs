@@ -1,142 +1,187 @@
 ! initilize movement types
-SUBROUTINE movetype_init
+SUBROUTINE movetype_init()
   use movetype
   IMPLICIT NONE
   integer :: ierr
   write(*,*) "movetype_init:"
-  ALLOCATE(movetype_prob(nmovetypes), stat=ierr)
-  ALLOCATE(movetype_ntry(nmovetypes), stat=ierr)
-  ALLOCATE(movetype_nsuccess(nmovetypes), stat=ierr)
+  ALLOCATE(movetype_name(nmovetypes),movetype_prob(nmovetypes),movetype_ntry(nmovetypes),movetype_nsuccess(nmovetypes),stat=ierr)
+  call print_over_memory(ierr)
+  movetype_name = ""
   movetype_prob = 0.0D0
   movetype_ntry = 0
   movetype_nsuccess = 0
 END SUBROUTINE
 
+! initilize movement types
+SUBROUTINE movetype_set_ensemble(name)
+  use movetype
+  use coupling_pres
+  use coupling_exch
+  IMPLICIT NONE
+  CHARACTER(LEN=5) :: name
+  integer :: ind_str
+
+  write(*,*) "movetype_set_ensemble:"
+  ensemble_temp = .False.
+  ensemble_pres = .False.
+  ensemble_exch = .False.
+  name = adjustl(name)
+  
+  nmovetypes = 0
+  IF (scan(name,"T") /= 0) THEN ! if ensemble_name contain "T"
+    ensemble_temp = .True.
+    write(*,*) " Turn on temperature coupling."
+    nmovetypes = nmovetypes + 1
+  ENDIF
+  If (scan(name,"P") /= 0) THEN
+    ensemble_pres = .True.
+    nmovetypes = nmovetypes + 1
+    if (scan(name,"Z") /= 0) THEN
+      semiiso = 3
+      write(*,*) " Turn on semiisotropic pressure coupling on z-direction."
+    else
+      semiiso = 0
+      write(*,*) " Turn on isotropic pressure coupling."
+    endif
+  ENDIF
+  IF (scan(name,"X") /= 0) THEN
+    ensemble_exch = .True.
+    nmovetypes = nmovetypes + 1
+    ind_str = scan(name,"X")+1
+    exch_comp = name(ind_str:ind_str)
+    write(*,*) " Turn on exchange identity coupling based on the component, ", exch_comp
+  ENDIF
+  if (nmovetypes == 0) THEN
+    WRITE(*,*) " no coupling? because of your ", name, " ensemble."
+    STOP
+  ENDIF
+  write(*,*) " total #couplings = ", nmovetypes
+  return
+END SUBROUTINE movetype_set_ensemble
+
+SUBROUTINE movetype_read(fileunit)
+  use movetype
+  use trans
+  use coupling_pres
+  use coupling_exch
+
+  IMPLICIT NONE
+  CHARACTER(len=5) :: coupling
+  integer :: fileunit, i, j, ierr
+  double precision :: temp, tprob
+
+  write(*,*) "movetype_read:"
+  do i=1, nmovetypes
+    read(fileunit,*) coupling
+    write(*,*) coupling
+    ! translation
+    if (trim(coupling) == 'trans') THEN
+      movetype_name(i) = 'trans'
+      read(fileunit,*) movetype_prob(i), dlr_a, dlr_b ! probability, translation increment for components
+      write(*,'(A8,1X,3(F10.5))') " trans = ",movetype_prob(i), dlr_a, dlr_b
+      cycle
+    ! pressure coupling
+    else if (trim(coupling) == 'press') THEN
+      movetype_name(i) = 'press'
+      read(fileunit,*) movetype_prob(i), press_val, dvx, temp ! probability, pressure, volume change, temperature
+      write(*,'(A8,1X,4(F10.5))') " press = ", movetype_prob(i), press_val, dvx, temp
+      tinv = 1.0/temp
+      cycle
+    ! pressure coupling
+    else if (trim(coupling) == 'exch') THEN
+      movetype_name(i) = 'exch'
+      read(fileunit,*) movetype_prob(i), xi_val, exch_ncomp ! probability, xi value, number of component
+      write(*,'(A8,1X,2(F10.5),I5)') " exch = ", movetype_prob(i), xi_val, exch_ncomp
+      if(exch_ncomp <= 1) then
+        write(*,*) " exch_ncomp should be greater than one component"
+        stop
+      else if (xi_val >= 1.0) then
+        write(*,*) " xi_val, fugacity ratio, should be less than one"
+        stop
+      end if
+      log_xi2_of_xi1 = dlog(xi_val/(1.0D0-xi_val))
+      ALLOCATE(exch_tcomp(exch_ncomp),stat=ierr)
+      read(fileunit,*) (exch_tcomp(j), j=1, exch_ncomp)
+      write(*,*) " component => ", (exch_tcomp(j), j=1, exch_ncomp)
+      write(*,*) " From your setting, component change xi_(", exch_comp, &
+                "), attempts from species ", exch_tcomp(1), " to species ", exch_tcomp(2)
+      write(*,*) "which gives m = -1. Otherwise, m = 1"
+      write(*,*) "(in other words, ", exch_comp, " is the same as ", exch_tcomp(1)
+      cycle
+    else
+      write(*,*) " wrong some lines"
+      stop
+    endif
+  enddo
+  tprob = 0.0
+  do i=1, nmovetypes
+    tprob = tprob + movetype_prob(i)
+  enddo
+  if (tprob /= 1.0) then
+    write(*,*) " total probability is not 1, ", tprob, ". check your input file."
+    stop
+  endif
+  return
+END SUBROUTINE movetype_read
+
 ! exit movetype
 SUBROUTINE movetype_exit
   use movetype
+  use coupling_exch
   IMPLICIT NONE
   integer :: ierr
   write(*,*) "movetype_exit:"
+  DEALLOCATE(movetype_name,stat=ierr)
   DEALLOCATE(movetype_prob,stat=ierr)
   DEALLOCATE(movetype_ntry,stat=ierr)
   DEALLOCATE(movetype_nsuccess,stat=ierr)
+  if (ensemble_exch) DEALLOCATE(exch_tcomp,stat=ierr)
 END SUBROUTINE movetype_exit
 
-! try movement
-SUBROUTINE try_move(imol,itype)
-  use pos, only: typs
-  use movetype
-  use try
-  use ints
-  IMPLICIT NONE
-  integer :: imol, itype, array_size, ierr
-  logical :: success
-
-!  write(*,*) "try_move:"
-  if( itype > nmovetypes) THEN
-    write(*,*) "wrong itype argument."
-    STOP
-  endif
-
-  if (typs(imol) == "A") THEN
-    array_size = nmon_a
-  else
-    array_size = nmon_b
-  endif
-  ALLOCATE(xitr(array_size), stat=ierr)
-  ALLOCATE(yitr(array_size), stat=ierr)
-  ALLOCATE(zitr(array_size), stat=ierr)
-  ALLOCATE(titr(array_size), stat=ierr)
-    
-  movetype_ntry(itype) = movetype_ntry(itype) + 1
-  if (itype == 1) THEN
-    call tran(imol,success)
-  endif
-!  write(*,*) "B"
-  if(success) then
- !   write(*,*) "success"
-    movetype_nsuccess(itype) = movetype_nsuccess(itype) + 1
-    !call energy_update
-    call cellmap_update(imol)
-!    write(*,*) "success update"
-  endif
-  DEALLOCATE(xitr)
-  DEALLOCATE(yitr)
-  DEALLOCATE(zitr)
-  DEALLOCATE(titr)
-
-END SUBROUTINE try_move
-
-! translation algorithm
-SUBROUTINE tran(imol,success)
-  use pos
-  use trans
-  use try
-  use ints
-  IMPLICIT NONE
-  integer :: imol
-  logical :: success, overlap_q
-  double precision :: dlr, dx, dy, dz, rand
-  integer :: ierr
-  
-  success = .false.
-  
-  if (typs(imol) == "A") THEN
-      dlr = dlr_a
-    else
-      dlr = dlr_b
+subroutine movetype_select(guess,select_type)
+    use movetype, only: nmovetypes, movetype_prob
+    implicit none
+    logical :: check_movetype
+    double precision :: guess, tprob
+    integer :: itype, select_type
+    check_movetype = .false.
+    tprob = 0.0D0
+    do itype = 1, nmovetypes
+      tprob = tprob + movetype_prob(itype)
+      if (guess < tprob) then 
+        check_movetype = .true.
+        exit
+      endif
+    enddo
+    if (.not. check_movetype) THEN
+      write(*,*) " wrong check_movetype"
+      STOP
     endif
-    
-  DX = dlr*(RAND()-0.50D0)
-  DY = dlr*(RAND()-0.50D0)
-  DZ = dlr*(RAND()-0.50D0)
-!  write(*,*) "E"
+    select_type = itype
+    return
+end subroutine movetype_select
+
+subroutine movetype_run(itype)
+  use movetype, only: movetype_name
+  use ints, only: nptot
+  use coupling_pres, only: dvx
+  implicit none
+  integer :: itype, imol
+  double precision :: rand, delta
   
-  XITR(1) = X(imol) + DX
-  YITR(1) = Y(imol) + DY
-  ZITR(1) = Z(imol) + DZ
-  TITR(1) = TYPS(imol)
-!  write(*,*) "D"
-  CALL overlap(imol,xitr(1),yitr(1),zitr(1),titr(1),'x',overlap_q) ! if overlaps, stop the subroutine
-
-  if ( .not. overlap_q ) success = .true.
-
-!  write(*,*) "C"
+  ! run translation
+  if (movetype_name(itype) == 'trans') then
+    imol = INT( NPTOT*RAND() ) + 1 ! pick random particle, (0 <= RAND < 1)
+    call try_conf(imol,itype)
+  else if (movetype_name(itype) == 'press') then
+    delta = (2.0D0*RAND()-1.0D0)*dvx
+    call try_pres(delta,itype)
+  else if (movetype_name(itype) == 'exch') then
+    imol = INT( NPTOT*RAND() ) + 1 ! pick random particle, (0 <= RAND < 1)
+    call try_exch(imol,itype)
+  else
+    write(*,*) " wrong argument itype"
+    stop
+  endif
   return
-END SUBROUTINE tran
-
-! gibbs-duhem integration (exchange), semigrand ensemble
-!SUBROUTINE GDI_EX(I,ISUC)
-!  USE pos, only: x, y, z, typs, box
-!  USE try, only: xitr, yitr, zitr, titr, titr
-!  USE ints, only: nmol_a, nmon_a, nmol_b, nmon_b
-!  USE trans, only: trans_prob, dlr_a, dlr_b
-!  USE ens, only: ener,eold,enew
-!  USE ene, only: enernew,enerold,eninew,eniold,eninew2,eniold2,enewtot,eoldtot
-!  USE sigmas, only: sigma_b,sigma_a,sigma_ab
-!  IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-!  include 'parameter.h'
-!  
-!  ISUC = 1
-!  nptot = nmol_a + nmol_b
-!  
-!  ENEW = 0.0D0
-!  EOLD = 0.0D0
-!  XITR(1) = X(I)
-!  YITR(1) = Y(I)
-!  ZITR(1) = Z(I)
-!  IF (TYPS(I) == 'A') THEN
-!    TITR(1) = 'B'
-!  ELSE
-!    TITR(1) = 'A'
-!  ENDIF
-!  CALL overlap(I,1)
-!  IF(NVL.EQ.1) RETURN
-!  ISUC = 0
-!  RETURN
-!END SUBROUTINE GDI_EX
-
-! save gro format trajectory
-!SUBROUTINE save_gro_traj
-
+end subroutine movetype_run

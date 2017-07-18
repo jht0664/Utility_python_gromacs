@@ -1,5 +1,6 @@
       SUBROUTINE SRAND(NSEED)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      INTEGER :: LUX, K1, K2
  
       LUX = 3
       K1 = 0
@@ -21,6 +22,7 @@ C     print*, "i'm here in ranlux"
 
       SUBROUTINE RANLUX(RVEC,LENV)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      IMPLICIT INTEGER(I-N)
 C         Subtract-and-borrow random number generator proposed by
 C         Marsaglia and Zaman, implemented by F. James with the name
 C         RCARRY in 1991, and later improved by Martin Luescher

@@ -1,17 +1,16 @@
 MODULE pos
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE, SAVE :: x, y, z
   CHARACTER(LEN=4), DIMENSION(:), ALLOCATABLE, SAVE :: typs
-  DOUBLE PRECISION, DIMENSION(3) :: box
+  DOUBLE PRECISION, DIMENSION(3), save :: box
 END MODULE pos
 
 MODULE inp
-  INTEGER :: ncon, nskip
-  CHARACTER(LEN=3) :: iconfig, ipres, igr, iex
-  save ncon, nskip, iconfig, ipres, igr, iex
+  INTEGER, save :: ncon, nskip
+  CHARACTER(LEN=3), save :: iconfig, ipres, igr, iex
 END MODULE inp
 
 MODULE traj
-  INTEGER, save :: istep, nconfig ! # step skip to save trajectory
+  INTEGER, save :: traj_nstep ! # step skip to save trajectory
 END MODULE traj
 
 MODULE trans
@@ -19,14 +18,16 @@ MODULE trans
 END MODULE trans
 
 MODULE calc_pres
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE, save :: pressure, scale_length
-  INTEGER, DIMENSION(:), ALLOCATABLE, save :: noverlap
+  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE, save :: print_press, scale_length
+  INTEGER, DIMENSION(:), ALLOCATABLE, save :: pres_noverlap
   DOUBLE PRECISION, SAVE :: ratio_dv_v
   INTEGER, SAVE :: n_dv
 END MODULE calc_pres
 
 MODULE calc_ex
-  INTEGER, SAVE :: ex_ntry
+  INTEGER, SAVE :: ex_nstep, ex_ntry
+  integer, save :: ex_noverlap
+  character(LEN=4), save :: ex_solvent, ex_solute
 END MODULE calc_ex
 
 MODULE ints
@@ -39,20 +40,41 @@ MODULE cellmap
   INTEGER, DIMENSION(:), ALLOCATABLE :: list
   INTEGER :: mcx, mcy, mcz
   DOUBLE PRECISION, save :: cellx, celly, cellz
-  SAVE lead, map, idi, list, mcx, mcy, mcz
+  SAVE lead, map, list, mcx, mcy, mcz
 END MODULE cellmap
 
 MODULE try
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: xitr, yitr, zitr
-  CHARACTER(LEN=4), DIMENSION(:), ALLOCATABLE :: titr
-  SAVE xitr, yitr, zitr, titr
+  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE, save :: xitr, yitr, zitr
+  CHARACTER(LEN=4), DIMENSION(:), ALLOCATABLE, save :: titr
+  DOUBLE PRECISION, DIMENSION(3), save :: boxitr
 END MODULE try
 
+MODULE cellmap_try
+  INTEGER, DIMENSION(:), ALLOCATABLE, save :: lead_itr
+  INTEGER, DIMENSION(:), ALLOCATABLE, save :: map_itr
+  INTEGER, DIMENSION(:), ALLOCATABLE, save :: list_itr
+  INTEGER, save :: mcx_itr, mcy_itr, mcz_itr
+  DOUBLE PRECISION, save :: cellx_itr, celly_itr, cellz_itr
+END MODULE
+
 MODULE movetype
-  CHARACTER(LEN=5), save :: ensemble_name
+  logical :: ensemble_pres, ensemble_temp, ensemble_exch
+  integer, save :: nmovetypes
+  CHARACTER(LEN=5), DIMENSION(:), ALLOCATABLE, save :: movetype_name
   INTEGER, dimension(:), allocatable, save :: movetype_ntry, movetype_nsuccess
   DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE, save :: movetype_prob
-  integer, save :: nmovetypes
+END MODULE
+
+MODULE coupling_exch
+  character(len=1), save :: exch_comp
+  character(len=4), dimension(:), allocatable, save :: exch_tcomp
+  integer, save :: exch_ncomp
+  double precision, save :: xi_val, log_xi2_of_xi1
+END MODULE
+
+MODULE coupling_pres
+  integer, save :: semiiso
+  DOUBLE precision, save :: press_val, dvx, tinv
 END MODULE
 
 MODULE sigmas
@@ -61,11 +83,10 @@ MODULE sigmas
 END MODULE sigmas
 
 MODULE rdf
-  INCLUDE 'parameter.h'
   DOUBLE PRECISION :: bsz ! bin size
-  INTEGER :: nbin
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: fr11,rint,gr11,gr12,gr22
-  SAVE nbin,bsz,fr11,rint,gr11,gr12,gr22
+  INTEGER :: rdf_nstep, nbin
+  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: gr12
+  SAVE nbin,bsz,gr12
 END MODULE rdf
 
 !MODULE ens

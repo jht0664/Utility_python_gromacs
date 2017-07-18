@@ -1,3 +1,13 @@
+SUBROUTINE newfile_del_oldfile(outputfile)
+  CHARACTER(LEN=100) :: outputfile
+  LOGICAL :: file_exist
+  INQUIRE(file=outputfile, exist=file_exist)
+  if (file_exist) THEN
+    OPEN(UNIT=1,FILE=outputfile,status='old')
+    close(1,status='delete')
+  endif
+END SUBROUTINE newfile_del_oldfile
+
 ! read initial configuration (save 'pos' block)
 ! input: filename
 SUBROUTINE read_ic(filename)
@@ -6,7 +16,7 @@ SUBROUTINE read_ic(filename)
   USE sigmas
   
   IMPLICIT NONE
-  CHARACTER(LEN=100) :: filename
+  CHARACTER(LEN=*) :: filename
   INTEGER :: i, id, jd, ierr
 
   WRITE(*,*) "read_ic:"
@@ -20,16 +30,8 @@ SUBROUTINE read_ic(filename)
 
   sigma_ab = (sigma_a+sigma_b)/2.0D0    
   nptot = nmol_a * nmon_a + nmol_b * nmon_b
-  
-  ALLOCATE(x(nptot),STAT=ierr)
-  IF (ierr /= 0) STOP
-  ALLOCATE(y(nptot),STAT=ierr)
-  IF (ierr /= 0) STOP
-  ALLOCATE(z(nptot),STAT=ierr)
-  IF (ierr /= 0) STOP
-  ALLOCATE(typs(nptot),STAT=ierr)
-  IF (ierr /= 0) STOP
-
+  ALLOCATE(x(nptot),y(nptot),z(nptot),typs(nptot),STAT=ierr)
+  call print_over_memory(ierr)
   DO i = 1, nptot
     READ(2,*) ID,JD,typs(i),X(I),Y(I),Z(I)
   ENDDO
@@ -44,7 +46,7 @@ SUBROUTINE save_ic(filename)
     IMPLICIT NONE
     integer :: i, ij
     DOUBLE Precision :: xcnt, ycnt, zcnt
-    CHARACTER(LEN=100) :: filename
+    CHARACTER(LEN=*) :: filename
 
     OPEN(UNIT=2,FILE=filename,STATUS='UNKNOWN')
     WRITE(2,111)nmol_a,nmon_a,nmol_b,nmon_b,sigma_a,sigma_b,box(1),box(2),box(3)
@@ -80,86 +82,98 @@ SUBROUTINE read_inp(filename)
   use calc_pres
   use calc_ex
   use movetype
+  use coupling_pres
   
   IMPLICIT NONE
-  CHARACTER(LEN=100) :: filename
-  INTEGER :: openmp_thread_num, nseed, movetype_size
-  INTEGER :: ierr, i
-  DOUBLE PRECISION :: boxmin
+  CHARACTER(LEN=*) :: filename
+  CHARACTER(LEN=5) :: name
+  INTEGER :: openmp_thread_num, nseed
+  DOUBLE PRECISION :: boxmin, SECNDS
 
   write(*,*) "read_inp:"
-  ! read simulation settings
   OPEN(UNIT=1,FILE=filename,STATUS='OLD')
-  
   ! openmp setting
   READ(1,*) openmp_thread_num ! openmp thread number
-  write(*,*) ' #processors available = ', omp_get_num_procs ( )
-  write(*,*) ' #threads = ', omp_get_max_threads ( )
+  write(*,*) ' #processors available = ', omp_get_num_procs()
+  write(*,*) ' #threads = ', omp_get_max_threads()
   write(*,*) ' #threads you set = ', openmp_thread_num
-  IF( openmp_thread_num .GT. omp_get_num_procs ( )) THEN
-    openmp_thread_num = omp_get_num_procs ( )
+  IF( openmp_thread_num .GT. omp_get_num_procs()) THEN
+    openmp_thread_num = omp_get_num_procs()
     write(*,*) ' thread number is set to ', openmp_thread_num
   ENDIF
   call omp_set_num_threads ( openmp_thread_num )
-  
-  ! simulation setting  
-  READ(1,*) ensemble_name ! ensemble (NVT, NPT, NPAT, NPTX)
-  IF( ensemble_name == 'NVT') THEN
-    nmovetypes = 1
-    call movetype_init ! call movetype_init(number of movement types)
-  ELSE 
-    WRITE(*,*) " Not supported yet, ", ensemble_name, " ensemble."
-    STOP
-  ENDIF
- 
   ! INITIALIZE THE SEED
   READ(1,*) nseed 
-  !nseed = 2*INT(SECNDS(0.0)) + 2937
+  write(*,*) " input seed = ", nseed
+  if (nseed == 0) then
+    nseed = 2*INT(SECNDS(0.0)) + 2937
+    write(*,*) " random seed generated with ", nseed
+  endif
   CALL SRAND(nseed)
-  
-  ! trajectory
+  ! time
   READ(1,*) ncon, nskip ! number of trial moves, number of skip for print
-  ! translation
-  READ(1,*) dlr_a, dlr_b ! translation increment for components
-  trans_prob = 1.0
-
-  ! probability of movetype
-  READ(1,*) (movetype_prob(i), i=1,nmovetypes) 
+  write(*,*) " total simulation steps = ", ncon, ", skip time = ", nskip
+  READ(1,*)
   
+  ! simulation setting  
+  READ(1,*) name ! ensemble name (NVT, NPT, NPTX2)
+  write(*,*) " ensemble = ", name
+  call movetype_set_ensemble(name) ! turn on couplings depending on name
+  call movetype_init ! call movetype_init(number of movement types)
+  call movetype_read(1) !read detail setting of movement types
+  READ(1,*)
   ! calculate g(r)?
-  READ(1,*) igr, bsz ! bin size
-  boxmin = MIN(box(1),box(2),box(3))/2.0D0
-  nbin = INT(boxmin/bsz)
-
+  READ(1,*) igr, rdf_nstep, bsz ! bin size
+  if(igr == 'YES') then
+    boxmin = MIN(box(1),box(2),box(3))/2.0D0
+    nbin = INT(boxmin/bsz)
+    write(*,*) " activate g(r) calculation, rdf_nstep = ", rdf_nstep, &
+               ", bin size = ", real(bsz), ", nbin = ", nbin
+  endif
   ! printing configuration?
-  READ(1,*) iconfig, nconfig ! number of configuration_save skip
-  
+  READ(1,*) iconfig, traj_nstep ! number of configuration_save skip
   ! printing pressure?, delta_V/V = ratio_dv_v * nwindow_pressure 
   !  (for example, ratio_dv_v = -0.0025 and nwindow_pressure = 5) 
   READ(1,*) ipres, ratio_dv_v, n_dv
-!  write(*,*) "input ", ratio_dv_v, n_dv
-  
+  if (ipres == 'YES') THEN
+    if (ensemble_pres == .true.) then
+      write(*,*) "print pressure only works in NVT"
+      ipres = 'NO'
+    else
+      write(*,*) " activate pressure calculation, ratio_dv_v = ", real(ratio_dv_v), &
+                 ", n_dv = ", n_dv
+    endif
+  endif
   ! calculate the ratio of Henry constant H_i to fugacity f_j by identity exchange
-  READ(1,*) iex, ex_ntry ! number of trial
-
-  istep = 0
+  ! argument: Yes/no, atomname of solvent, solute, skip time, number of trial exchanges
+  READ(1,*) iex, ex_solvent, ex_solute, ex_nstep, ex_ntry 
+  if ((ensemble_exch == .true.) .and. iex == 'YES') THEN
+    write(*,*) "Hi/fj calculation does not work in NPTX$"
+    iex = 'NO'
+  else if ((ensemble_pres == .true.) .and. iex == 'YES') THEN
+    write(*,*) "Hi/fj calculation does not support NPT yet"
+    iex = 'NO'
+  endif
+  if (iex == 'YES') THEN
+    write(*,*) " activated Hi/fj calculation with ex_solvent ", ex_solvent, &
+               ", ex_solute ", ex_solute, ", ex_nstep", ex_nstep, ", ex_ntry ", ex_ntry
+    write(*,*) " Keep in mind that it only works for the system which follows Rault's law"
+  endif
   CLOSE(1)
   RETURN
 END SUBROUTINE read_inp
 
 ! save coordinate in gromac format
-SUBROUTINE save_gro(filename,action)
+SUBROUTINE save_gro(filename,action,istep)
   use pos
-  use traj
   use ints
   IMPLICIT NONE
-  CHARACTER(LEN=1) :: action
-  CHARACTER(LEN=100) :: filename
+  CHARACTER(LEN=*) :: filename, action
 
   DOUBLE PRECISION :: xi, yi, zi
-  INTEGER :: IJ
+  INTEGER :: IJ, istep
 
-  write(*,*) "save_gro:"
+!  write(*,*) "save_gro:"
   IF(action == 'o') THEN
     OPEN(UNIT=3,FILE=filename,STATUS='UNKNOWN',action='write') ! overwrite if already exist
     WRITE(3,*) '# initial coordinate'
@@ -191,16 +205,15 @@ SUBROUTINE save_gro(filename,action)
 END SUBROUTINE save_gro
 
 ! save xtc trajectory file
-SUBROUTINE save_xtc(xtcf)
+SUBROUTINE save_xtc(xtcf,istep)
   USE xdr, only: xtcfile
   use pos
   use ints, only: nptot
-  use traj, only: istep
   IMPLICIT NONE
   type(xtcfile) :: xtcf
   REAL, DIMENSION(3,nptot) :: coord
   REAL, DIMENSION(3,3) :: boxl
-  integer :: i
+  integer :: i, istep
 
   DO I = 1, nptot
     COORD(1,I) = X(I) - box(1)*FlOOR(X(I)/box(1))
