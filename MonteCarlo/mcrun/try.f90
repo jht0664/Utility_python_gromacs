@@ -1,12 +1,23 @@
+SUBROUTINE try_conf_init()
+  use try
+  use ints, only: nmon_a, nmon_b
+  implicit none
+  integer :: array_size, ierr
+  array_size = max(nmon_a,nmon_b)
+  ALLOCATE(xitr(array_size), stat=ierr)
+  ALLOCATE(yitr(array_size), stat=ierr)
+  ALLOCATE(zitr(array_size), stat=ierr)
+  ALLOCATE(titr(array_size), stat=ierr)
+  return
+end subroutine try_conf_init
 
 ! try movement
 SUBROUTINE try_conf(imol,itype)
-  use pos, only: typs
   use movetype
   use try
   use ints
   IMPLICIT NONE
-  integer :: imol, itype, array_size, ierr
+  integer :: imol, itype
   logical :: success
 
 !  write(*,*) "try_move:"
@@ -15,16 +26,6 @@ SUBROUTINE try_conf(imol,itype)
     STOP
   endif
 
-  if (typs(imol) == "A") THEN
-    array_size = nmon_a
-  else
-    array_size = nmon_b
-  endif
-  ALLOCATE(xitr(array_size), stat=ierr)
-  ALLOCATE(yitr(array_size), stat=ierr)
-  ALLOCATE(zitr(array_size), stat=ierr)
-  ALLOCATE(titr(array_size), stat=ierr)
-    
   movetype_ntry(itype) = movetype_ntry(itype) + 1
   call tran(imol,success)
 !  write(*,*) "B"
@@ -35,10 +36,6 @@ SUBROUTINE try_conf(imol,itype)
     call cellmap_update(imol)
 !    write(*,*) "success update"
   endif
-  DEALLOCATE(xitr)
-  DEALLOCATE(yitr)
-  DEALLOCATE(zitr)
-  DEALLOCATE(titr)
   RETURN
 END SUBROUTINE try_conf
 
@@ -70,39 +67,61 @@ SUBROUTINE tran(imol,success)
   return
 END SUBROUTINE tran
 
+subroutine try_conf_exit()
+  use try
+  implicit none
+  DEALLOCATE(xitr)
+  DEALLOCATE(yitr)
+  DEALLOCATE(zitr)
+  DEALLOCATE(titr)
+  return   
+end subroutine try_conf_exit
+  
+
 ! try movement
-SUBROUTINE try_pres(delta,itype)
+SUBROUTINE try_pres(itype)
   use coupling_pres
   use pos
   use ints, only: nptot
   use try
   use cellmap_try
   use movetype
+  use omp_lib
+  use inp, only: openmp_thread_num
   IMPLICIT NONE
-  double precision :: rand, delta, expd
+  double precision :: rand
   double precision :: delh, boltz
   integer :: itype, i
   logical :: overlap_q, success
 
 !  write(*,*) "try_pres:"
-  ! pick volume change direction or total volume
-  expd = dexp(delta)
-  ! rescale box size
-  do i=1,3
-    boxitr(i) = box(i)*expd
-  enddo
-  if (semiiso /= 0) then
-    boxitr(semiiso) = box(semiiso)*expd
-  endif
-  ! try volume change
+! rescale box size
+!  do i=1,3
+!    boxitr(i) = box(i)*expd
+!  enddo
+!  if (semiiso /= 0) then
+!    boxitr(semiiso) = box(semiiso)*expd
+!  endif
+! try volume change
   movetype_ntry(itype) = movetype_ntry(itype) + 1
-  call try_pres_init(semiiso,expd) ! rescale positions
-  call cellmap_itr_init ! initialize new cellmap_itr
+  ! for semi pressure system
+  !call try_pres_init(semiiso,expd) ! rescale positions
+  !call cellmap_itr_init ! initialize new cellmap_itr
 ! check overlap
-  do i=1, nptot
-    call overlap_pres(i,overlap_q)
-    if(overlap_q) exit
-  enddo
+ ! call omp_set_num_threads(openmp_thread_num)
+  if (expd < 1.0) then
+!!$omp parallel do reduction(.OR.:overlap_q)   
+    do i=1, nptot
+      !call overlap_pres(i,overlap_q)
+!      write(*,*) "pres", OMP_get_thread_num(), " I ", i
+      CALL overlap(i,x(i),y(i),z(i),typs(i),'p',overlap_q)
+      if(overlap_q) exit
+    enddo
+!!$omp end parallel do
+!    if(.not. overlap_q) write(*,*) "overlap_q = ", overlap_q
+  else
+    overlap_q = .false.
+  endif
 ! accepted or denied?
   success = .false.
   if(.not. overlap_q) then
@@ -125,11 +144,12 @@ SUBROUTINE try_pres(delta,itype)
     movetype_nsuccess(itype) = movetype_nsuccess(itype) + 1
     !call energy_update
     call pos_itr_update
-    call cellmap_itr_update
+    !call cellmap_itr_update
+    call cellmap_init
 !    write(*,*) "success update"
   endif
-  call try_pres_exit
-  call cellmap_itr_exit
+  !call try_pres_exit
+  !call cellmap_itr_exit
   return
 END SUBROUTINE try_pres
 

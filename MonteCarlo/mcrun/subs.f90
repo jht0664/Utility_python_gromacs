@@ -4,10 +4,11 @@ SUBROUTINE movetype_init()
   IMPLICIT NONE
   integer :: ierr
   write(*,*) "movetype_init:"
-  ALLOCATE(movetype_name(nmovetypes),movetype_prob(nmovetypes),movetype_ntry(nmovetypes),movetype_nsuccess(nmovetypes),stat=ierr)
-  call print_over_memory(ierr)
-  movetype_name = ""
-  movetype_prob = 0.0D0
+  ALLOCATE(movetype_name(nmovetypes),stat=ierr)
+  ALLOCATE(movetype_prob(nmovetypes),stat=ierr)
+  ALLOCATE(movetype_ntry(nmovetypes),stat=ierr)
+  ALLOCATE(movetype_nsuccess(nmovetypes),stat=ierr)
+!  call print_over_memory(ierr)
   movetype_ntry = 0
   movetype_nsuccess = 0
 END SUBROUTINE
@@ -30,6 +31,7 @@ SUBROUTINE movetype_set_ensemble(name)
   nmovetypes = 0
   IF (scan(name,"T") /= 0) THEN ! if ensemble_name contain "T"
     ensemble_temp = .True.
+    call try_conf_init()
     write(*,*) " Turn on temperature coupling."
     nmovetypes = nmovetypes + 1
   ENDIF
@@ -39,6 +41,8 @@ SUBROUTINE movetype_set_ensemble(name)
     if (scan(name,"Z") /= 0) THEN
       semiiso = 3
       write(*,*) " Turn on semiisotropic pressure coupling on z-direction."
+      write(*,*) " But, not supported yet"
+      stop
     else
       semiiso = 0
       write(*,*) " Turn on isotropic pressure coupling."
@@ -78,20 +82,20 @@ SUBROUTINE movetype_read(fileunit)
     if (trim(coupling) == 'trans') THEN
       movetype_name(i) = 'trans'
       read(fileunit,*) movetype_prob(i), dlr_a, dlr_b ! probability, translation increment for components
-      write(*,'(A8,1X,3(F10.5))') " trans = ",movetype_prob(i), dlr_a, dlr_b
+      write(*,'(1x,A,1X,3(F10.5))') " trans = ",movetype_prob(i), dlr_a, dlr_b
       cycle
     ! pressure coupling
     else if (trim(coupling) == 'press') THEN
       movetype_name(i) = 'press'
       read(fileunit,*) movetype_prob(i), press_val, dvx, temp ! probability, pressure, volume change, temperature
-      write(*,'(A8,1X,4(F10.5))') " press = ", movetype_prob(i), press_val, dvx, temp
+      write(*,'(1x,A,1X,4(F10.5))') " press = ", movetype_prob(i), press_val, dvx, temp
       tinv = 1.0/temp
       cycle
-    ! pressure coupling
+    ! particle exchange coupling
     else if (trim(coupling) == 'exch') THEN
       movetype_name(i) = 'exch'
       read(fileunit,*) movetype_prob(i), xi_val, exch_ncomp ! probability, xi value, number of component
-      write(*,'(A8,1X,2(F10.5),I5)') " exch = ", movetype_prob(i), xi_val, exch_ncomp
+      write(*,'(1x,A,1X,2(F10.5),I5)') " exch = ", movetype_prob(i), xi_val, exch_ncomp
       if(exch_ncomp <= 1) then
         write(*,*) " exch_ncomp should be greater than one component"
         stop
@@ -106,7 +110,7 @@ SUBROUTINE movetype_read(fileunit)
       write(*,*) " From your setting, component change xi_(", exch_comp, &
                 "), attempts from species ", exch_tcomp(1), " to species ", exch_tcomp(2)
       write(*,*) "which gives m = -1. Otherwise, m = 1"
-      write(*,*) "(in other words, ", exch_comp, " is the same as ", exch_tcomp(1)
+      write(*,*) " (in other words, ", exch_comp, " is the same as ", exch_tcomp(1)
       cycle
     else
       write(*,*) " wrong some lines"
@@ -135,6 +139,7 @@ SUBROUTINE movetype_exit
   DEALLOCATE(movetype_prob,stat=ierr)
   DEALLOCATE(movetype_ntry,stat=ierr)
   DEALLOCATE(movetype_nsuccess,stat=ierr)
+  call try_conf_exit
   if (ensemble_exch) DEALLOCATE(exch_tcomp,stat=ierr)
 END SUBROUTINE movetype_exit
 
@@ -164,18 +169,19 @@ end subroutine movetype_select
 subroutine movetype_run(itype)
   use movetype, only: movetype_name
   use ints, only: nptot
-  use coupling_pres, only: dvx
+  use coupling_pres, only: dvx, delta, expd
   implicit none
   integer :: itype, imol
-  double precision :: rand, delta
+  double precision :: rand
   
   ! run translation
   if (movetype_name(itype) == 'trans') then
     imol = INT( NPTOT*RAND() ) + 1 ! pick random particle, (0 <= RAND < 1)
     call try_conf(imol,itype)
   else if (movetype_name(itype) == 'press') then
-    delta = (2.0D0*RAND()-1.0D0)*dvx
-    call try_pres(delta,itype)
+    delta = (2.0D0*RAND()-1.0D0)*dvx   ! pick volume change direction or total volume
+    expd = dexp(delta)
+    call try_pres(itype)
   else if (movetype_name(itype) == 'exch') then
     imol = INT( NPTOT*RAND() ) + 1 ! pick random particle, (0 <= RAND < 1)
     call try_exch(imol,itype)

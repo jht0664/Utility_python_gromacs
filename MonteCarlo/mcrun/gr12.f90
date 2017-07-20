@@ -12,6 +12,7 @@ SUBROUTINE gr12_cal
   USE pos
   USE ints
   USE rdf
+  use omp_lib
   IMPLICIT NONE
   INTEGER, DIMENSION(nbin) :: ndum
   integer :: i, k, kbin
@@ -23,9 +24,10 @@ SUBROUTINE gr12_cal
   ndum = 0
 
 ! count all atoms in a shell
-!$omp parallel private ( i, k ) shared ( dnum )  
-  !$omp do
+!$omp parallel private ( i, k, kbin, dxo, dyo, dzo, dx, dy, dz, dist ) shared ( ndum )  
+!$omp do
   DO I = 1, NPTOT-1
+!    write(*,*) "gr12", OMP_get_thread_num(), " I ", I
     DO K = I+1, NPTOT
       IF (TYPS(I) .NE. TYPS(K)) THEN
         DXO = X(K)-X(I)
@@ -42,7 +44,7 @@ SUBROUTINE gr12_cal
       ENDIF
     ENDDO
   ENDDO
-  !$omp end do
+!$omp end do
 !$omp end parallel
 
   RHOT = DBLE(NPTOT)/(box(1)*box(2)*box(3))

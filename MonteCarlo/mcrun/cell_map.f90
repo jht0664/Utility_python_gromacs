@@ -3,8 +3,10 @@ SUBROUTINE cellmap_init()
   use sigmas
   use cellmap
   use trans
+  use ints, only: nptot
   IMPLICIT NONE
   DOUBLE PRECISION :: DCMAX
+  integer :: ierr
 ! initialize cell_list
   DCMAX = MAX(sigma_a,sigma_b,dlr_a,dlr_b) 
   
@@ -18,6 +20,10 @@ SUBROUTINE cellmap_init()
 
   CALL MAPS
   CALL LINKS
+  if (.not. allocated(jnear)) then 
+    Allocate(jnear(nptot),stat=ierr)
+    write(*,*) "allocate jnear (size=",nptot,")"
+  endif
 END SUBROUTINE cellmap_init
 
 SUBROUTINE cellmap_itr_init()
@@ -25,8 +31,10 @@ SUBROUTINE cellmap_itr_init()
   use cellmap_try
   use sigmas
   use trans
+  use ints, only: nptot
   IMPLICIT NONE
   DOUBLE PRECISION :: DCMAX
+  integer :: ierr
 ! initialize cell_list
   DCMAX = MAX(sigma_a,sigma_b,dlr_a,dlr_b) 
   
@@ -40,6 +48,7 @@ SUBROUTINE cellmap_itr_init()
 
   CALL MAPS_itr
   CALL LINKS_itr
+  Allocate(jnear_itr(nptot),stat=ierr)
 END SUBROUTINE cellmap_itr_init
 
 ! initialize map array
@@ -59,10 +68,17 @@ SUBROUTINE MAPS
   NCELL = MCX*MCY*MCZ ! total #cells of box
   MAPSIZ = 27*NCELL ! mapping memory array size due to 27 neighbor cells of a given cell
   ! initialize map array
-  Allocate(map(mapsiz),stat=ierr)
-  DO I = 1, MAPSIZ
-    MAP(I) = 0
-  ENDDO
+  if (.not. allocated(map)) then
+    Allocate(map(mapsiz),stat=ierr)
+    write(*,*) "allocate map (size=", mapsiz,")"
+  else
+    if( mapsiz > size(map)) then
+      DEALLOCATE(map,stat=ierr)
+      write(*,*) "reallocate map (size=", mapsiz,")"
+      Allocate(map(mapsiz),stat=ierr)
+    endif
+  endif
+  MAP = 0
 
   DO ICELL = 1, NCELL ! index of cell
     ICX = MOD(ICELL,MCX)
@@ -116,10 +132,21 @@ SUBROUTINE LINKS
 
   NCELL = MCX*MCY*MCZ
   
-  Allocate(lead(ncell),stat=ierr)
-  Allocate(list(nptot),stat=ierr)
+  if (.not. allocated(lead)) then
+    Allocate(lead(ncell),stat=ierr)
+    write(*,*) "allocate lead (size=", ncell,")"
+  else
+    if( ncell > size(lead)) then
+      DEALLOCATE(lead,stat=ierr)
+      write(*,*) "reallocate lead (size=", ncell,")"
+      Allocate(lead(ncell),stat=ierr)
+    endif
+  endif
+  if (.not. allocated(list)) then
+    Allocate(list(nptot),stat=ierr)
+    write(*,*) "allocate list (size=",nptot,")"
+  endif
   LEAD = 0
-  LIST = 0
   
 !  MAKE A NEW LIST
   DO I = 1, NPTOT
@@ -149,16 +176,14 @@ SUBROUTINE MAPS_itr
   use cellmap_try
   IMPLICIT NONE
   INTEGER :: ncell, mapsiz
-  INTEGER :: ierr, i, icell, icx, icy, icz, id, kcell
+  INTEGER :: ierr, icell, icx, icy, icz, id, kcell
   INTEGER :: ix, iy, iz, ixr, iyr, izr, ict, icn
 
   NCELL = MCX_itr*MCY_itr*MCZ_itr ! total #cells of box
   MAPSIZ = 27*NCELL ! mapping memory array size due to 27 neighbor cells of a given cell
   ! initialize map array
   Allocate(map_itr(mapsiz),stat=ierr)
-  DO I = 1, MAPSIZ
-    MAP_itr(I) = 0
-  ENDDO
+  map_itr = 0
 
   DO ICELL = 1, NCELL ! index of cell
     ICX = MOD(ICELL,MCX_itr)
@@ -293,22 +318,29 @@ SUBROUTINE cellmap_exit
   DEALLOCATE(lead,stat=ierr)
   DEALLOCATE(map,stat=ierr)
   DEALLOCATE(list,stat=ierr)
+  DEALLOCATE(jnear,stat=ierr)
 END SUBROUTINE cellmap_exit
 
 subroutine pos_itr_update()
     use pos
-    use try
     use ints, only: nptot
+    use coupling_pres
     implicit none
     integer :: i
+    double precision :: xo, yo, zo
     do i=1, nptot
-      x(i) = xitr(i)
-      y(i) = yitr(i)
-      z(i) = zitr(i)
-      typs(i) = titr(i)
+      xo = x(i)
+      xo = xo - box(1)*DNINT(xo/box(1)-0.50D0)
+      x(i) = xo*expd
+      yo = y(i)
+      yo = yo - box(2)*DNINT(yo/box(2)-0.50D0)
+      y(i) = yo*expd
+      zo = z(i)
+      zo = zo - box(3)*DNINT(zo/box(3)-0.50D0)
+      z(i) = zo*expd
     enddo
     do i=1, 3
-      box(i) = boxitr(i)
+      box(i) = box(i)*expd
     enddo
     return
 end subroutine pos_itr_update
@@ -356,4 +388,5 @@ SUBROUTINE cellmap_itr_exit
   DEALLOCATE(lead_itr,stat=ierr)
   DEALLOCATE(map_itr,stat=ierr)
   DEALLOCATE(list_itr,stat=ierr)
+  DEALLOCATE(jnear_itr,stat=ierr)
 END SUBROUTINE cellmap_itr_exit

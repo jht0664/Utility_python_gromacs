@@ -14,8 +14,6 @@ SUBROUTINE print_pressure_dV(outputfile)
   ALLOCATE(print_press(n_dv),STAT=ierr) 
   ALLOCATE(scale_length(n_dv),STAT=ierr)
   ALLOCATE(pres_noverlap(n_dv),STAT=ierr)
-  print_press = 0.0D0
-  scale_length = 0.0D0
   pres_noverlap = 0
   ! compute scale_length, delta_l
   DO i = 1, n_dv

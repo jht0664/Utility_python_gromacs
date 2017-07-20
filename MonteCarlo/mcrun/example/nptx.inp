@@ -1,6 +1,6 @@
 2       # number of thread for openmp
 1985    # seed number. If 0, random
-10000 1000  # trial moves, nskips
+100 10000 1000  # trial moves, nskips
 
 NPTX2   # ensemble (should follows next #lines which are same as #couplings)
 trans   ## translate part

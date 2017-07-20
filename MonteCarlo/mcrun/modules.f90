@@ -5,7 +5,7 @@ MODULE pos
 END MODULE pos
 
 MODULE inp
-  INTEGER, save :: ncon, nskip
+  INTEGER, save :: nncon, ncon, nskip, openmp_thread_num
   CHARACTER(LEN=3), save :: iconfig, ipres, igr, iex
 END MODULE inp
 
@@ -35,9 +35,7 @@ MODULE ints
 END MODULE ints
 
 MODULE cellmap
-  INTEGER, DIMENSION(:), ALLOCATABLE :: lead
-  INTEGER, DIMENSION(:), ALLOCATABLE :: map
-  INTEGER, DIMENSION(:), ALLOCATABLE :: list
+  INTEGER, DIMENSION(:), ALLOCATABLE :: lead, map, list, jnear
   INTEGER :: mcx, mcy, mcz
   DOUBLE PRECISION, save :: cellx, celly, cellz
   SAVE lead, map, list, mcx, mcy, mcz
@@ -50,9 +48,7 @@ MODULE try
 END MODULE try
 
 MODULE cellmap_try
-  INTEGER, DIMENSION(:), ALLOCATABLE, save :: lead_itr
-  INTEGER, DIMENSION(:), ALLOCATABLE, save :: map_itr
-  INTEGER, DIMENSION(:), ALLOCATABLE, save :: list_itr
+  INTEGER, DIMENSION(:), ALLOCATABLE, save :: lead_itr, map_itr, list_itr, jnear_itr
   INTEGER, save :: mcx_itr, mcy_itr, mcz_itr
   DOUBLE PRECISION, save :: cellx_itr, celly_itr, cellz_itr
 END MODULE
@@ -75,6 +71,7 @@ END MODULE
 MODULE coupling_pres
   integer, save :: semiiso
   DOUBLE precision, save :: press_val, dvx, tinv
+  DOUBLE precision, save :: delta, expd
 END MODULE
 
 MODULE sigmas

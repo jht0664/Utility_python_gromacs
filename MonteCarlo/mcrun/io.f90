@@ -87,7 +87,7 @@ SUBROUTINE read_inp(filename)
   IMPLICIT NONE
   CHARACTER(LEN=*) :: filename
   CHARACTER(LEN=5) :: name
-  INTEGER :: openmp_thread_num, nseed
+  INTEGER :: nseed
   DOUBLE PRECISION :: boxmin, SECNDS
 
   write(*,*) "read_inp:"
@@ -111,8 +111,8 @@ SUBROUTINE read_inp(filename)
   endif
   CALL SRAND(nseed)
   ! time
-  READ(1,*) ncon, nskip ! number of trial moves, number of skip for print
-  write(*,*) " total simulation steps = ", ncon, ", skip time = ", nskip
+  READ(1,*) nncon, ncon, nskip ! number of trial moves, number of skip for print
+  write(*,*) " total simulation steps = ", nncon, " x ", ncon, ", skip time = ", nskip
   READ(1,*)
   
   ! simulation setting  
