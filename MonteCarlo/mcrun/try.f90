@@ -128,7 +128,7 @@ SUBROUTINE try_pres(itype)
     if (semiiso /= 0) then ! if volume change is on 1-axis
       delh = tinv*press_val*box(1)*box(2)*box(3)*(expd-1.0D0) - dble(nptot+1)*delta
     else ! if volume change is on 3-axis
-      delh = tinv*press_val*box(1)*box(2)*box(3)*(expd**3-1.0D0) - dble(nptot+1)*delta
+      delh = tinv*press_val*box(1)*box(2)*box(3)*(expd**3-1.0D0) - dble(nptot+1)*delta*3
     endif
     if(delh <= 0.0D0) then
       success = .true.
