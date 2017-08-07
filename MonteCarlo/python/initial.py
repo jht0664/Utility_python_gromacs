@@ -30,9 +30,11 @@ parser.add_argument('-fm', '--format', default='MC', nargs='?', type=str,
 	help='Save in fortran MC format (MC), .npz format (NPZ), or .gro format (GRO)')
 parser.add_argument('-o', '--output', default='init', nargs='?', type=str,
 	help='output file (exclude extension name) ')
+parser.add_argument('args', nargs=argparse.REMAINDER)
 parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1')
 # read args
 args = parser.parse_args()
+print(" input arguments: {0}".format(args))
 # default for args
 #args.input = args.input if args.input is not None else 'init.ic'
 if args.sep != 'YES' and args.sep != 'NO':

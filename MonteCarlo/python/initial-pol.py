@@ -61,7 +61,7 @@ elif args.format == 'GRO':
 ## import 
 import numpy as np
 import sys
-sys.path.append('/home/htjung/Utility/python/')
+sys.path.append('/home/hjung52/Utility/python/')
 import hjung
 from hjung import *
 
