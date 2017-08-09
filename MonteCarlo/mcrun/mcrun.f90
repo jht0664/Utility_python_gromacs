@@ -10,35 +10,132 @@ PROGRAM WR_MCRUN
 !      upgraded by Hyuntae Jung
 !     07/05/2017 converted to modern fortran version by Hyun Tae Jung
 !     07/14/2017 add calculation of pressure in NVT and pressure coupling
-!
+!     08/03/2017 add calculation of NPTX couplings
 !     -----------------------------------------------------
-
-  use omp_lib
+!  use omp_lib
   ! 1. Use the xdr interface
   USE xdr, only: xtcfile
   use inp
+  use ints
+  use pos
+  use filenames
   use movetype
+  use coupling_pres
+  use coupling_exch
   use traj, only: traj_nstep
   use rdf, only: rdf_nstep
-  use calc_ex, only: ex_nstep
+  use time
+  use sigmas
 
   IMPLICIT NONE
   DOUBLE PRECISION :: rand, guess
-  INTEGER :: itype, iicon, icon, naver
-  double precision :: start, finish
-  CHARACTER(LEN=100) :: filename_pres, filename_dens, filename_ex, filename_traj_gro, filename_nmol
-  real :: speed, intermediate, itemp1, itemp2
-  ! 2. Declare a variable of type xtcfil
+  INTEGER :: itype, naver, i
+  integer(kind=8) :: icon
+  double precision :: start, speed, before_run, inter_time1, inter_time2
+  external rand
+  ! 2. Declare a variable of type xtcfile
   type(xtcfile) :: xtcf
 
-  start = omp_get_wtime ()
-  call omp_set_num_threads(openmp_thread_num)
+  call time_marker(start)
+  !call omp_set_num_threads(openmp_thread_num)
 ! load data
   call read_ic('composite.ic')
   call read_inp('mcrun.inp')
+! initialize cell list and map. If necessary, find the shortest distance of pairs.
   call cellmap_init
+!  initialize properties and files
+  call files_init
+! save initial configure
+  naver = 0
+  call save_gro('conf.gro','o',naver) ! overlap if already exist
+  IF( (iconfig .eq. 'YES') .and. (.not. ensemble_exch) ) THEN
+    call xtcf % init('traj.xtc','w')
+    call save_xtc(xtcf,naver)
+  ENDIF
 
-! initialize properties and files
+  a_frac = dble(nmol_a)/dble(nptot)
+
+! run simulation during do loop
+  call time_marker(before_run)
+  inter_time1 = before_run
+  time11 = 0.0D0
+  time22 = 0.0D0
+  time33 = 0.0D0
+  DO ICON = 1, NCON
+    guess = rand() ! pick movement algorithm 
+    call movetype_select(guess,itype) ! return itype; i-th movement type
+    call movetype_run(itype)
+! run every delta time
+    IF(MOD(ICON,NSKIP).EQ.0)THEN
+      WRITE(*,'(a,i0,a)') ">>>>> simulating ", ICON, "th steps"
+      naver = naver + 1
+      call save_ic('composite.tmp') ! temporary ic file
+!     call energy_write
+! total time
+      call time_marker(inter_time2)
+      inter_time1 = inter_time2 - inter_time1
+      if(inter_time1 > 1.0D0 )  then
+        speed = dble(nskip*36)/10000.0D0/dble(inter_time1)
+        write(*,'(a,F10.5,1x,a,F10.3,a)') " >> total speed  = ", speed, " (10^6 steps/hours) "
+      endif
+      inter_time1 = inter_time2 ! update time
+! properties
+      IF(ipres .EQ. 'YES') CALL print_pressure_dV(filename_pres) ! pressure calculation for WR model
+      IF(ensemble_pres) then
+        call update_dvx() ! modify dvx value success fraction to be around 0.5
+        CALL print_density(filename_dens) ! density calculation
+      endif
+      IF(ensemble_exch) then
+        if(xi_val_opt) call update_xi_val() ! modify xi_val to be stable with initial a_frac
+        CALL print_nmol(filename_nmol) ! print nmol
+      endif
+      IF((iex .EQ. 'YES')) CALL print_hifj(filename_ex) ! hi/fj calculation
+! update nsuccess
+      write(*,'(A)') " ====== movetypes info ====== "
+      do i=1,nmovetypes
+        write(*,'(A,A,I,A,F10.5)') movetype_name(i), &
+        " nsucc => ", movetype_i_success(i), &
+        ", frac => ", real(movetype_i_success(i))/real(movetype_i_try(i))
+        movetype_nsuccess(i) = movetype_nsuccess(i) + movetype_i_success(i)
+        movetype_ntry(i) = movetype_ntry(i) + movetype_i_try(i)
+        movetype_i_success(i) = 0
+        movetype_i_try(i) = 0
+      enddo
+    ENDIF
+! save trajectory
+    IF((iconfig .EQ. 'YES') .and. (mod(icon,traj_nstep) == 0)) then
+      if(ensemble_exch) then
+        call save_gro(filename_traj_gro,'a',naver) ! trajectory in gro
+      else
+        call save_xtc(xtcf,naver) ! save trajectory in xtc
+      endif
+    endif
+! r(g) calculation
+    IF((igr .EQ. 'YES') .and. (mod(icon,rdf_nstep) == 0)) CALL gr12_cal 
+  ENDDO
+
+! end simulation and average properties
+  call save_log('mcrun.out')
+  call save_ic('composite.fc')
+  call save_gro('confout.gro','o',naver)
+!  IF(IGR .EQ.'YES') call gr12_save('gr.out',ncon*nncon/rdf_nstep)
+  IF(IGR .EQ.'YES') call gr12_save('gr.out',ncon/rdf_nstep)
+
+! exit
+  call xtcf % close
+! deallocate
+  call movetype_exit
+  call pos_exit
+  IF(ipres .EQ. 'YES') call calc_pres_exit
+  call cellmap_exit
+  STOP
+END PROGRAM WR_MCRUN
+
+subroutine files_init()
+  use filenames
+  use movetype
+  use inp
+  implicit none
   !  energy not necessary for hard sphere
   !  OPEN(UNIT=26,FILE='energy.out',STATUS='UNKNOWN')
   if(igr == 'YES') call gr12_init
@@ -60,61 +157,15 @@ PROGRAM WR_MCRUN
     call newfile_del_oldfile(filename_traj_gro)
     call newfile_del_oldfile(filename_nmol)
   endif
-! configure
-  naver = 0
-  call save_gro('conf.gro','o',naver) ! overlap if already exist
-  IF(iconfig .EQ. 'YES') THEN
-    call xtcf % init('traj.xtc','w')
-    call save_xtc(xtcf,naver)
-  ENDIF
-! run simulation during do loop (end statement label is "1000 continue")
-  DO IICON = 1, NNCON
-  DO ICON = 1, NCON
-    guess = rand() ! pick movement algorithm 
-    call movetype_select(guess,itype) ! return itype; i-th movement type
-    call movetype_run(itype)
-    ! run every delta time
-    IF(MOD(ICON,NSKIP).EQ.0)THEN
-      WRITE(*,*) ">>>>> simulating ", ICON, "th steps"
-      naver = naver + 1
-      ! call energy_write
-      intermediate = real(omp_get_wtime () - start)
-      itemp1 = real(icon)/1000.0
-      itemp2 = real(ncon)/1000.0
-      speed = real((iicon-1)*itemp2+itemp1)*0.0036/intermediate
-      write(*,'(1x,a,F10.3,1x,a,F10.3,a)') " >> ", speed, " (10^9 steps/hours) or ", 1.0/speed, "(hours/10^9 steps)"
-      write(*,'(1x,a,F10.3,1x,a,F10.3,a)') " >> ", real(nncon*itemp2)/1000000/speed, " hours left"
-      IF((ipres .EQ. 'YES')) CALL print_pressure_dV(filename_pres) ! pressure calculation for WR model
-      IF(ensemble_pres) CALL print_density(filename_dens) ! density calculation
-      IF(ensemble_exch) CALL print_nmol(filename_nmol) ! density calculation
-    ENDIF
-    IF((iconfig .EQ. 'YES') .and. (mod(icon,traj_nstep) == 0)) then
-      if(ensemble_exch) then
-        call save_gro(filename_traj_gro,'a',naver) ! trajectory in gro
-      else
-        call save_xtc(xtcf,naver) ! save trajectory in xtc
-      endif
-    endif
-    IF((igr .EQ. 'YES') .and. (mod(icon,rdf_nstep) == 0)) CALL gr12_cal ! r(g) calculation
-    IF((iex .EQ. 'YES') .and. (mod(icon,ex_nstep) == 0)) CALL print_hifj(filename_ex) ! r(g) calculation
-  ENDDO
-  ENDDO
+  return
+end subroutine files_init
 
-! end simulation and average properties
-  call save_log('mcrun.out')
-  call save_ic('composite.fc')
-  call save_gro('confout.gro','o',naver)
-  IF(IGR .EQ.'YES') call gr12_save('gr.out',ncon*nncon/rdf_nstep)
-
-! exit
-  call xtcf % close
-  finish = omp_get_wtime () - start
-  write(*,'(a,1x,F10.3,1x,a)') "final speed = ", real(NCON)*0.0036/finish, " (10^6 steps/hours)"
-! deallocate
-  call movetype_exit
-  call pos_exit
-  call cellmap_exit
-!  if (ensemble_pres) call cellmap_itr_exit
-  STOP
-END PROGRAM WR_MCRUN
-
+subroutine time_marker(current_time)
+  implicit none
+  integer, dimension(8) :: time_array_0
+  double precision :: current_time
+  call date_and_time(values=time_array_0)
+  current_time = (time_array_0 (4) * 24.0 + time_array_0 (5)) * 3600.0 &
+    + time_array_0 (6) * 60.0 + time_array_0 (7) + 0.001 * dble(time_array_0 (8))
+  return
+end subroutine time_marker

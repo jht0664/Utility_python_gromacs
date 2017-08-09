@@ -1,6 +1,5 @@
       SUBROUTINE SRAND(NSEED)
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      INTEGER :: LUX, K1, K2
+      INTEGER :: LUX, K1, K2, NSEED
  
       LUX = 3
       K1 = 0
@@ -11,9 +10,9 @@
 
      
       DOUBLE PRECISION FUNCTION RAND()
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      PARAMETER(NVEC=1)
-      DIMENSION RVEC(NVEC)
+      INTEGER :: NVEC
+      PARAMETER(NVEC = 1)
+      DOUBLE PRECISION, DIMENSION(NVEC) :: RVEC
 C     print*, "i'm here in ranlux"
       CALL RANLUX(RVEC,NVEC)
       RAND = RVEC(1)

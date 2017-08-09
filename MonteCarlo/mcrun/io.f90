@@ -27,7 +27,6 @@ SUBROUTINE read_ic(filename)
   READ(2,*) sigma_a ! SIZE OF THE A
   READ(2,*) sigma_b ! SIZE OF THE B
   READ(2,*) box(1),box(2),box(3) ! BOX LENGTH
-
   sigma_ab = (sigma_a+sigma_b)/2.0D0    
   nptot = nmol_a * nmon_a + nmol_b * nmon_b
   ALLOCATE(x(nptot),y(nptot),z(nptot),typs(nptot),STAT=ierr)
@@ -36,6 +35,10 @@ SUBROUTINE read_ic(filename)
     READ(2,*) ID,JD,typs(i),X(I),Y(I),Z(I)
   ENDDO
   CLOSE(2) 
+! assign scaling factor
+  pos_scaling = 1.0D0
+  pos_scaling2 = pos_scaling**2
+  pos_scaling3 = pos_scaling**3
   RETURN
 END SUBROUTINE read_ic
 
@@ -83,13 +86,13 @@ SUBROUTINE read_inp(filename)
   use calc_ex
   use movetype
   use coupling_pres
-  
   IMPLICIT NONE
   CHARACTER(LEN=*) :: filename
   CHARACTER(LEN=5) :: name
-  INTEGER :: nseed
-  DOUBLE PRECISION :: boxmin, SECNDS
-
+  INTEGER :: nseed, ierr, i 
+  DOUBLE PRECISION :: boxmin, SECNDS, dvol
+  external srand
+  
   write(*,*) "read_inp:"
   OPEN(UNIT=1,FILE=filename,STATUS='OLD')
   ! openmp setting
@@ -102,6 +105,10 @@ SUBROUTINE read_inp(filename)
     write(*,*) ' thread number is set to ', openmp_thread_num
   ENDIF
   call omp_set_num_threads ( openmp_thread_num )
+  if( openmp_thread_num > 1) then
+    write(*,*) ' Keep in mind that OpenMP only support pressure couplings and print_pressure.'
+    write(*,*) ' Otherwise, it uses single node.'
+  endif
   ! INITIALIZE THE SEED
   READ(1,*) nseed 
   write(*,*) " input seed = ", nseed
@@ -111,8 +118,12 @@ SUBROUTINE read_inp(filename)
   endif
   CALL SRAND(nseed)
   ! time
-  READ(1,*) nncon, ncon, nskip ! number of trial moves, number of skip for print
-  write(*,*) " total simulation steps = ", nncon, " x ", ncon, ", skip time = ", nskip
+  READ(1,*) ncon, nskip
+  write(*,*) " total simulation steps = ", ncon, ", skip time = ", nskip
+  if (mod(ncon,nskip) /= 0) then
+    write(*,*) "your nskip, ", nskip, " should be a factor of ncon, ", ncon
+    STOP
+  endif
   READ(1,*)
   
   ! simulation setting  
@@ -136,27 +147,40 @@ SUBROUTINE read_inp(filename)
   !  (for example, ratio_dv_v = -0.0025 and nwindow_pressure = 5) 
   READ(1,*) ipres, ratio_dv_v, n_dv
   if (ipres == 'YES') THEN
-    if (ensemble_pres == .true.) then
+    if (ensemble_pres) then
       write(*,*) "print pressure only works in NVT"
       ipres = 'NO'
     else
       write(*,*) " activate pressure calculation, ratio_dv_v = ", real(ratio_dv_v), &
                  ", n_dv = ", n_dv
+      ALLOCATE(print_press(n_dv),STAT=ierr) 
+      ALLOCATE(scale_length2(n_dv),STAT=ierr)
+      ALLOCATE(pres_noverlap(n_dv),STAT=ierr)
+      ! compute scale_length, delta_l
+      DO i = 1, n_dv
+        dvol = 1.0D0+ratio_dv_v*DBLE(i)
+        if(dvol < 0.0D0) THEN
+          write(*,*) "wrong input ratio_dv_v (big number)"
+          stop
+        endif
+        scale_length2(i) = dvol**(2.0D0/3.0D0)
+      ENDDO
     endif
   endif
   ! calculate the ratio of Henry constant H_i to fugacity f_j by identity exchange
-  ! argument: Yes/no, atomname of solvent, solute, skip time, number of trial exchanges
-  READ(1,*) iex, ex_solvent, ex_solute, ex_nstep, ex_ntry 
-  if ((ensemble_exch == .true.) .and. iex == 'YES') THEN
+  ! argument: Yes/no, atomname of solvent, solute, number of trial exchanges
+  READ(1,*) iex, ex_solvent, ex_solute, ex_ntry
+  if ((ensemble_exch .eqv. .true.) .and. iex == 'YES') THEN
     write(*,*) "Hi/fj calculation does not work in NPTX$"
     iex = 'NO'
-  else if ((ensemble_pres == .true.) .and. iex == 'YES') THEN
-    write(*,*) "Hi/fj calculation does not support NPT yet"
+  else if ((ensemble_pres .eqv. .true.) .and. iex == 'YES') THEN
+    write(*,*) "Hi/fj calculation does not support NPT yet."
+    write(*,*) "We turn off this calculation."
     iex = 'NO'
   endif
   if (iex == 'YES') THEN
     write(*,*) " activated Hi/fj calculation with ex_solvent ", ex_solvent, &
-               ", ex_solute ", ex_solute, ", ex_nstep", ex_nstep, ", ex_ntry ", ex_ntry
+               ", ex_solute ", ex_solute, ", ex_nstep", ex_ntry
     write(*,*) " Keep in mind that it only works for the system which follows Rault's law"
   endif
   CLOSE(1)
@@ -191,6 +215,9 @@ SUBROUTINE save_gro(filename,action,istep)
     xi = X(IJ) - box(1)*FLOOR(X(IJ)/box(1))
     yi = Y(IJ) - box(2)*FLOOR(Y(IJ)/box(2))
     zi = Z(IJ) - box(3)*FLOOR(Z(IJ)/box(3))
+    xi = xi*pos_scaling
+    yi = yi*pos_scaling
+    zi = zi*pos_scaling
     IF(typs(IJ) .EQ. 'A') THEN
       WRITE(3,211)MOD(IJ,100000),'LJA',typs(IJ),MOD(IJ,100000),xi,yi,zi
     ELSE
@@ -198,7 +225,7 @@ SUBROUTINE save_gro(filename,action,istep)
     ENDIF
   ENDDO
   ! BOX
-  WRITE(3,212) box(1),box(2),box(3)
+  WRITE(3,212) box(1)*pos_scaling,box(2)*pos_scaling,box(3)*pos_scaling
   CLOSE(3)
 211 FORMAT(i5,2a5,i5,3f8.3,3f8.4)
 212 FORMAT(3f10.5)
@@ -216,23 +243,23 @@ SUBROUTINE save_xtc(xtcf,istep)
   integer :: i, istep
 
   DO I = 1, nptot
-    COORD(1,I) = X(I) - box(1)*FlOOR(X(I)/box(1))
-    COORD(2,I) = Y(I) - box(2)*FLOOR(Y(I)/box(2))
-    COORD(3,I) = Z(I) - box(3)*FLOOR(Z(I)/box(3))
+    COORD(1,I) = REAL(pos_scaling*(X(I) - box(1)*FlOOR(X(I)/box(1))))
+    COORD(2,I) = REAL(pos_scaling*(Y(I) - box(2)*FLOOR(Y(I)/box(2))))
+    COORD(3,I) = REAL(pos_scaling*(Z(I) - box(3)*FLOOR(Z(I)/box(3))))
   ENDDO
   
   ! This is the same order as found in the GRO format
   !write(*,'(11f9.5)') box(1), box(2), box(3), 0, 0, 0, 0, 0, 0 
-  boxl(1,1) = box(1)
-  boxl(2,2) = box(2)
-  boxl(3,3) = box(3)
-  boxl(1,2) = 0.0
-  boxl(1,3) = 0.0
+  boxl(1,1) = REAL(box(1)*pos_scaling)
   boxl(2,1) = 0.0
-  boxl(2,3) = 0.0
   boxl(3,1) = 0.0
+  boxl(1,2) = 0.0
+  boxl(2,2) = REAL(box(2)*pos_scaling)
   boxl(3,2) = 0.0
-
+  boxl(1,3) = 0.0
+  boxl(2,3) = 0.0
+  boxl(3,3) = REAL(box(3)*pos_scaling)
+  
   !WRITE(*,*) " ENTER ICONFIG"
   ! Just an example to show what was read in
   !write(*,'(a,f12.6,a,i0)') " Time (ns): ", 
@@ -251,3 +278,12 @@ SUBROUTINE pos_exit
   deallocate(z,stat=ierr)
   deallocate(typs,stat=ierr)
 END SUBROUTINE pos_exit
+
+subroutine calc_pres_exit()
+  use calc_pres
+  implicit none
+  integer :: ierr
+  DEALLOCATE(print_press,stat=ierr)
+  DEALLOCATE(pres_noverlap,STAT=ierr)
+  DEALLOCATE(scale_length2,STAT=ierr)
+end subroutine calc_pres_exit

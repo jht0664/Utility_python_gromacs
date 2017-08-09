@@ -124,15 +124,15 @@ module xdr
             type(xdrfile), intent(in) :: xd
             integer(C_INT), intent(in), value :: natoms
             integer(C_INT), intent(out) :: step
-            real, intent(out) :: time, lambda, box(*), x(*), v(*), f(*)
+            real(C_FLOAT), intent(out) :: time, lambda, box(*), x(*), v(*), f(*)
         end function
 
         integer(C_INT) function write_trr(xd, natoms, step, time, lambda, box, x, v, f) bind(C)
             import
             type(xdrfile), intent(in) :: xd
             integer(C_INT), intent(in), value :: natoms, step
-            real, intent(in), value :: time, lambda
-            real, intent(in) :: box(*), x(*), v(*), f(*)
+            real(C_FLOAT), intent(in), value :: time, lambda
+            real(C_FLOAT), intent(in) :: box(*), x(*), v(*), f(*)
         end function
 
     end interface

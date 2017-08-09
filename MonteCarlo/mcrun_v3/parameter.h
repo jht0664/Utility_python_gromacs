@@ -1,5 +1,0 @@
-  PARAMETER (pi=3.141592653589793D0)
-  PARAMETER (nbmax=2000000,nmax=10,mcmax =5000)
-  PARAMETER (ncm=mcmax*mcmax,mapmax=9*ncm)
-  PARAMETER (npmax=50,maxra=1000)
-  PARAMETER (maxbin = 2000)

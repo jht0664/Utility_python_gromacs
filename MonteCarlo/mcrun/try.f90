@@ -1,213 +1,144 @@
-SUBROUTINE try_conf_init()
-  use try
-  use ints, only: nmon_a, nmon_b
-  implicit none
-  integer :: array_size, ierr
-  array_size = max(nmon_a,nmon_b)
-  ALLOCATE(xitr(array_size), stat=ierr)
-  ALLOCATE(yitr(array_size), stat=ierr)
-  ALLOCATE(zitr(array_size), stat=ierr)
-  ALLOCATE(titr(array_size), stat=ierr)
-  return
-end subroutine try_conf_init
-
 ! try movement
 SUBROUTINE try_conf(imol,itype)
   use movetype
-  use try
   use ints
+  use coupling_pres
   IMPLICIT NONE
   integer :: imol, itype
   logical :: success
-
 !  write(*,*) "try_move:"
-  if( itype > nmovetypes) THEN
-    write(*,*) "wrong itype argument."
-    STOP
-  endif
-
-  movetype_ntry(itype) = movetype_ntry(itype) + 1
-  call tran(imol,success)
-!  write(*,*) "B"
+  movetype_i_try(itype) = movetype_i_try(itype) + 1
+  call conf_tran(imol,success)
   if(success) then
- !   write(*,*) "success"
-    movetype_nsuccess(itype) = movetype_nsuccess(itype) + 1
-    !call energy_update
-    call cellmap_update(imol)
-!    write(*,*) "success update"
+    movetype_i_success(itype) = movetype_i_success(itype) + 1
+    call cellmap_update(imol) ! xyz and cell list update
   endif
   RETURN
 END SUBROUTINE try_conf
 
+
 ! translation algorithm
-SUBROUTINE tran(imol,success)
+SUBROUTINE conf_tran(imol,success)
   use pos
   use trans
-  use try
   use ints
   IMPLICIT NONE
   integer :: imol
   logical :: success, overlap_q
-  double precision :: dlr, dx, dy, dz, rand
-  success = .false.
+  double precision :: dlr, rand
   if (typs(imol) == "A") THEN
     dlr = dlr_a
   else
     dlr = dlr_b
   endif
-  DX = dlr*(RAND()-0.50D0)
-  DY = dlr*(RAND()-0.50D0)
-  DZ = dlr*(RAND()-0.50D0)
-  XITR(1) = X(imol) + DX
-  YITR(1) = Y(imol) + DY
-  ZITR(1) = Z(imol) + DZ
-  TITR(1) = TYPS(imol)
-  CALL overlap(imol,xitr(1),yitr(1),zitr(1),titr(1),'x',overlap_q) ! if overlaps, stop the subroutine
-  if ( .not. overlap_q ) success = .true.
+  coord_try(1) = x(imol) + dlr*(rand()-0.50d0)
+  coord_try(2) = y(imol) + dlr*(rand()-0.50d0)
+  coord_try(3) = z(imol) + dlr*(rand()-0.50d0)
+  typs_try = typs(imol)
+  call overlap(imol,coord_try,typs_try,'x',overlap_q) ! if overlaps, stop the subroutine
+  if ( .not. overlap_q ) then
+    success = .true.
+  else
+    success = .false.
+  endif
   return
-END SUBROUTINE tran
-
-subroutine try_conf_exit()
-  use try
-  implicit none
-  DEALLOCATE(xitr)
-  DEALLOCATE(yitr)
-  DEALLOCATE(zitr)
-  DEALLOCATE(titr)
-  return   
-end subroutine try_conf_exit
-  
+end subroutine conf_tran
 
 ! try movement
 SUBROUTINE try_pres(itype)
+  use omp_lib
   use coupling_pres
   use pos
   use ints, only: nptot
-  use try
-  use cellmap_try
+  use inp
+  use cellmap
   use movetype
-  use omp_lib
-  use inp, only: openmp_thread_num
+  use sigmas
   IMPLICIT NONE
-  double precision :: rand
-  double precision :: delh, boltz
-  integer :: itype, i
-  logical :: overlap_q, success
-
+  double precision :: oldvol, rand, xo, yo, zo, expd2
+  double precision :: delh, boltz, xt, yt, zt, rt
+  integer :: itype, i, j
+  logical :: success
+  integer :: id, start_k, end_k, kmax, k ! for openmp
+  logical :: overlap_q        ! for openmp
+  external rand
 !  write(*,*) "try_pres:"
-! rescale box size
-!  do i=1,3
-!    boxitr(i) = box(i)*expd
-!  enddo
-!  if (semiiso /= 0) then
-!    boxitr(semiiso) = box(semiiso)*expd
-!  endif
-! try volume change
-  movetype_ntry(itype) = movetype_ntry(itype) + 1
-  ! for semi pressure system
-  !call try_pres_init(semiiso,expd) ! rescale positions
-  !call cellmap_itr_init ! initialize new cellmap_itr
-! check overlap
- ! call omp_set_num_threads(openmp_thread_num)
+  movetype_i_try(itype) = movetype_i_try(itype) + 1
+  expd2 = expd**2
+! check overlaps
   if (expd < 1.0) then
-!!$omp parallel do reduction(.OR.:overlap_q)   
-    do i=1, nptot
-      !call overlap_pres(i,overlap_q)
-!      write(*,*) "pres", OMP_get_thread_num(), " I ", i
-      CALL overlap(i,x(i),y(i),z(i),typs(i),'p',overlap_q)
+!!    single node job
+!    do i=1,nptot-1 
+!    do j=i+1, nptot
+!    if(typs(i) == typs(j)) cycle
+!    xt = x(i) - x(j)
+!    yt = y(i) - y(j)
+!    zt = z(i) - z(j)
+!    XT = XT - box(1)*DNINT(XT/box(1))
+!    YT = YT - box(2)*DNINT(YT/box(2))
+!    ZT = ZT - box(3)*DNINT(ZT/box(3))
+!    rt = (XT*XT+YT*YT+ZT*ZT)*expd2*pos_scaling2
+!    if( rt < sigma_ab**2 ) return
+!    enddo
+!    enddo
+!  endif
+!   openmp version
+    overlap_q = .false.
+    start_k = 0
+    kmax = 16 ! might be better performance if the optimized value used.
+    do k=1,kmax
+    end_k = k*(nptot-1)/kmax
+!$omp parallel private (xt, yt, zt, rt, id, i, j) shared (overlap_q)
+    id = omp_get_thread_num() + 1
+    do i=start_k+id,end_k,openmp_thread_num
+      do j=i+1, nptot
+        if(typs(i) == typs(j)) cycle
+        xt = x(i) - x(j)
+        yt = y(i) - y(j)
+        zt = z(i) - z(j)
+        XT = XT - box(1)*DNINT(XT/box(1))
+        YT = YT - box(2)*DNINT(YT/box(2))
+        ZT = ZT - box(3)*DNINT(ZT/box(3))
+        RT = (XT*XT+YT*YT+ZT*ZT)*expd2*pos_scaling2
+        if( (rt < sigma_ab**2) .or. overlap_q) then
+          overlap_q = .true.
+          exit
+        endif
+      enddo
       if(overlap_q) exit
     enddo
-!!$omp end parallel do
-!    if(.not. overlap_q) write(*,*) "overlap_q = ", overlap_q
-  else
-    overlap_q = .false.
+!$omp end parallel
+    if(overlap_q) return
+    start_k = end_k
+    enddo
   endif
 ! accepted or denied?
   success = .false.
-  if(.not. overlap_q) then
-    if (semiiso /= 0) then ! if volume change is on 1-axis
-      delh = tinv*press_val*box(1)*box(2)*box(3)*(expd-1.0D0) - dble(nptot+1)*delta
-    else ! if volume change is on 3-axis
-      delh = tinv*press_val*box(1)*box(2)*box(3)*(expd**3-1.0D0) - dble(nptot+1)*delta*3
-    endif
-    if(delh <= 0.0D0) then
+  ! if volume change is on 3-axis
+  !oldvol = box(1)*box(2)*box(3)*(pos_scaling**3)
+  oldvol = box(1)*box(2)*box(3)*pos_scaling3
+  delh = tinv*press_val*oldvol*(expd**3-1.0D0) - dble(nptot+1)*DLOG(expd)*3.0D0
+  if(delh <= 0.0D0) then
+    !write(*,*) "negative", delh
+    success = .true.
+  else 
+    boltz = dexp(-delh)
+
+    if(rand() < boltz) then
       success = .true.
-    else 
-      boltz = dexp(-delh)
-      if(rand() < boltz) then
-        success = .true.
-      endif
     endif
-  endif
+  endif  
+! accepted
   if(success) then
- !   write(*,*) "success"
-    movetype_nsuccess(itype) = movetype_nsuccess(itype) + 1
+    movetype_i_success(itype) = movetype_i_success(itype) + 1
     !call energy_update
-    call pos_itr_update
-    !call cellmap_itr_update
-    call cellmap_init
-!    write(*,*) "success update"
+! position and box update
+    pos_scaling  = pos_scaling*expd
+    pos_scaling2 = pos_scaling**2
+    pos_scaling3 = pos_scaling**3
   endif
-  !call try_pres_exit
-  !call cellmap_itr_exit
   return
 END SUBROUTINE try_pres
-
-subroutine try_pres_init(ibox,expd)
-  use try
-  use pos
-  use ints, only: nptot
-  implicit none
-  integer :: ierr, ibox
-  double precision :: expd, xo, yo, zo, i
-  allocate(xitr(nptot),yitr(nptot),zitr(nptot),titr(nptot),stat=ierr)
-  ! rescale positions
-  do i=1, nptot
-    if (ibox == 1) then
-      xo = x(i)
-      xo = xo - box(ibox)*DNINT(xo/box(ibox)-0.50D0)
-      xitr(i) = xo*expd
-      yitr(i) = y(i)
-      zitr(i) = z(i)
-      titr(i) = typs(i)
-    else if (ibox == 2) then
-      xitr(i) = x(i)
-      yo = y(i)
-      yo = yo - box(ibox)*DNINT(yo/box(ibox)-0.50D0)
-      yitr(i) = yo*expd
-      zitr(i) = z(i)
-      titr(i) = typs(i)
-    else if (ibox == 3) then
-      xitr(i) = x(i)
-      yitr(i) = y(i)
-      zo = z(i)
-      zo = zo - box(ibox)*DNINT(zo/box(ibox)-0.50D0)
-      zitr(i) = zo*expd
-      titr(i) = typs(i)
-    else if (ibox == 0) then
-      xo = x(i)
-      xo = xo - box(1)*DNINT(xo/box(1)-0.50D0)
-      xitr(i) = xo*expd
-      yo = y(i)
-      yo = yo - box(2)*DNINT(yo/box(2)-0.50D0)
-      yitr(i) = yo*expd
-      zo = z(i)
-      zo = zo - box(3)*DNINT(zo/box(3)-0.50D0)
-      zitr(i) = zo*expd
-      titr(i) = typs(i)
-    endif
-  enddo
-  return
-end subroutine try_pres_init
-
-subroutine try_pres_exit()
-  use try
-  implicit none
-  DEALLOCATE(xitr)
-  DEALLOCATE(yitr)
-  DEALLOCATE(zitr)
-  DEALLOCATE(titr)
-end subroutine try_pres_exit
 
 subroutine try_exch(imol,itype)
   use pos
@@ -220,55 +151,65 @@ subroutine try_exch(imol,itype)
   logical :: success, overlap_q
 
 !  write(*,*) "try_exch:"
-  if( itype > nmovetypes) THEN
-    write(*,*) "wrong itype argument."
-    STOP
-  endif
-  movetype_ntry(itype) = movetype_ntry(itype) + 1
+  movetype_i_try(itype) = movetype_i_try(itype) + 1
+  !write(*,*) "movetype_i_try exch", movetype_i_try(itype)
   DO while (.true.)
     try_type = INT(exch_ncomp*RAND() ) + 1
     if(typs(imol) == exch_tcomp(try_type)) then
       cycle
     else
-      CALL overlap(imol,x(imol),y(imol),z(imol),exch_tcomp(try_type),'x',overlap_q) ! if overlaps, stop the subroutine
-      exit
+      coord_try(1) = x(imol)
+      coord_try(2) = y(imol)
+      coord_try(3) = z(imol)
+      CALL overlap(imol,coord_try,exch_tcomp(try_type),'x',overlap_q) ! if overlaps, stop the subroutine
+      if(overlap_q) then
+        return
+      else
+        !write(*,*) "try ovelap pass:", imol, typs(imol), exch_tcomp(try_type)
+        exit
+      endif
     endif
   enddo
 ! determine m value
-  if (typs(imol) == exch_tcomp(1) .and. exch_tcomp(try_type) == exch_tcomp(2)) then
-    m_val = -1.0
+  if ( (typs(imol) == exch_tcomp(1)) .and. (exch_tcomp(try_type) == exch_tcomp(2)) ) then
+    m_val = -1.0D0
+
   else
-    m_val = 1.0
+    m_val = 1.0D0
   endif
+  !write(*,*) "m val = ", m_val, "due to", typs(imol), "=",exch_tcomp(1),"and",exch_tcomp(try_type),"=",exch_tcomp(2)
 ! accepted or denied?
   success = .false.
-  if(.not. overlap_q) then
-    delxi = m_val*log_xi2_of_xi1
-    if(delxi <= 0.0D0) then
+  delxi = m_val*log_xi
+  if(delxi >= 0.0D0) then
+    success = .true.
+  else 
+    boltz = dexp(delxi)
+    !write(*,*) "boltz = ", boltz
+    if(rand() < boltz) then
       success = .true.
-    else 
-      boltz = dexp(-delxi)
-      if(rand() < boltz) then
-        success = .true.
-      endif
     endif
   endif
   ! update new particle
   if(success) then
-    movetype_nsuccess(itype) = movetype_nsuccess(itype) + 1
+    !write(*,*) "exchange result: ",imol," th particle ",typs(imol), " => ",exch_tcomp(try_type)
+    movetype_i_success(itype) = movetype_i_success(itype) + 1
+    !write(*,*) movetype_i_success(itype)
     if (typs(imol) == 'A') then
       nmol_a = nmol_a - 1
-    else
+    else if (typs(imol) == 'B') then
       nmol_b = nmol_b - 1
+    else 
+      write(*,*) "no info component"
+      stop
     endif
     typs(imol) = exch_tcomp(try_type)
     if (typs(imol) == 'A') then
       nmol_a = nmol_a + 1
-    else
+    else if (typs(imol) == 'B') then
       nmol_b = nmol_b + 1
-    endif
-    if( nptot /= nmol_a*nmon_a+nmol_b*nmon_b) then
-      write(*,*) "wrong total particle number during exchange"
+    else 
+      write(*,*) "no info component"
       stop
     endif
   endif
