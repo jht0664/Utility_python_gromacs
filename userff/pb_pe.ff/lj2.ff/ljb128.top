@@ -1,0 +1,412 @@
+;
+;	File 'ljb128.top' was generated
+;	By user: hjung52 (21195)
+;	On host: aci-service-2.chtc.wisc.edu
+;	At date: Wed Aug  9 11:36:45 2017
+
+;
+;	This is a standalone topology file
+;
+;	Created by:
+;	                    :-) GROMACS - gmx pdb2gmx, 2016.3 (-:
+;	
+;	Executable:   /home/hjung52/gromacs2016.3/bin/gmx_mpi
+;	Data prefix:  /home/hjung52/gromacs2016.3
+;	Working dir:  /home/hjung52/Utility/userff/pb_pe.ff
+;	Command line:
+;	  gmx_mpi pdb2gmx -f lj2.ff/ljb128.gro -o ljb128.gro -p ljb128.top -i ljb128.itp -nocmap -v -water none -chainsep interactive
+;	Force field was read from current directory or a relative path - path added.
+;
+
+[ moleculetype ]
+; Name            nrexcl
+POLB               1
+
+[ atoms ]
+;   nr       type  resnr residue  atom   cgnr     charge       mass  typeB    chargeB      massB
+; residue   1 BB  rtp BB   q  0.0
+     1          B      1     BB      B      1          0          1   ; qtot 0
+; residue   2 BM  rtp BM   q  0.0
+     2          B      2     BM      B      2          0          1   ; qtot 0
+; residue   3 BM  rtp BM   q  0.0
+     3          B      3     BM      B      3          0          1   ; qtot 0
+; residue   4 BM  rtp BM   q  0.0
+     4          B      4     BM      B      4          0          1   ; qtot 0
+; residue   5 BM  rtp BM   q  0.0
+     5          B      5     BM      B      5          0          1   ; qtot 0
+; residue   6 BM  rtp BM   q  0.0
+     6          B      6     BM      B      6          0          1   ; qtot 0
+; residue   7 BM  rtp BM   q  0.0
+     7          B      7     BM      B      7          0          1   ; qtot 0
+; residue   8 BM  rtp BM   q  0.0
+     8          B      8     BM      B      8          0          1   ; qtot 0
+; residue   9 BM  rtp BM   q  0.0
+     9          B      9     BM      B      9          0          1   ; qtot 0
+; residue  10 BM  rtp BM   q  0.0
+    10          B     10     BM      B     10          0          1   ; qtot 0
+; residue  11 BM  rtp BM   q  0.0
+    11          B     11     BM      B     11          0          1   ; qtot 0
+; residue  12 BM  rtp BM   q  0.0
+    12          B     12     BM      B     12          0          1   ; qtot 0
+; residue  13 BM  rtp BM   q  0.0
+    13          B     13     BM      B     13          0          1   ; qtot 0
+; residue  14 BM  rtp BM   q  0.0
+    14          B     14     BM      B     14          0          1   ; qtot 0
+; residue  15 BM  rtp BM   q  0.0
+    15          B     15     BM      B     15          0          1   ; qtot 0
+; residue  16 BM  rtp BM   q  0.0
+    16          B     16     BM      B     16          0          1   ; qtot 0
+; residue  17 BM  rtp BM   q  0.0
+    17          B     17     BM      B     17          0          1   ; qtot 0
+; residue  18 BM  rtp BM   q  0.0
+    18          B     18     BM      B     18          0          1   ; qtot 0
+; residue  19 BM  rtp BM   q  0.0
+    19          B     19     BM      B     19          0          1   ; qtot 0
+; residue  20 BM  rtp BM   q  0.0
+    20          B     20     BM      B     20          0          1   ; qtot 0
+; residue  21 BM  rtp BM   q  0.0
+    21          B     21     BM      B     21          0          1   ; qtot 0
+; residue  22 BM  rtp BM   q  0.0
+    22          B     22     BM      B     22          0          1   ; qtot 0
+; residue  23 BM  rtp BM   q  0.0
+    23          B     23     BM      B     23          0          1   ; qtot 0
+; residue  24 BM  rtp BM   q  0.0
+    24          B     24     BM      B     24          0          1   ; qtot 0
+; residue  25 BM  rtp BM   q  0.0
+    25          B     25     BM      B     25          0          1   ; qtot 0
+; residue  26 BM  rtp BM   q  0.0
+    26          B     26     BM      B     26          0          1   ; qtot 0
+; residue  27 BM  rtp BM   q  0.0
+    27          B     27     BM      B     27          0          1   ; qtot 0
+; residue  28 BM  rtp BM   q  0.0
+    28          B     28     BM      B     28          0          1   ; qtot 0
+; residue  29 BM  rtp BM   q  0.0
+    29          B     29     BM      B     29          0          1   ; qtot 0
+; residue  30 BM  rtp BM   q  0.0
+    30          B     30     BM      B     30          0          1   ; qtot 0
+; residue  31 BM  rtp BM   q  0.0
+    31          B     31     BM      B     31          0          1   ; qtot 0
+; residue  32 BM  rtp BM   q  0.0
+    32          B     32     BM      B     32          0          1   ; qtot 0
+; residue  33 BM  rtp BM   q  0.0
+    33          B     33     BM      B     33          0          1   ; qtot 0
+; residue  34 BM  rtp BM   q  0.0
+    34          B     34     BM      B     34          0          1   ; qtot 0
+; residue  35 BM  rtp BM   q  0.0
+    35          B     35     BM      B     35          0          1   ; qtot 0
+; residue  36 BM  rtp BM   q  0.0
+    36          B     36     BM      B     36          0          1   ; qtot 0
+; residue  37 BM  rtp BM   q  0.0
+    37          B     37     BM      B     37          0          1   ; qtot 0
+; residue  38 BM  rtp BM   q  0.0
+    38          B     38     BM      B     38          0          1   ; qtot 0
+; residue  39 BM  rtp BM   q  0.0
+    39          B     39     BM      B     39          0          1   ; qtot 0
+; residue  40 BM  rtp BM   q  0.0
+    40          B     40     BM      B     40          0          1   ; qtot 0
+; residue  41 BM  rtp BM   q  0.0
+    41          B     41     BM      B     41          0          1   ; qtot 0
+; residue  42 BM  rtp BM   q  0.0
+    42          B     42     BM      B     42          0          1   ; qtot 0
+; residue  43 BM  rtp BM   q  0.0
+    43          B     43     BM      B     43          0          1   ; qtot 0
+; residue  44 BM  rtp BM   q  0.0
+    44          B     44     BM      B     44          0          1   ; qtot 0
+; residue  45 BM  rtp BM   q  0.0
+    45          B     45     BM      B     45          0          1   ; qtot 0
+; residue  46 BM  rtp BM   q  0.0
+    46          B     46     BM      B     46          0          1   ; qtot 0
+; residue  47 BM  rtp BM   q  0.0
+    47          B     47     BM      B     47          0          1   ; qtot 0
+; residue  48 BM  rtp BM   q  0.0
+    48          B     48     BM      B     48          0          1   ; qtot 0
+; residue  49 BM  rtp BM   q  0.0
+    49          B     49     BM      B     49          0          1   ; qtot 0
+; residue  50 BM  rtp BM   q  0.0
+    50          B     50     BM      B     50          0          1   ; qtot 0
+; residue  51 BM  rtp BM   q  0.0
+    51          B     51     BM      B     51          0          1   ; qtot 0
+; residue  52 BM  rtp BM   q  0.0
+    52          B     52     BM      B     52          0          1   ; qtot 0
+; residue  53 BM  rtp BM   q  0.0
+    53          B     53     BM      B     53          0          1   ; qtot 0
+; residue  54 BM  rtp BM   q  0.0
+    54          B     54     BM      B     54          0          1   ; qtot 0
+; residue  55 BM  rtp BM   q  0.0
+    55          B     55     BM      B     55          0          1   ; qtot 0
+; residue  56 BM  rtp BM   q  0.0
+    56          B     56     BM      B     56          0          1   ; qtot 0
+; residue  57 BM  rtp BM   q  0.0
+    57          B     57     BM      B     57          0          1   ; qtot 0
+; residue  58 BM  rtp BM   q  0.0
+    58          B     58     BM      B     58          0          1   ; qtot 0
+; residue  59 BM  rtp BM   q  0.0
+    59          B     59     BM      B     59          0          1   ; qtot 0
+; residue  60 BM  rtp BM   q  0.0
+    60          B     60     BM      B     60          0          1   ; qtot 0
+; residue  61 BM  rtp BM   q  0.0
+    61          B     61     BM      B     61          0          1   ; qtot 0
+; residue  62 BM  rtp BM   q  0.0
+    62          B     62     BM      B     62          0          1   ; qtot 0
+; residue  63 BM  rtp BM   q  0.0
+    63          B     63     BM      B     63          0          1   ; qtot 0
+; residue  64 BM  rtp BM   q  0.0
+    64          B     64     BM      B     64          0          1   ; qtot 0
+; residue  65 BM  rtp BM   q  0.0
+    65          B     65     BM      B     65          0          1   ; qtot 0
+; residue  66 BM  rtp BM   q  0.0
+    66          B     66     BM      B     66          0          1   ; qtot 0
+; residue  67 BM  rtp BM   q  0.0
+    67          B     67     BM      B     67          0          1   ; qtot 0
+; residue  68 BM  rtp BM   q  0.0
+    68          B     68     BM      B     68          0          1   ; qtot 0
+; residue  69 BM  rtp BM   q  0.0
+    69          B     69     BM      B     69          0          1   ; qtot 0
+; residue  70 BM  rtp BM   q  0.0
+    70          B     70     BM      B     70          0          1   ; qtot 0
+; residue  71 BM  rtp BM   q  0.0
+    71          B     71     BM      B     71          0          1   ; qtot 0
+; residue  72 BM  rtp BM   q  0.0
+    72          B     72     BM      B     72          0          1   ; qtot 0
+; residue  73 BM  rtp BM   q  0.0
+    73          B     73     BM      B     73          0          1   ; qtot 0
+; residue  74 BM  rtp BM   q  0.0
+    74          B     74     BM      B     74          0          1   ; qtot 0
+; residue  75 BM  rtp BM   q  0.0
+    75          B     75     BM      B     75          0          1   ; qtot 0
+; residue  76 BM  rtp BM   q  0.0
+    76          B     76     BM      B     76          0          1   ; qtot 0
+; residue  77 BM  rtp BM   q  0.0
+    77          B     77     BM      B     77          0          1   ; qtot 0
+; residue  78 BM  rtp BM   q  0.0
+    78          B     78     BM      B     78          0          1   ; qtot 0
+; residue  79 BM  rtp BM   q  0.0
+    79          B     79     BM      B     79          0          1   ; qtot 0
+; residue  80 BM  rtp BM   q  0.0
+    80          B     80     BM      B     80          0          1   ; qtot 0
+; residue  81 BM  rtp BM   q  0.0
+    81          B     81     BM      B     81          0          1   ; qtot 0
+; residue  82 BM  rtp BM   q  0.0
+    82          B     82     BM      B     82          0          1   ; qtot 0
+; residue  83 BM  rtp BM   q  0.0
+    83          B     83     BM      B     83          0          1   ; qtot 0
+; residue  84 BM  rtp BM   q  0.0
+    84          B     84     BM      B     84          0          1   ; qtot 0
+; residue  85 BM  rtp BM   q  0.0
+    85          B     85     BM      B     85          0          1   ; qtot 0
+; residue  86 BM  rtp BM   q  0.0
+    86          B     86     BM      B     86          0          1   ; qtot 0
+; residue  87 BM  rtp BM   q  0.0
+    87          B     87     BM      B     87          0          1   ; qtot 0
+; residue  88 BM  rtp BM   q  0.0
+    88          B     88     BM      B     88          0          1   ; qtot 0
+; residue  89 BM  rtp BM   q  0.0
+    89          B     89     BM      B     89          0          1   ; qtot 0
+; residue  90 BM  rtp BM   q  0.0
+    90          B     90     BM      B     90          0          1   ; qtot 0
+; residue  91 BM  rtp BM   q  0.0
+    91          B     91     BM      B     91          0          1   ; qtot 0
+; residue  92 BM  rtp BM   q  0.0
+    92          B     92     BM      B     92          0          1   ; qtot 0
+; residue  93 BM  rtp BM   q  0.0
+    93          B     93     BM      B     93          0          1   ; qtot 0
+; residue  94 BM  rtp BM   q  0.0
+    94          B     94     BM      B     94          0          1   ; qtot 0
+; residue  95 BM  rtp BM   q  0.0
+    95          B     95     BM      B     95          0          1   ; qtot 0
+; residue  96 BM  rtp BM   q  0.0
+    96          B     96     BM      B     96          0          1   ; qtot 0
+; residue  97 BM  rtp BM   q  0.0
+    97          B     97     BM      B     97          0          1   ; qtot 0
+; residue  98 BM  rtp BM   q  0.0
+    98          B     98     BM      B     98          0          1   ; qtot 0
+; residue  99 BM  rtp BM   q  0.0
+    99          B     99     BM      B     99          0          1   ; qtot 0
+; residue 100 BM  rtp BM   q  0.0
+   100          B    100     BM      B    100          0          1   ; qtot 0
+; residue 101 BM  rtp BM   q  0.0
+   101          B    101     BM      B    101          0          1   ; qtot 0
+; residue 102 BM  rtp BM   q  0.0
+   102          B    102     BM      B    102          0          1   ; qtot 0
+; residue 103 BM  rtp BM   q  0.0
+   103          B    103     BM      B    103          0          1   ; qtot 0
+; residue 104 BM  rtp BM   q  0.0
+   104          B    104     BM      B    104          0          1   ; qtot 0
+; residue 105 BM  rtp BM   q  0.0
+   105          B    105     BM      B    105          0          1   ; qtot 0
+; residue 106 BM  rtp BM   q  0.0
+   106          B    106     BM      B    106          0          1   ; qtot 0
+; residue 107 BM  rtp BM   q  0.0
+   107          B    107     BM      B    107          0          1   ; qtot 0
+; residue 108 BM  rtp BM   q  0.0
+   108          B    108     BM      B    108          0          1   ; qtot 0
+; residue 109 BM  rtp BM   q  0.0
+   109          B    109     BM      B    109          0          1   ; qtot 0
+; residue 110 BM  rtp BM   q  0.0
+   110          B    110     BM      B    110          0          1   ; qtot 0
+; residue 111 BM  rtp BM   q  0.0
+   111          B    111     BM      B    111          0          1   ; qtot 0
+; residue 112 BM  rtp BM   q  0.0
+   112          B    112     BM      B    112          0          1   ; qtot 0
+; residue 113 BM  rtp BM   q  0.0
+   113          B    113     BM      B    113          0          1   ; qtot 0
+; residue 114 BM  rtp BM   q  0.0
+   114          B    114     BM      B    114          0          1   ; qtot 0
+; residue 115 BM  rtp BM   q  0.0
+   115          B    115     BM      B    115          0          1   ; qtot 0
+; residue 116 BM  rtp BM   q  0.0
+   116          B    116     BM      B    116          0          1   ; qtot 0
+; residue 117 BM  rtp BM   q  0.0
+   117          B    117     BM      B    117          0          1   ; qtot 0
+; residue 118 BM  rtp BM   q  0.0
+   118          B    118     BM      B    118          0          1   ; qtot 0
+; residue 119 BM  rtp BM   q  0.0
+   119          B    119     BM      B    119          0          1   ; qtot 0
+; residue 120 BM  rtp BM   q  0.0
+   120          B    120     BM      B    120          0          1   ; qtot 0
+; residue 121 BM  rtp BM   q  0.0
+   121          B    121     BM      B    121          0          1   ; qtot 0
+; residue 122 BM  rtp BM   q  0.0
+   122          B    122     BM      B    122          0          1   ; qtot 0
+; residue 123 BM  rtp BM   q  0.0
+   123          B    123     BM      B    123          0          1   ; qtot 0
+; residue 124 BM  rtp BM   q  0.0
+   124          B    124     BM      B    124          0          1   ; qtot 0
+; residue 125 BM  rtp BM   q  0.0
+   125          B    125     BM      B    125          0          1   ; qtot 0
+; residue 126 BM  rtp BM   q  0.0
+   126          B    126     BM      B    126          0          1   ; qtot 0
+; residue 127 BM  rtp BM   q  0.0
+   127          B    127     BM      B    127          0          1   ; qtot 0
+; residue 128 BE  rtp BE   q  0.0
+   128          B    128     BE      B    128          0          1   ; qtot 0
+
+[ bonds ]
+;  ai    aj funct            c0            c1            c2            c3
+    1     2     1 
+    2     3     1 
+    3     4     1 
+    4     5     1 
+    5     6     1 
+    6     7     1 
+    7     8     1 
+    8     9     1 
+    9    10     1 
+   10    11     1 
+   11    12     1 
+   12    13     1 
+   13    14     1 
+   14    15     1 
+   15    16     1 
+   16    17     1 
+   17    18     1 
+   18    19     1 
+   19    20     1 
+   20    21     1 
+   21    22     1 
+   22    23     1 
+   23    24     1 
+   24    25     1 
+   25    26     1 
+   26    27     1 
+   27    28     1 
+   28    29     1 
+   29    30     1 
+   30    31     1 
+   31    32     1 
+   32    33     1 
+   33    34     1 
+   34    35     1 
+   35    36     1 
+   36    37     1 
+   37    38     1 
+   38    39     1 
+   39    40     1 
+   40    41     1 
+   41    42     1 
+   42    43     1 
+   43    44     1 
+   44    45     1 
+   45    46     1 
+   46    47     1 
+   47    48     1 
+   48    49     1 
+   49    50     1 
+   50    51     1 
+   51    52     1 
+   52    53     1 
+   53    54     1 
+   54    55     1 
+   55    56     1 
+   56    57     1 
+   57    58     1 
+   58    59     1 
+   59    60     1 
+   60    61     1 
+   61    62     1 
+   62    63     1 
+   63    64     1 
+   64    65     1 
+   65    66     1 
+   66    67     1 
+   67    68     1 
+   68    69     1 
+   69    70     1 
+   70    71     1 
+   71    72     1 
+   72    73     1 
+   73    74     1 
+   74    75     1 
+   75    76     1 
+   76    77     1 
+   77    78     1 
+   78    79     1 
+   79    80     1 
+   80    81     1 
+   81    82     1 
+   82    83     1 
+   83    84     1 
+   84    85     1 
+   85    86     1 
+   86    87     1 
+   87    88     1 
+   88    89     1 
+   89    90     1 
+   90    91     1 
+   91    92     1 
+   92    93     1 
+   93    94     1 
+   94    95     1 
+   95    96     1 
+   96    97     1 
+   97    98     1 
+   98    99     1 
+   99   100     1 
+  100   101     1 
+  101   102     1 
+  102   103     1 
+  103   104     1 
+  104   105     1 
+  105   106     1 
+  106   107     1 
+  107   108     1 
+  108   109     1 
+  109   110     1 
+  110   111     1 
+  111   112     1 
+  112   113     1 
+  113   114     1 
+  114   115     1 
+  115   116     1 
+  116   117     1 
+  117   118     1 
+  118   119     1 
+  119   120     1 
+  120   121     1 
+  121   122     1 
+  122   123     1 
+  123   124     1 
+  124   125     1 
+  125   126     1 
+  126   127     1 
+  127   128     1 

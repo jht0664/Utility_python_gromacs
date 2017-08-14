@@ -27,7 +27,7 @@ parser.add_argument('-seed', '--seed', default=1985, nargs='?', type=int,
 parser.add_argument('-d', '--dens', nargs='?', type=float,
 	help='number density of monomers')
 parser.add_argument('-scale', '--scale', nargs='?', default=1.25, type=float,
-	help='box scale to accelate or reduce insertion process')
+	help='box scale on z-direction to accelate or reduce insertion process')
 parser.add_argument('-sa', '--sizea', default=1.0, nargs='?', type=float,
 	help='diameter of A')
 parser.add_argument('-sb', '--sizeb', default=1.0, nargs='?', type=float,
@@ -78,7 +78,7 @@ print("Total #monomers = %s" %nmtot)
 box = hjung.initial.lj_box_init_w_ndens_ratio(nmtot, args.dens, [1.0, 1.0, args.ratio])
 
 # accelate insertion process by reduing density.
-box = box * args.scale
+box[2] = box[2] * args.scale
 
 ## lattice insertion process
 if args.sizea != args.sizea:

@@ -1,13 +1,10 @@
-LJ Polymer blend FF
+LJ Polymer blend FF (fixed bond distance)
 
-********************************************************************
-* The original ffamber ports were written by Eric J. Sorin,        *
-* CSU Long Beach, Dept. of Chem & Biochem, and have now been       *
-* integrated with the standard gromacs distribution.               *
-* (Please don't blame Eric for errors we might have introduced.)   *
-* For the implementation/validation, please read/cite:             * 
-* Sorin & Pande (2005). Biophys. J. 88(4), 2472-2493.              *
-* For related material and updates, please consult                 *
-* http://chemistry.csulb.edu/ffamber/                              *
-********************************************************************
-
+**********************************************
+* symetric binary polymer blend system (fixed bond distance)
+* ; still it does not match with the paper, because of different potential.
+* On the Scaling of the Critical Solution Temperature of Binary Polymer
+* Blends with Chain Length
+* Fernando A. Escobedo†,‡ and Juan J. de Pablo*,†
+* Macromolecules 1999, 32, 900-910
+**********************************************

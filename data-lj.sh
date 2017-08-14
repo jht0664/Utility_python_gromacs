@@ -4,18 +4,23 @@
 # $2 : tolerance or block length
 
 ## for Gromacs
-~/Utility/python/dn-auto-lj.sh $1 | tee dn-auto.log
-~/Utility/python/massf-prof-lj.sh $1 | tee massf.log
-
-# massf avg 
-btime=$(grep 'frames' massf.log | awk '{ print $4}')
-#declare -i btime
-let btimes=btime/2
-python ~/Utility/python/savetxt-avg.py -i a.massf.align -b $btimes -tol $2 | tee a.massf-avg.log
-cp ~/Utility/gnuplot/massfit.plot ./
-sed -i "s/NBINS/$1/g" massfit.plot
-gnuplot massfit.plot
-cat fit.log
+#~/Utility/python/dn-auto-lj.sh $1 | tee dn-auto.log
+~/Utility/python/massf-prof-lj.sh $1 
+btime=$(grep 'frames' a.massf.log | awk '{ print $4}')
+let btimes=(btime-1)/2
+python ~/Utility/python/savetxt-avg.py -i a.massf.align -b $btimes -tol 0 
+python ~/Utility/python/savetxt-avg.py -i b.massf.align -b $btimes -tol 0
+cp ~/Utility/gnuplot/massfit.plot ./a.fit.plot
+cp ~/Utility/gnuplot/massfit.plot ./b.fit.plot
+sed -i "s/NBINS/$1/g" a.fit.plot
+sed -i "s/COMP/a/g" a.fit.plot
+sed -i "s/NBINS/$1/g" b.fit.plot
+sed -i "s/COMP/b/g" b.fit.plot
+echo "A fraction"
+gnuplot a.fit.plot
+sleep 15
+echo "B fraction"
+gnuplot b.fit.plot
 
 #python ~/Utility/python/savetxt-avg.py -i b.massf.align -b $1 -tol $2 | tee b.massf-avg.log
 
