@@ -7,6 +7,7 @@ import numpy as np
 # Example: args.tol = default_value(args.tol, 0.0)
 def default(tol, default):
 	print("blockavg.default: ")
+	print(" Must remove this function!!")
 	if tol is None:
 		return float(default)
 	else:

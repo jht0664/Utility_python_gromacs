@@ -380,7 +380,6 @@ def convolve_1d_t_min(data1_1d_t, data2_1d_t, setmode):
 		convolve_temp = ndimage.convolve(data1_1d_t[iframe],data2_1d_t[iframe],mode=setmode)
 		# No normalization
 		convolve_data.append(convolve_temp)
-
 	return np.argmin(convolve_data, axis=1)
 
 # Align data_1d_t using convolution with (spatial) autocorrelation function of data_1d_t
@@ -419,6 +418,10 @@ def align_acf(data_1d_t, acf_1d_t, setmode):
 	# shifting
 	for iframe in range(len(data_1d_t)):
 		shift_array = data_1d_t[iframe]
-		data_1d_t[iframe] = np.roll(shift_array, align_shift[iframe])
+		if iframe > 0:
+			shift_bins = align_shift[iframe] - align_shift[iframe-1]
+			if shift_bins >= 5:
+				raise RuntimeError("problem with alignment, shifting a lot by {} bins".format(shift_bins))
+		data_1d_t[iframe] = np.roll(shift_array, align_shift[iframe]) #align_shift[0]
 
 	return data_1d_t

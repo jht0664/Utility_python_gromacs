@@ -3,6 +3,7 @@
 # ver 0.2 - support pdb and dcd files for openmm on 5/8/2017
 # ver 0.3 - support xtc trajectory files for Monte Carlo using "reduce_unitcells_3d_to_1d" on 6/6/2017
 # ver 0.4 - support block average module on 6/26/2017
+# ver 0.5 - add some function: printing arguments and reduce lines as for default setting
 
 import argparse
 parser = argparse.ArgumentParser(
@@ -19,17 +20,22 @@ parser.add_argument('-select1', '--select1', nargs='?',
 	help='a file1 with a command-line for select_atoms in MDAnalysis')
 parser.add_argument('-select2', '--select2', nargs='?', 
 	help='a file2 with a command-line for select_atoms in MDAnalysis')
-parser.add_argument('-nbin', '--nbin', nargs='?', 
-	help='number of bins, otherwise we use the bin size')
-parser.add_argument('-tol', '--tol', default=0.0, nargs='?', 
+parser.add_argument('-nbin', '--nbin', nargs='?', type=int,
+	help='number of bins')
+parser.add_argument('-tol', '--tol', default=0.0, nargs='?', type=float,
 	help='tolerance for block average (> 0 and < 1). (recommend 1.0 for 1st trial). If 0, no block average. If > 1, # frames to average')
-parser.add_argument('-axis', '--axis', default=2, nargs='?', 
+parser.add_argument('-axis', '--axis', default=2, nargs='?', type=int,
 	help='which axis for histogram (x axis (0), y axis (1), z axis (2))')
+parser.add_argument('-align', '--align', default='YES', nargs='?',
+	help='Run alignment? or not? (YES/NO)')
 parser.add_argument('-o', '--output', default='traj.massf', nargs='?', 
 	help='output prefix for unalign and align mass1 fraction trajectory')
+parser.add_argument('args', nargs=argparse.REMAINDER)
 parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.4')
 # read args
 args = parser.parse_args()
+# check args
+print(" input arguments: {0}".format(args))
 
 ## import modules
 import hjung
@@ -37,14 +43,7 @@ from hjung import *
 import numpy as np
 
 # default for args
-args.input = args.input if args.input is not None else 'traj.trr'
-args.structure = args.structure if args.structure is not None else 'topol.tpr'
-args.output = args.output if args.output is not None else 'traj.massf'
 args.oalign = args.output + '.align'
-args.axis = args.axis if args.axis is not None else 2
-args.axis = int(args.axis)
-args.nbin = int(args.nbin)
-args.tol = hjung.blockavg.default(args.tol, 0.0)
 
 ## Check arguments for log
 print("===============================")
@@ -65,9 +64,7 @@ if args.axis < 0 or args.axis > 2:
 args.tol = hjung.blockavg.check(args.tol)
 
 ## timer
-import time
-start_clock = time.clock() # process time
-start_wall = time.time() # wall time
+start_proc, start_prof = hjung.time.init()
 
 ## read a topology and a trajectory using module MDAnalysis with selection
 print("="*30)
@@ -130,13 +127,14 @@ np.savetxt(args.output, massfrac_1d_t,
 
 ## Align mass fractions using autocorrelation function
 acf_1d_t_wrap = hjung.analyze.autocorr_1d_t(massfrac_1d_t, 'wrap') 
-align_massfrac_1d_t =  hjung.analyze.align_acf(massfrac_1d_t, acf_1d_t_wrap, 'wrap') 
+if (args.align == 'YES'):
+	align_massfrac_1d_t =  hjung.analyze.align_acf(massfrac_1d_t, acf_1d_t_wrap, 'wrap') 
+else:
+	align_massfrac_1d_t = massfrac_1d_t
 np.savetxt(args.oalign, align_massfrac_1d_t, 
 	header='%d, %d, aligned mass1 fraction by ACF and molecules in nbins' \
 	%(len(mass1_1d_t),args.nbin), fmt='%f', comments='# ')
 print("Finished saving unalign and align output files")
 
-## timer exit
-print("="*30)
-print(time.clock() - start_clock, "seconds process time")
-print(time.time() - start_wall, "seconds wall time")
+## timer
+hjung.time.end_print(start_proc, start_prof)

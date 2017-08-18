@@ -149,7 +149,8 @@ subroutine try_exch(imol,itype)
   integer :: imol, itype, try_type
   double precision :: m_val, delxi, rand, boltz
   logical :: success, overlap_q
-
+  external rand
+  
 !  write(*,*) "try_exch:"
   movetype_i_try(itype) = movetype_i_try(itype) + 1
   !write(*,*) "movetype_i_try exch", movetype_i_try(itype)
@@ -158,18 +159,15 @@ subroutine try_exch(imol,itype)
     if(typs(imol) == exch_tcomp(try_type)) then
       cycle
     else
-      coord_try(1) = x(imol)
-      coord_try(2) = y(imol)
-      coord_try(3) = z(imol)
-      CALL overlap(imol,coord_try,exch_tcomp(try_type),'x',overlap_q) ! if overlaps, stop the subroutine
-      if(overlap_q) then
-        return
-      else
-        !write(*,*) "try ovelap pass:", imol, typs(imol), exch_tcomp(try_type)
-        exit
-      endif
+      exit ! continue
     endif
   enddo
+  write(*,*) "exchange =>", typs(imol), exch_tcomp(try_type)
+  coord_try(1) = x(imol)
+  coord_try(2) = y(imol)
+  coord_try(3) = z(imol)
+  CALL overlap(imol,coord_try,exch_tcomp(try_type),'x',overlap_q) ! if overlaps, stop the subroutine
+  if(overlap_q) return
 ! determine m value
   if ( (typs(imol) == exch_tcomp(1)) .and. (exch_tcomp(try_type) == exch_tcomp(2)) ) then
     m_val = -1.0D0

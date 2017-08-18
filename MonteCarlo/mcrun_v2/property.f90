@@ -68,6 +68,77 @@ SUBROUTINE print_pressure_dV(outputfile)
   RETURN
 END SUBROUTINE print_pressure_dV
 
+SUBROUTINE check_overlap()
+  use omp_lib
+  use coupling_pres
+  use pos
+  use ints, only: nptot
+  use inp
+  use cellmap
+  use movetype
+  use sigmas
+  IMPLICIT NONE
+  double precision ::  xt, yt, zt, rt
+  integer :: i, j
+  integer :: id, start_k, end_k, kmax, k ! for openmp
+  logical :: overlap_q        ! for openmp
+
+  write(*,*) "check_overlap:"
+!!    single node job
+!    do i=1,nptot-1 
+!    do j=i+1, nptot
+!    if(typs(i) == typs(j)) cycle
+!    xt = x(i) - x(j)
+!    yt = y(i) - y(j)
+!    zt = z(i) - z(j)
+!    XT = XT - box(1)*DNINT(XT/box(1))
+!    YT = YT - box(2)*DNINT(YT/box(2))
+!    ZT = ZT - box(3)*DNINT(ZT/box(3))
+!    rt = (XT*XT+YT*YT+ZT*ZT)*expd2*pos_scaling2
+!    if( rt < sigma_ab**2 ) return
+!    enddo
+!    enddo
+!  endif
+!   openmp version
+  overlap_q = .false.
+  start_k = 0
+  kmax = 16 ! might be better performance if the optimized value used.
+  do k=1,kmax
+  end_k = k*(nptot-1)/kmax
+!$omp parallel private (xt, yt, zt, rt, id, i, j) shared (overlap_q)
+  id = omp_get_thread_num() + 1
+  do i=start_k+id,end_k,openmp_thread_num
+    do j=i+1, nptot
+      if(typs(i) == typs(j)) cycle
+      xt = x(i) - x(j)
+      yt = y(i) - y(j)
+      zt = z(i) - z(j)
+      XT = XT - box(1)*DNINT(XT/box(1))
+      YT = YT - box(2)*DNINT(YT/box(2))
+      ZT = ZT - box(3)*DNINT(ZT/box(3))
+      RT = (XT*XT+YT*YT+ZT*ZT)*pos_scaling2
+      if( (rt < sigma_ab**2) .or. overlap_q) then
+        overlap_q = .true.
+        exit
+      endif
+    enddo
+    if(overlap_q) exit
+  enddo
+!$omp end parallel
+  if(overlap_q) exit
+  start_k = end_k
+  enddo
+  if(overlap_q) then
+    write(*,*) " your coordinate has overlapped particles. Maybe wrong initial coord."
+    write(*,*) " So, it always check until no overlapping"
+    check_overlap_log = .true.
+  else
+    write(*,*) " Passed."
+    check_overlap_log = .false.
+  endif
+  return
+END SUBROUTINE check_overlap
+
 SUBROUTINE print_density(outputfile)
   use ints
   use pos
@@ -200,12 +271,16 @@ subroutine update_xi_val()
   double precision :: a_frac_compare, ratio
   a_frac_compare = dble(nmol_a)/dble(nptot)
   ratio = a_frac_compare/a_frac - 1.0D0
-  if( dabs(ratio) > 0.00001 ) then
+  if( dabs(ratio) > 0.0001 ) then
     xi_val = xi_val*(1.0D0-ratio)
     write(*,*) " adjust xi_val to ", real(xi_val), "due to difference ", real(ratio)
   endif
+
   if( xi_val >= 1.0D0) then
     write(*,*) "too big xi_val"
+    stop
+  else if (xi_val <= 0.0D0) then
+    write(*,*) "too small xi_val"
     stop
   endif
   log_xi = dlog(xi_val/(1.0D0-xi_val))

@@ -42,9 +42,12 @@ PROGRAM WR_MCRUN
   call read_ic('composite.ic')
   call read_inp('mcrun.inp')
 ! initialize cell list and map. If necessary, find the shortest distance of pairs.
-  call cellmap_init
+  call cellmap_init()
+! check initial coordinate
+  check_overlap_log = .false.
+  call check_overlap()
 !  initialize properties and files
-  call files_init
+  call files_init()
 ! save initial configure
   naver = 0
   call save_gro('conf.gro','o',naver) ! overlap if already exist
@@ -79,6 +82,8 @@ PROGRAM WR_MCRUN
         write(*,'(a,F10.5,1x,a,F10.3,a)') " >> total speed  = ", speed, " (10^6 steps/hours) "
       endif
       inter_time1 = inter_time2 ! update time
+! check overlap
+      if(check_overlap_log) call check_overlap()
 ! properties
       IF(ipres .EQ. 'YES') CALL print_pressure_dV(filename_pres) ! pressure calculation for WR model
       IF(ensemble_pres) then

@@ -118,8 +118,6 @@ def read_coord_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1
 	# Read trajectory using MDAnalysis 
 	u = MDAnalysis.Universe(tpr_filename,trr_filename)
 	n_frames = len(u.trajectory)
-	print("# frames = ", n_frames)
-
 	# selected atoms
 	n_atoms = []
 	atoms = []
@@ -160,10 +158,12 @@ def read_coord_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1
 				nmod = nmod*10
 	# check consistency; final i_frame should be the same as # frames
 	if i_frame != n_frames:
-		raise ValueError("# of frames to read %d does not agree with the length of trajectory file %d" \
-	                             % (i_frame, n_frames))
-
-	# box info 
+		print("nframes {} which is actual nframes does not agree with the length of trajectory file {}".format(i_frame, n_frames))
+		print("Probably you may have problem with disk quota.")
+		#raise ValueError("# of frames to read %d does not agree with the length of trajectory file %d" \
+	    #                         % (i_frame, n_frames))
+	print("# frames = {}".format(i_frame))
+    # box info 
 	if all(unit_cells[0,:] == unit_cells[1,:]):
 		print("The system may be in NVT ensemble")
 	else:
@@ -182,7 +182,7 @@ def read_coord_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1
 			else:
 				print("may be in NPT ensemble")
 				
-	return coordinates1, coordinates2, unit_cells
+	return coordinates1[0:i_frame-1], coordinates2[0:i_frame-1], unit_cells[0:i_frame-1]
 
 # rename the existing filename if the filename already exists
 # input: filename is a filename what you want to rename if the filename already exists 

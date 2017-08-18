@@ -15,6 +15,7 @@ MODULE inp
   INTEGER(kind=8), save :: nncon, ncon, nskip
   integer, save :: openmp_thread_num
   CHARACTER(LEN=3), save :: iconfig, ipres, igr, iex
+  logical, save :: check_overlap_log
 END MODULE inp
 
 MODULE traj
