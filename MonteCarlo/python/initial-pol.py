@@ -115,7 +115,7 @@ elif args.format == 'GRO':
 				else:
 					res_name = atom_name + "M" # AM or BM
 				output_file.write('{0:5d}{1:<5s}{2:5s}{3:5d}{4:8.3f}{5:8.3f}{6:8.3f}\n'.format(
-					iatom+1,res_name,atom_name,i+1,coordinates[i][0],coordinates[i][1],coordinates[i][2]))
+					(iatom+1)%100000,res_name,atom_name,(i+1)%100000,coordinates[i][0],coordinates[i][1],coordinates[i][2]))
 				i += 1	
 		else:
 			atom_name = "B"
@@ -126,7 +126,7 @@ elif args.format == 'GRO':
 				else:
 					res_name = atom_name + "M" # AM or BM
 				output_file.write('{0:5d}{1:<5s}{2:5s}{3:5d}{4:8.3f}{5:8.3f}{6:8.3f}\n'.format(
-					iatom+1,res_name,atom_name,i+1,coordinates[i][0],coordinates[i][1],coordinates[i][2]))
+					(iatom+1)%100000,res_name,atom_name,(i+1)%100000,coordinates[i][0],coordinates[i][1],coordinates[i][2]))
 				i += 1
 		imol += 1	
 	if i != nmtot:
