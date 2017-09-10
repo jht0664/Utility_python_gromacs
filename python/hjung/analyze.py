@@ -425,3 +425,28 @@ def align_acf(data_1d_t, acf_1d_t, setmode):
 		data_1d_t[iframe] = np.roll(shift_array, align_shift[iframe]) #align_shift[0]
 
 	return data_1d_t
+
+def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
+	import numpy as np
+	align_shift = convolve_1d_t_min(acf_1d_t, data_1d_t, setmode) 
+	box_nbins = len(acf_1d_t[0])
+	align_shift = box_nbins  - align_shift
+	
+	# set 0 if shifting index is at boundary
+	if setmode == 'wrap':
+		for index in align_shift:
+			if index == box_nbins:
+				index = 0 # by periodic boundary condition
+
+	# shifting
+	for iframe in range(len(data_1d_t)):
+		shift_array = data_1d_t[iframe]
+		shift_array2 = data2_1d_t[iframe]
+		if iframe > 0:
+			shift_bins = align_shift[iframe] - align_shift[iframe-1]
+			if shift_bins >= 5:
+				raise RuntimeError("problem with alignment, shifting a lot by {} bins".format(shift_bins))
+		data_1d_t[iframe] = np.roll(shift_array, align_shift[iframe]) #align_shift[0]
+		data2_1d_t[iframe] = np.roll(shift_array2, align_shift[iframe]) #align_shift[0]
+
+	return data_1d_t, data2_1d_t
