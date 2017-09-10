@@ -28,7 +28,7 @@ parser.add_argument('-axis', '--axis', default=2, nargs='?', type=int,
 	help='which axis for histogram (x axis (0), y axis (1), z axis (2))')
 parser.add_argument('-align', '--align', default='YES', nargs='?',
 	help='Run alignment? or not? (YES/NO)')
-parser.add_argument('-o', '--output', default='traj.massf', nargs='?', 
+parser.add_argument('-o', '--output', default='traj', nargs='?', 
 	help='output prefix for unalign and align mass1 fraction trajectory')
 parser.add_argument('args', nargs=argparse.REMAINDER)
 parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.4')
@@ -43,7 +43,10 @@ from hjung import *
 import numpy as np
 
 # default for args
-args.oalign = args.output + '.align'
+args.omassf = args.output + '.massf'
+args.ofalign = args.omassf + '.align'
+args.otmass = args.output + '.tmass'
+args.otalign = args.otmass + '.align'
 
 ## Check arguments for log
 print("===============================")
@@ -55,13 +58,14 @@ print("select2 filename  = ", args.select2)
 hjung.blockavg.print_init(args.tol)
 print("number of bins   = ", args.nbin)
 print("axis [0:2]       = ", args.axis)
-print("output mass frac filename  = ", args.output)
-print("output align mass frac filename  = ", args.oalign)
+print("output mass frac filenames = ", args.omassf, args.ofalign, args.otmass, args.otalign)
 
 ## check vaulable setting
+print("="*30)
 if args.axis < 0 or args.axis > 2:
 	raise ValueError("wrong input of axis for histogram")
 args.tol = hjung.blockavg.check(args.tol)
+print("="*30)
 
 ## timer
 start_proc, start_prof = hjung.time.init()
@@ -113,27 +117,37 @@ mass1_1d_t = number1_1d_t*mw[0]/divider[0]
 #print("mass1_1d_t %s" %mass1_1d_t)
 mass2_1d_t = number2_1d_t*mw[1]/divider[1]
 #print("mass2_1d_t %s" %mass2_1d_t)
-massfrac_1d_t = mass1_1d_t/(mass1_1d_t+mass2_1d_t)
+totalmass_1d_t = mass1_1d_t+mass2_1d_t
+massfrac_1d_t = mass1_1d_t/totalmass_1d_t
 #print("massfrac_1d_t %s" %massfrac_1d_t)
 
 ## block average
 print("="*30)
 massfrac_1d_t, block_length = hjung.blockavg.main_1d(massfrac_1d_t, unit_cells_1d, args.tol) 
+totalmass_1d_t, block_length = hjung.blockavg.main_1d(totalmass_1d_t, unit_cells_1d, args.tol) 
 
 ## save number histogram trajectory
-np.savetxt(args.output, massfrac_1d_t, 
+np.savetxt(args.omassf, massfrac_1d_t, 
 	header='[%d, %d], mass1 fraction by molecules in nbins, %d' \
-	%(len(mass1_1d_t),args.nbin,args.nbin), fmt='%f', comments='# ')
+	%(len(massfrac_1d_t),args.nbin,args.nbin), fmt='%f', comments='# ')
+np.savetxt(args.otmass, totalmass_1d_t, 
+	header='[%d, %d], total mass by molecules in nbins, %d' \
+	%(len(totalmass_1d_t),args.nbin,args.nbin), fmt='%f', comments='# ')
 
 ## Align mass fractions using autocorrelation function
 acf_1d_t_wrap = hjung.analyze.autocorr_1d_t(massfrac_1d_t, 'wrap') 
 if (args.align == 'YES'):
-	align_massfrac_1d_t =  hjung.analyze.align_acf(massfrac_1d_t, acf_1d_t_wrap, 'wrap') 
+	align_massfrac_1d_t, align_totalmass_1d_t =  hjung.analyze.align_acf_w_data2(massfrac_1d_t, totalmass_1d_t, acf_1d_t_wrap, 'wrap') 
 else:
 	align_massfrac_1d_t = massfrac_1d_t
-np.savetxt(args.oalign, align_massfrac_1d_t, 
+	align_totalmass_1d_t = totalmass_1d_t
+np.savetxt(args.ofalign, align_massfrac_1d_t, 
 	header='%d, %d, aligned mass1 fraction by ACF and molecules in nbins' \
-	%(len(mass1_1d_t),args.nbin), fmt='%f', comments='# ')
+	%(len(align_massfrac_1d_t),args.nbin), fmt='%f', comments='# ')
+np.savetxt(args.otalign, align_totalmass_1d_t, 
+	header='%d, %d, aligned total mass by ACF and molecules in nbins' \
+	%(len(align_totalmass_1d_t),args.nbin), fmt='%f', comments='# ')
+
 print("Finished saving unalign and align output files")
 
 ## timer
