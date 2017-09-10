@@ -10,6 +10,9 @@ btime=$(grep 'frames' a.massf.log | awk '{ print $4}')
 let btimes=(btime-1)/2
 python ~/Utility/python/savetxt-avg.py -i a.massf.align -b $btimes -tol 0 
 python ~/Utility/python/savetxt-avg.py -i b.massf.align -b $btimes -tol 0
+
+#python ~/Utility/python/savetxt-avg.py -i a.massf.align -b 0 -e 900 -tol 0
+#python ~/Utility/python/savetxt-avg.py -i b.massf.align -b 0 -e 900 -tol 0
 cp ~/Utility/gnuplot/massfit.plot ./a.fit.plot
 cp ~/Utility/gnuplot/massfit.plot ./b.fit.plot
 sed -i "s/NBINS/$1/g" a.fit.plot
