@@ -18,19 +18,19 @@ do
 	new2folder=$new2$str1
 	mkdir $newfolder
 	#cp $oldfolder/conf.gro $newfolder/
-	cp $oldfolder/run_eq.sh $newfolder/
+	#cp $oldfolder/run_eq.sh $newfolder/
 	#cp $oldfolder/table* $newfolder/
 	#cp 1temp/grompp* $newfolder/
 	#cp $oldfolder/index.ndx $newfolder/
 	#cp $oldfolder/topol.top $newfolder/
-        cd $newfolder/
+        #cd $newfolder/
 	#value=$( echo "120.2717*(1.6+0.2*$init)" | bc )
 	#sed -i "s/216.48906/$value/g" grompp.mdp
-	sed -i "s/$newfolder/$new2folder/g" run_eq.sh
-	sed -i "s/$oldfolder/$newfolder/g" run_eq.sh
-	sed -i "s/$old2folder/$oldfolder/g" run_eq.sh
+	#sed -i "s/$newfolder/$new2folder/g" run_eq.sh
+	#sed -i "s/$oldfolder/$newfolder/g" run_eq.sh
+	#sed -i "s/$old2folder/$oldfolder/g" run_eq.sh
 	#qsub run_eq.sh
-	cd ../
+	#cd ../
 	let init=init+1
 done
 

@@ -44,6 +44,7 @@ import numpy as np
 
 # default for args
 args.omassf = args.output + '.massf'
+args.oacf = args.output + '.massf.acf'
 args.ofalign = args.omassf + '.align'
 args.otmass = args.output + '.tmass'
 args.otalign = args.otmass + '.align'
@@ -58,7 +59,7 @@ print("select2 filename  = ", args.select2)
 hjung.blockavg.print_init(args.tol)
 print("number of bins   = ", args.nbin)
 print("axis [0:2]       = ", args.axis)
-print("output mass frac filenames = ", args.omassf, args.ofalign, args.otmass, args.otalign)
+print("output mass frac filenames = ", args.omassf, args.oacf, args.ofalign, args.otmass, args.otalign)
 
 ## check vaulable setting
 print("="*30)
@@ -136,6 +137,10 @@ np.savetxt(args.otmass, totalmass_1d_t,
 
 ## Align mass fractions using autocorrelation function
 acf_1d_t_wrap = hjung.analyze.autocorr_1d_t(massfrac_1d_t, 'wrap') 
+slab_shift = int(len(acf_1d_t_wrap[0])/2.0)
+np.savetxt(args.oacf, acf_1d_t_wrap, 
+	header='spatial autocorr(slab_lag,i_frame) for delta_number, Plot u ($1-%d):2:3 when block_length = %d'	 
+	%(slab_shift,block_length), fmt='%f', comments='# ')
 if (args.align == 'YES'):
 	align_massfrac_1d_t, align_totalmass_1d_t =  hjung.analyze.align_acf_w_data2(massfrac_1d_t, totalmass_1d_t, acf_1d_t_wrap, 'wrap') 
 else:
