@@ -1,3 +1,40 @@
+# calculation center of mass and alignment with two data sets
+# input: x_t, x2_t is 1d-coordinate of atoms along time (t1, t2, ...)
+#			[[x1(t0), x2(t0), x3(t0), ...], [x1(t1), x2(t1), x3(t1)], ...]
+# 		 box_t is box dimension sets along time (t1, t2, ...)
+#			[box_x(t0), box_x(t1), ...]
+# output: com_t is center-of-mass 
+#           [com_t(t0), com_t(t1), ...] 
+def com_t_1d_w_data2(x_t, x2_t, box_x_t):
+	import numpy as np
+	print("analyze.com_t_1d:")
+	# check n_frames of x_t and box_x_t
+	if len(x_t) != len(box_x_t):
+		raise ValueError("# of time frame is not the same for input arrarys")
+	# make sure all element is within box dimension
+	i_frame = 0
+	for x in x_t:
+		for xi in x:
+			if (xi < 0) or (xi > box_x_t[i_frame]):
+				raise ValueError("position is beyond box. Wrap trajectories within box dimention")
+		i_frame = i_frame + 1
+	# make com trajectory
+	com_t = np.mean(x_t,axis=1)
+	com_t = np.mod(com_t,box_x_t)
+	print(" COM std = {}".format(np.std(com_t)))
+
+	# align trajectory
+	i_frame = 0
+	import copy
+	align_x_t = copy.copy(x_t)
+	align_x2_t = copy.copy(x2_t)
+	for i_frame in range(len(align_x_t)):
+		hello = align_x_t[i_frame] - com_t[i_frame] + (box_x_t[i_frame]/2.0)
+		hello2 = align_x2_t[i_frame] - com_t[i_frame] + (box_x_t[i_frame]/2.0)
+		align_x_t[i_frame] = np.mod(hello,box_x_t[i_frame])
+		align_x2_t[i_frame] = np.mod(hello2,box_x_t[i_frame])
+	return align_x_t, align_x2_t
+
 # make 1D histograms every single frame using 1d-coordinates
 # input: x_t is 1d-coordinate of atoms along time (t1, t2, ...)
 #		[[x1(t0), x2(t0), x3(t0), ...], [x1(t1), x2(t1), x3(t1)], ...]
@@ -360,6 +397,7 @@ def autocorr_1d_fft_t(data_1d_t):
 def convolve_1d_t_min(data1_1d_t, data2_1d_t, setmode):
 	import numpy as np
 	from scipy import ndimage
+	print(" analyze.convolve_1d_t_min: ######### remove soon this function ###################")
 
 	# check total # element and length of datas
 	data1_1d_t = np.array(data1_1d_t)
@@ -381,6 +419,40 @@ def convolve_1d_t_min(data1_1d_t, data2_1d_t, setmode):
 		# No normalization
 		convolve_data.append(convolve_temp)
 	return np.argmin(convolve_data, axis=1)
+
+def convolve_1d_t(data1_1d_t, data2_1d_t, setmode, minmax):
+	import numpy as np
+	from scipy import ndimage
+
+	# check minmax argument
+	if (minmax != 'max') and (minmax != 'min'):
+		raise ValueError("Error: wrong arugment on minmax")
+	# check total # element and length of datas
+	data1_1d_t = np.array(data1_1d_t)
+	data2_1d_t = np.array(data2_1d_t)
+	if data1_1d_t.size != data2_1d_t.size:
+		raise ValueError("Error: # elements of datas are not same.")
+	len_data1 = len(data1_1d_t)
+	len_data2 = len(data2_1d_t)
+	if len_data1 != len_data2:
+		raise ValueError("Error: length of datas are not same.")
+	if len_data1*len(data1_1d_t[0]) != data1_1d_t.size \
+		or len_data2*len(data2_1d_t[0]) != data2_1d_t.size:
+		raise ValueError("Error: datas are not homogeneous shape.")
+	
+	# Do convolution at the same frame
+	convolve_data = []
+	for iframe in range(len_data1):
+		convolve_temp = ndimage.convolve(data1_1d_t[iframe],data2_1d_t[iframe],mode=setmode)
+		# No normalization
+		convolve_data.append(convolve_temp)
+
+	if minmax == 'min':
+		output = np.argmin(convolve_data, axis=1)
+	else:
+		output = np.argmax(convolve_data, axis=1)
+	return output
+
 
 # Align data_1d_t using convolution with (spatial) autocorrelation function of data_1d_t
 # input: data_1d_t is array along time (t1, t2, ...)
@@ -428,10 +500,11 @@ def align_acf(data_1d_t, acf_1d_t, setmode):
 
 def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 	import numpy as np
+	print("analyze.align_acf_w_data2:")
 	align_shift = convolve_1d_t_min(acf_1d_t, data_1d_t, setmode) 
 	box_nbins = len(acf_1d_t[0])
 	align_shift = box_nbins  - align_shift
-	
+	print(" Convolution std = {}".format(np.std(align_shift)))
 	# set 0 if shifting index is at boundary
 	if setmode == 'wrap':
 		for index in align_shift:
@@ -450,3 +523,29 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 		data2_1d_t[iframe] = np.roll(shift_array2, align_shift[iframe]) #align_shift[0]
 
 	return data_1d_t, data2_1d_t
+
+def diff_com_conv_w_data4(data11_1d_t, data12_1d_t, data21_1d_t, data22_1d_t, setmode):
+	import numpy as np
+	print("analyze.diff_com_conv_w_data4:")
+	align_shift = convolve_1d_t(data11_1d_t,  data21_1d_t, setmode, 'max') 
+	box_nbins = len(data11_1d_t[0])
+	align_shift = np.mod(-1.0*align_shift,box_nbins)
+	print(" diffrence shift std = {}".format(np.std(align_shift)))
+	
+	# shifting
+	for iframe in range(len(data11_1d_t)):
+		shift_array11 = data11_1d_t[iframe]
+		shift_array12 = data12_1d_t[iframe]
+		if iframe > 0:
+			shift_bins = align_shift[iframe] - align_shift[iframe-1]
+			if shift_bins >= 5:
+				print("problem with alignment, shifting a lot by {} bins at {} iframe".format(shift_bins,iframe))
+		data11_1d_t[iframe] = np.roll(shift_array11, align_shift[iframe]) #align_shift[0]
+		data12_1d_t[iframe] = np.roll(shift_array12, align_shift[iframe]) #align_shift[0]
+
+	# difference
+	diff_data1_1d_t = data11_1d_t - data21_1d_t
+	diff_data2_1d_t = data12_1d_t - data22_1d_t
+
+	return diff_data1_1d_t, diff_data2_1d_t
+

@@ -44,10 +44,13 @@ import numpy as np
 
 # default for args
 args.omassf = args.output + '.massf'
+args.com = args.output + '.com'
 args.oacf = args.output + '.massf.acf'
 args.ofalign = args.omassf + '.align'
 args.otmass = args.output + '.tmass'
 args.otalign = args.otmass + '.align'
+args.diffm = args.output + '.massf.diff'
+args.difft = args.output + '.tmass.diff'
 
 ## Check arguments for log
 print("===============================")
@@ -86,10 +89,20 @@ print(" box length avg = %f" %box_axis_avg)
 print(" bin size avg = %f" %(box_axis_avg/float(args.nbin)))
 print(" box length std = %f" %box_axis_std)
 
+## ceter of mass for each frame
+coordinates1_1d_com, coordinates2_1d_com = hjung.analyze.com_t_1d_w_data2(coordinates1_1d, coordinates2_1d, unit_cells_1d) 
+coordinates1_1d_com, coordinates2_1d_com = hjung.analyze.com_t_1d_w_data2(coordinates1_1d_com, coordinates2_1d_com, unit_cells_1d) 
+print("is it good alignment enough by itself by COM method?")
+coordinates1_1d_com, coordinates2_1d_com = hjung.analyze.com_t_1d_w_data2(coordinates1_1d_com, coordinates2_1d_com, unit_cells_1d) 
+print("is it good alignment enough by itself by COM method again?")
+coordinates1_1d_com, coordinates2_1d_com = hjung.analyze.com_t_1d_w_data2(coordinates1_1d_com, coordinates2_1d_com, unit_cells_1d) 
+
 ## number histograms for each frame 
 print("="*30)
 number1_1d_t, bin_1d_t = hjung.analyze.histo_t_1d_nbin(coordinates1_1d, unit_cells_1d, args.nbin) 
 number2_1d_t, bin_1d_t = hjung.analyze.histo_t_1d_nbin(coordinates2_1d, unit_cells_1d, args.nbin) 
+number1_1d_t_com, bin_1d_t_com = hjung.analyze.histo_t_1d_nbin(coordinates1_1d_com, unit_cells_1d, args.nbin) 
+number2_1d_t_com, bin_1d_t_com = hjung.analyze.histo_t_1d_nbin(coordinates2_1d_com, unit_cells_1d, args.nbin) 
 print("Done: making number trajectory with respect to bins")
 
 ## read args.mass file
@@ -107,19 +120,23 @@ for line in massinfo:
 	divider.append(float(line_m[0]))
 	mw.append(float(line_m[1]))
 massinfo.close()
-divider = np.array(divider)
-mw = np.array(mw)
+divider = np.array(divider,dtype=np.float)
+mw = np.array(mw,dtype=np.float)
 if len(divider) != 2 or len(mw) != 2:
 	ValueError("Wrong format in %s file" %args.mass)
 print("dividers[select1,select2] = %s" %divider)
 print("mw[select1,select2] = %s" %mw)
 ## Calculate mass fraction of each bins
 mass1_1d_t = number1_1d_t*mw[0]/divider[0]
+mass1_1d_t_com = number1_1d_t_com*mw[0]/divider[0]
 #print("mass1_1d_t %s" %mass1_1d_t)
 mass2_1d_t = number2_1d_t*mw[1]/divider[1]
+mass2_1d_t_com = number2_1d_t_com*mw[1]/divider[1]
 #print("mass2_1d_t %s" %mass2_1d_t)
-totalmass_1d_t = mass1_1d_t+mass2_1d_t
-massfrac_1d_t = mass1_1d_t/totalmass_1d_t
+totalmass_1d_t = np.array(mass1_1d_t + mass2_1d_t,dtype=np.float)
+totalmass_1d_t_com = np.array(mass1_1d_t_com + mass2_1d_t_com,dtype=np.float)
+massfrac_1d_t = np.divide(mass1_1d_t,totalmass_1d_t)
+massfrac_1d_t_com = np.divide(mass1_1d_t_com,totalmass_1d_t_com)
 #print("massfrac_1d_t %s" %massfrac_1d_t)
 
 ## block average
@@ -131,6 +148,9 @@ totalmass_1d_t, block_length = hjung.blockavg.main_1d(totalmass_1d_t, unit_cells
 np.savetxt(args.omassf, massfrac_1d_t, 
 	header='[%d, %d], mass1 fraction by molecules in nbins, %d' \
 	%(len(massfrac_1d_t),args.nbin,args.nbin), fmt='%f', comments='# ')
+np.savetxt(args.com, massfrac_1d_t_com, 
+	header='[%d, %d], mass1 fraction by molecules in nbins by COM method, %d' \
+	%(len(massfrac_1d_t_com),args.nbin,args.nbin), fmt='%f', comments='# ')
 np.savetxt(args.otmass, totalmass_1d_t, 
 	header='[%d, %d], total mass by molecules in nbins, %d' \
 	%(len(totalmass_1d_t),args.nbin,args.nbin), fmt='%f', comments='# ')
@@ -142,16 +162,27 @@ np.savetxt(args.oacf, acf_1d_t_wrap,
 	header='spatial autocorr(slab_lag,i_frame) for delta_number, Plot u ($1-%d):2:3 when block_length = %d'	 
 	%(slab_shift,block_length), fmt='%f', comments='# ')
 if (args.align == 'YES'):
-	align_massfrac_1d_t, align_totalmass_1d_t =  hjung.analyze.align_acf_w_data2(massfrac_1d_t, totalmass_1d_t, acf_1d_t_wrap, 'wrap') 
+	#align_massfrac_1d_t, align_totalmass_1d_t =  hjung.analyze.align_acf_w_data2(massfrac_1d_t, totalmass_1d_t, acf_1d_t_wrap, 'wrap') 
+	align_massfrac_1d_t, align_totalmass_1d_t = hjung.analyze.align_acf_w_data2(massfrac_1d_t, totalmass_1d_t, acf_1d_t_wrap, 'wrap') 
+	diff_massfrac_1d_t, diff_totalmass_1d_t = hjung.analyze.diff_com_conv_w_data4(align_massfrac_1d_t, align_totalmass_1d_t, massfrac_1d_t_com, totalmass_1d_t, 'wrap') 
 else:
 	align_massfrac_1d_t = massfrac_1d_t
 	align_totalmass_1d_t = totalmass_1d_t
+
 np.savetxt(args.ofalign, align_massfrac_1d_t, 
 	header='%d, %d, aligned mass1 fraction by ACF and molecules in nbins' \
 	%(len(align_massfrac_1d_t),args.nbin), fmt='%f', comments='# ')
 np.savetxt(args.otalign, align_totalmass_1d_t, 
 	header='%d, %d, aligned total mass by ACF and molecules in nbins' \
 	%(len(align_totalmass_1d_t),args.nbin), fmt='%f', comments='# ')
+
+np.savetxt(args.diffm, diff_massfrac_1d_t, 
+	header='%d, %d, differences of massfrac between conv and com method in nbins' \
+	%(len(diff_massfrac_1d_t),args.nbin), fmt='%f', comments='# ')
+np.savetxt(args.difft, diff_totalmass_1d_t, 
+	header='%d, %d, differences of totalmass between conv and com method in nbins' \
+	%(len(diff_totalmass_1d_t),args.nbin), fmt='%f', comments='# ')
+
 
 print("Finished saving unalign and align output files")
 
