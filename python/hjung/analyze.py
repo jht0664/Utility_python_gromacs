@@ -529,7 +529,7 @@ def diff_com_conv_w_data4(data11_1d_t, data12_1d_t, data21_1d_t, data22_1d_t, se
 	print("analyze.diff_com_conv_w_data4:")
 	align_shift = convolve_1d_t(data11_1d_t,  data21_1d_t, setmode, 'max') 
 	box_nbins = len(data11_1d_t[0])
-	align_shift = np.mod(-1.0*align_shift,box_nbins)
+	align_shift = np.mod(-1*align_shift,box_nbins)
 	print(" diffrence shift std = {}".format(np.std(align_shift)))
 	
 	# shifting
