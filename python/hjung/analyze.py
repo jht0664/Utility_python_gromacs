@@ -527,19 +527,15 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 def diff_com_conv_w_data4(data11_1d_t, data12_1d_t, data21_1d_t, data22_1d_t, setmode):
 	import numpy as np
 	print("analyze.diff_com_conv_w_data4:")
-	align_shift = convolve_1d_t(data11_1d_t,  data21_1d_t, setmode, 'max') 
+	align_shift = convolve_1d_t(data11_1d_t,  data21_1d_t, setmode, 'min') 
 	box_nbins = len(data11_1d_t[0])
-	align_shift = np.mod(-1*align_shift,box_nbins)
+	align_shift = np.mod(-align_shift,box_nbins)
 	print(" diffrence shift std = {}".format(np.std(align_shift)))
 	
 	# shifting
 	for iframe in range(len(data11_1d_t)):
 		shift_array11 = data11_1d_t[iframe]
 		shift_array12 = data12_1d_t[iframe]
-		if iframe > 0:
-			shift_bins = align_shift[iframe] - align_shift[iframe-1]
-			if shift_bins >= 5:
-				print("problem with alignment, shifting a lot by {} bins at {} iframe".format(shift_bins,iframe))
 		data11_1d_t[iframe] = np.roll(shift_array11, align_shift[iframe]) #align_shift[0]
 		data12_1d_t[iframe] = np.roll(shift_array12, align_shift[iframe]) #align_shift[0]
 
