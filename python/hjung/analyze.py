@@ -535,21 +535,14 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 	import numpy as np
 	print("analyze.align_acf_w_data2:")
 	# acf function set all positive elements
-	print("a {}".format(data_1d_t[0]))
 	align_shift = convolve_1d_t(acf_1d_t, data_1d_t, setmode, 'max') 
-	print("b {}".format(data_1d_t[0]))
 	box_nbins = len(acf_1d_t[0])
-	i=0
-	for txt in align_shift:
-		print("{} {}".format(i,txt))
-		i = i+1
-	#align_shift = np.mod(-align_shift,box_nbins)
+	align_shift = np.mod(align_shift+int(box_nbins/2),box_nbins)
 	print(" Convolution std = {}".format(np.std(align_shift)))
 	
 	# shifting
 	for iframe in range(len(data_1d_t)):
 		if iframe == 0:
-			print("c {}".format(data_1d_t[0]))
 		shift_array = data_1d_t[iframe]
 		shift_array2 = data2_1d_t[iframe]
 		if iframe > 0:
@@ -557,11 +550,7 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 			if shift_bins >= 5:
 				print("problem with alignment, shifting a lot by {} bins at {} iframe".format(shift_bins,iframe))
 		#print("{} before {}".format(iframe, shift_array))
-		if iframe == 0:
-			print("d {}".format(data_1d_t[0]))
 		data_1d_t[iframe] = np.roll(shift_array, align_shift[iframe]) #align_shift[0]
-		if iframe == 0:
-			print("e {}".format(data_1d_t[0]))
 		#print("{} after {}".format(iframe, shift_array))
 		data2_1d_t[iframe] = np.roll(shift_array2, align_shift[iframe]) #align_shift[0]
 
@@ -577,10 +566,10 @@ def diff_com_conv_w_data4(data11_1d_t, data12_1d_t, data21_1d_t, data22_1d_t, se
 	
 	# shifting
 	for iframe in range(len(data11_1d_t)):
-		shift_array11 = data11_1d_t[iframe]
-		shift_array12 = data12_1d_t[iframe]
-		data11_1d_t[iframe] = np.roll(shift_array11, align_shift[iframe]) #align_shift[0]
-		data12_1d_t[iframe] = np.roll(shift_array12, align_shift[iframe]) #align_shift[0]
+		shift_array11 = data21_1d_t[iframe]
+		shift_array12 = data22_1d_t[iframe]
+		data21_1d_t[iframe] = np.roll(shift_array11, align_shift[iframe]) #align_shift[0]
+		data22_1d_t[iframe] = np.roll(shift_array12, align_shift[iframe]) #align_shift[0]
 
 	# difference
 	diff_data1_1d_t = data11_1d_t - data21_1d_t

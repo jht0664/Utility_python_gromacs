@@ -172,7 +172,7 @@ if (args.align == 'YES'):
 	print("1 {}".format(massfrac_1d_t[0]))
 	align_massfrac_1d_t, align_totalmass_1d_t = hjung.analyze.align_acf_w_data2(massfrac_1d_t, totalmass_1d_t, acf_1d_t_wrap_positive, 'wrap') 
 	print("end {}".format(align_massfrac_1d_t[0]))
-	diff_massfrac_1d_t, diff_totalmass_1d_t = hjung.analyze.diff_com_conv_w_data4(align_massfrac_1d_t, align_totalmass_1d_t, massfrac_1d_t_com, totalmass_1d_t, 'wrap') 
+	diff_massfrac_1d_t, diff_totalmass_1d_t = hjung.analyze.diff_com_conv_w_data4(align_massfrac_1d_t, align_totalmass_1d_t, massfrac_1d_t_com, totalmass_1d_t_com, 'wrap') 
 	print("end2 {}".format(align_massfrac_1d_t[0]))
 else:
 	align_massfrac_1d_t = massfrac_1d_t
