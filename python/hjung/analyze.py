@@ -502,7 +502,7 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 	import numpy as np
 	print("analyze.align_acf_w_data2:")
 	# acf function set all positive elements
-	align_shift = convolve_1d_t(acf_1d_t, data_1d_t, setmode, 'min') 
+	align_shift = convolve_1d_t(acf_1d_t, data_1d_t, setmode, 'max') 
 	box_nbins = len(acf_1d_t[0])
 	align_shift = np.mod(-align_shift,box_nbins)
 	print(" Convolution std = {}".format(np.std(align_shift)))
