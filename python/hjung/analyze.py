@@ -453,6 +453,39 @@ def convolve_1d_t(data1_1d_t, data2_1d_t, setmode, minmax):
 		output = np.argmax(convolve_data, axis=1)
 	return output
 
+def cross_1d_t(data1_1d_t, data2_1d_t, setmode, minmax):
+	import numpy as np
+	from scipy import ndimage
+
+	# check minmax argument
+	if (minmax != 'max') and (minmax != 'min'):
+		raise ValueError("Error: wrong arugment on minmax")
+	# check total # element and length of datas
+	data1_1d_t = np.array(data1_1d_t)
+	data2_1d_t = np.array(data2_1d_t)
+	if data1_1d_t.size != data2_1d_t.size:
+		raise ValueError("Error: # elements of datas are not same.")
+	len_data1 = len(data1_1d_t)
+	len_data2 = len(data2_1d_t)
+	if len_data1 != len_data2:
+		raise ValueError("Error: length of datas are not same.")
+	if len_data1*len(data1_1d_t[0]) != data1_1d_t.size \
+		or len_data2*len(data2_1d_t[0]) != data2_1d_t.size:
+		raise ValueError("Error: datas are not homogeneous shape.")
+	
+	# Do convolution at the same frame
+	convolve_data = []
+	for iframe in range(len_data1):
+		convolve_temp = ndimage.convolve(data1_1d_t[iframe],data2_1d_t[iframe],mode=setmode)
+		# No normalization
+		convolve_data.append(convolve_temp)
+
+	if minmax == 'min':
+		output = np.argmin(convolve_data, axis=1)
+	else:
+		output = np.argmax(convolve_data, axis=1)
+	return output
+
 
 # Align data_1d_t using convolution with (spatial) autocorrelation function of data_1d_t
 # input: data_1d_t is array along time (t1, t2, ...)
@@ -504,7 +537,7 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 	# acf function set all positive elements
 	align_shift = convolve_1d_t(acf_1d_t, data_1d_t, setmode, 'max') 
 	box_nbins = len(acf_1d_t[0])
-	align_shift = np.mod(-align_shift,box_nbins)
+	#align_shift = np.mod(-align_shift,box_nbins)
 	print(" Convolution std = {}".format(np.std(align_shift)))
 	
 	# shifting
