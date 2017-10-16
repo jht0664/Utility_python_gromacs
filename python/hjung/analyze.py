@@ -542,7 +542,6 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 	
 	# shifting
 	for iframe in range(len(data_1d_t)):
-		if iframe == 0:
 		shift_array = data_1d_t[iframe]
 		shift_array2 = data2_1d_t[iframe]
 		if iframe > 0:
