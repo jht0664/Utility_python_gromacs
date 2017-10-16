@@ -552,9 +552,9 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 			shift_bins = align_shift[iframe] - align_shift[iframe-1]
 			if shift_bins >= 5:
 				print("problem with alignment, shifting a lot by {} bins at {} iframe".format(shift_bins,iframe))
-		print("{} before {}".format(iframe, shift_array))
+		#print("{} before {}".format(iframe, shift_array))
 		data_1d_t[iframe] = np.roll(shift_array, align_shift[iframe]) #align_shift[0]
-		print("{} after {}".format(iframe, shift_array))
+		#print("{} after {}".format(iframe, shift_array))
 		data2_1d_t[iframe] = np.roll(shift_array2, align_shift[iframe]) #align_shift[0]
 
 	return data_1d_t, data2_1d_t
