@@ -502,16 +502,11 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 	import numpy as np
 	print("analyze.align_acf_w_data2:")
 	# acf function set all positive elements
-	align_shift = convolve_1d_t_min(acf_1d_t, data_1d_t, setmode) 
+	align_shift = convolve_1d_t(acf_1d_t, data_1d_t, setmode, 'min') 
 	box_nbins = len(acf_1d_t[0])
-	align_shift = box_nbins  - align_shift
+	align_shift = np.mod(-align_shift,box_nbins)
 	print(" Convolution std = {}".format(np.std(align_shift)))
-	# set 0 if shifting index is at boundary
-	if setmode == 'wrap':
-		for index in align_shift:
-			if index == box_nbins:
-				index = 0 # by periodic boundary condition
-
+	
 	# shifting
 	for iframe in range(len(data_1d_t)):
 		shift_array = data_1d_t[iframe]
