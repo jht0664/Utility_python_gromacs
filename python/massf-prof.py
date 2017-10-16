@@ -159,7 +159,7 @@ np.savetxt(args.otmass, totalmass_1d_t,
 acf_1d_t_wrap = hjung.analyze.autocorr_1d_t(massfrac_1d_t, 'wrap') 
 import copy
 acf_1d_t_wrap_positive = copy.copy(acf_1d_t_wrap)
-min_acf = np.minimum(acf_1d_t_wrap_positive)
+min_acf = np.amin(acf_1d_t_wrap_positive)
 print("acf min = {}".format(min_acf))
 if min_acf < 0:
 	acf_1d_t_wrap_positive = acf_1d_t_wrap_positive - min_acf
