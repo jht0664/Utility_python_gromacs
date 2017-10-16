@@ -539,7 +539,6 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 	box_nbins = len(acf_1d_t[0])
 	i=0
 	for txt in align_shift:
-		if 
 		print("{} {}".format(i,txt))
 		i = i+1
 	#align_shift = np.mod(-align_shift,box_nbins)
