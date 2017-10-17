@@ -451,9 +451,7 @@ def convolve_1d_t(data1_1d_t, data2_1d_t, setmode, minmax):
 		output = np.argmin(convolve_data, axis=1)
 	else:
 		output = np.argmax(convolve_data, axis=1)
-	print("output1 {}".format(output[0]))
 	output = int(len(data1_1d_t[0])/2)-output
-	print("output2 {}".format(output[0]))
 	return output
 
 # Align data_1d_t using convolution with (spatial) autocorrelation function of data_1d_t
