@@ -339,7 +339,7 @@ def block_average_1d(data_t, block_length):
 ##  'wrap'     | 6  7  8 | 1  2  3  4  5  6  7  8 | 1  2  3
 ################################################################
 def autocorr_1d_t(data_1d_t,setmode):
-	print("Starting Autocorrelation 1d with mode %s ...." %setmode)
+	print("analyze.autocorr_1d_t:")
 	
 	import numpy as np
 	from scipy import ndimage
@@ -397,7 +397,7 @@ def autocorr_1d_fft_t(data_1d_t):
 def convolve_1d_t_min(data1_1d_t, data2_1d_t, setmode):
 	import numpy as np
 	from scipy import ndimage
-	print(" analyze.convolve_1d_t_min: ######### remove soon this function ###################")
+	print("analyze.convolve_1d_t_min: ######### remove soon this function ###################")
 
 	# check total # element and length of datas
 	data1_1d_t = np.array(data1_1d_t)
@@ -421,24 +421,25 @@ def convolve_1d_t_min(data1_1d_t, data2_1d_t, setmode):
 	return np.argmin(convolve_data, axis=1)
 
 def convolve_1d_t(data1_1d_t, data2_1d_t, setmode, minmax):
+	print("analyze.convolve_1d_t:")
 	import numpy as np
 	from scipy import ndimage
 	# check minmax argument
 	if (minmax != 'max') and (minmax != 'min'):
-		raise ValueError("Error: wrong arugment on minmax")
+		raise ValueError(" Error: wrong arugment on minmax")
 	# check total # element and length of datas
 	data1_1d_t = np.array(data1_1d_t)
 	data2_1d_t = np.array(data2_1d_t)
 	# for this case, the size of data array should be the same
 	if data1_1d_t.size != data2_1d_t.size:
-		raise ValueError("Error: # elements of datas are not same.")
+		raise ValueError(" Error: # elements of datas are not same.")
 	len_data1 = len(data1_1d_t)
 	len_data2 = len(data2_1d_t)
 	if len_data1 != len_data2:
-		raise ValueError("Error: length of datas are not same.")
+		raise ValueError(" Error: length of datas are not same.")
 	if len_data1*len(data1_1d_t[0]) != data1_1d_t.size \
 		or len_data2*len(data2_1d_t[0]) != data2_1d_t.size:
-		raise ValueError("Error: datas are not homogeneous shape.")
+		raise ValueError(" Error: datas are not homogeneous shape.")
 	
 	# Do convolution at the same time frame
 	convolve_data = []
@@ -509,11 +510,6 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 	for iframe in range(len(data_1d_t)):
 		shift_array = data_1d_t[iframe]
 		shift_array2 = data2_1d_t[iframe]
-		# check to avoid too many shifted bins
-		if iframe > 0:
-			shift_bins = align_shift[iframe] - align_shift[iframe-1]
-			if abs(shift_bins) >= 5:
-				print(" Problem with alignment? Shifted a lot by {} bins at {} iframe just after 1 frame".format(shift_bins,iframe))
 		data_1d_t[iframe] = np.roll(shift_array, align_shift[iframe]) #align_shift[0]
 		data2_1d_t[iframe] = np.roll(shift_array2, align_shift[iframe]) #align_shift[0]
 
