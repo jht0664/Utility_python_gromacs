@@ -157,28 +157,24 @@ np.savetxt(args.otmass, totalmass_1d_t,
 
 ## Align mass fractions using autocorrelation function
 acf_1d_t_wrap = hjung.analyze.autocorr_1d_t(massfrac_1d_t, 'wrap') 
-import copy
-acf_1d_t_wrap_positive = copy.copy(acf_1d_t_wrap)
-min_acf = np.amin(acf_1d_t_wrap_positive)
-print("acf min = {}".format(min_acf))
-if min_acf < 0:
-	acf_1d_t_wrap_positive = acf_1d_t_wrap_positive - min_acf
+#import copy
+#acf_1d_t_wrap_positive = copy.copy(acf_1d_t_wrap)
+#min_acf = np.amin(acf_1d_t_wrap_positive)
+#print("acf min = {}".format(min_acf))
+#if min_acf < 0:
+#	acf_1d_t_wrap_positive = acf_1d_t_wrap_positive - min_acf
 slab_shift = int(len(acf_1d_t_wrap[0])/2.0)
 np.savetxt(args.oacf, acf_1d_t_wrap, 
 	header='spatial autocorr(slab_lag,i_frame) for delta_number, Plot u ($1-%d):2:3 when block_length = %d'	 
 	%(slab_shift,block_length), fmt='%f', comments='# ')
 if (args.align == 'YES'):
 	#align_massfrac_1d_t, align_totalmass_1d_t =  hjung.analyze.align_acf_w_data2(massfrac_1d_t, totalmass_1d_t, acf_1d_t_wrap, 'wrap') 
-	print("1 {}".format(massfrac_1d_t[0]))
-	align_massfrac_1d_t, align_totalmass_1d_t = hjung.analyze.align_acf_w_data2(massfrac_1d_t, totalmass_1d_t, acf_1d_t_wrap_positive, 'wrap') 
-	print("end {}".format(align_massfrac_1d_t[0]))
+	align_massfrac_1d_t, align_totalmass_1d_t = hjung.analyze.align_acf_w_data2(massfrac_1d_t, totalmass_1d_t, acf_1d_t_wrap, 'wrap') 
 	diff_massfrac_1d_t, diff_totalmass_1d_t = hjung.analyze.diff_com_conv_w_data4(align_massfrac_1d_t, align_totalmass_1d_t, massfrac_1d_t_com, totalmass_1d_t_com, 'wrap') 
-	print("end2 {}".format(align_massfrac_1d_t[0]))
 else:
 	align_massfrac_1d_t = massfrac_1d_t
 	align_totalmass_1d_t = totalmass_1d_t
 
-print("end3 {}".format(align_massfrac_1d_t[0]))
 np.savetxt(args.ofalign, align_massfrac_1d_t, 
 	header='%d, %d, aligned mass1 fraction by ACF and molecules in nbins' \
 	%(len(align_massfrac_1d_t),args.nbin), fmt='%f', comments='# ')

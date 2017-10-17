@@ -423,13 +423,13 @@ def convolve_1d_t_min(data1_1d_t, data2_1d_t, setmode):
 def convolve_1d_t(data1_1d_t, data2_1d_t, setmode, minmax):
 	import numpy as np
 	from scipy import ndimage
-
 	# check minmax argument
 	if (minmax != 'max') and (minmax != 'min'):
 		raise ValueError("Error: wrong arugment on minmax")
 	# check total # element and length of datas
 	data1_1d_t = np.array(data1_1d_t)
 	data2_1d_t = np.array(data2_1d_t)
+	# for this case, the size of data array should be the same
 	if data1_1d_t.size != data2_1d_t.size:
 		raise ValueError("Error: # elements of datas are not same.")
 	len_data1 = len(data1_1d_t)
@@ -440,52 +440,21 @@ def convolve_1d_t(data1_1d_t, data2_1d_t, setmode, minmax):
 		or len_data2*len(data2_1d_t[0]) != data2_1d_t.size:
 		raise ValueError("Error: datas are not homogeneous shape.")
 	
-	# Do convolution at the same frame
+	# Do convolution at the same time frame
 	convolve_data = []
 	for iframe in range(len_data1):
 		convolve_temp = ndimage.convolve(data1_1d_t[iframe],data2_1d_t[iframe],mode=setmode)
-		# No normalization
+		# Not neccesary normalization
 		convolve_data.append(convolve_temp)
-
+	# keep in mind that the x-range of convolve_data starts 0 to size_data
 	if minmax == 'min':
 		output = np.argmin(convolve_data, axis=1)
 	else:
 		output = np.argmax(convolve_data, axis=1)
+	print("output1 {}".format(output[0]))
+	output = int(len(data1_1d_t[0])/2)-output
+	print("output2 {}".format(output[0]))
 	return output
-
-def cross_1d_t(data1_1d_t, data2_1d_t, setmode, minmax):
-	import numpy as np
-	from scipy import ndimage
-
-	# check minmax argument
-	if (minmax != 'max') and (minmax != 'min'):
-		raise ValueError("Error: wrong arugment on minmax")
-	# check total # element and length of datas
-	data1_1d_t = np.array(data1_1d_t)
-	data2_1d_t = np.array(data2_1d_t)
-	if data1_1d_t.size != data2_1d_t.size:
-		raise ValueError("Error: # elements of datas are not same.")
-	len_data1 = len(data1_1d_t)
-	len_data2 = len(data2_1d_t)
-	if len_data1 != len_data2:
-		raise ValueError("Error: length of datas are not same.")
-	if len_data1*len(data1_1d_t[0]) != data1_1d_t.size \
-		or len_data2*len(data2_1d_t[0]) != data2_1d_t.size:
-		raise ValueError("Error: datas are not homogeneous shape.")
-	
-	# Do convolution at the same frame
-	convolve_data = []
-	for iframe in range(len_data1):
-		convolve_temp = ndimage.convolve(data1_1d_t[iframe],data2_1d_t[iframe],mode=setmode)
-		# No normalization
-		convolve_data.append(convolve_temp)
-
-	if minmax == 'min':
-		output = np.argmin(convolve_data, axis=1)
-	else:
-		output = np.argmax(convolve_data, axis=1)
-	return output
-
 
 # Align data_1d_t using convolution with (spatial) autocorrelation function of data_1d_t
 # input: data_1d_t is array along time (t1, t2, ...)
@@ -536,21 +505,18 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 	print("analyze.align_acf_w_data2:")
 	# acf function set all positive elements
 	align_shift = convolve_1d_t(acf_1d_t, data_1d_t, setmode, 'max') 
-	box_nbins = len(acf_1d_t[0])
-	align_shift = np.mod(align_shift+int(box_nbins/2),box_nbins)
 	print(" Convolution std = {}".format(np.std(align_shift)))
 	
 	# shifting
 	for iframe in range(len(data_1d_t)):
 		shift_array = data_1d_t[iframe]
 		shift_array2 = data2_1d_t[iframe]
+		# check to avoid too many shifted bins
 		if iframe > 0:
 			shift_bins = align_shift[iframe] - align_shift[iframe-1]
-			if shift_bins >= 5:
-				print("problem with alignment, shifting a lot by {} bins at {} iframe".format(shift_bins,iframe))
-		#print("{} before {}".format(iframe, shift_array))
+			if abs(shift_bins) >= 5:
+				print(" Problem with alignment? Shifted a lot by {} bins at {} iframe just after 1 frame".format(shift_bins,iframe))
 		data_1d_t[iframe] = np.roll(shift_array, align_shift[iframe]) #align_shift[0]
-		#print("{} after {}".format(iframe, shift_array))
 		data2_1d_t[iframe] = np.roll(shift_array2, align_shift[iframe]) #align_shift[0]
 
 	return data_1d_t, data2_1d_t
@@ -558,9 +524,7 @@ def align_acf_w_data2(data_1d_t, data2_1d_t, acf_1d_t, setmode):
 def diff_com_conv_w_data4(data11_1d_t, data12_1d_t, data21_1d_t, data22_1d_t, setmode):
 	import numpy as np
 	print("analyze.diff_com_conv_w_data4:")
-	align_shift = convolve_1d_t(data11_1d_t,  data21_1d_t, setmode, 'min') 
-	box_nbins = len(data11_1d_t[0])
-	align_shift = np.mod(-align_shift,box_nbins)
+	align_shift = convolve_1d_t(data11_1d_t,  data21_1d_t, setmode, 'max') 
 	print(" diffrence shift std = {}".format(np.std(align_shift)))
 	
 	# shifting
