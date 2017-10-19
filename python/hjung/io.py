@@ -359,6 +359,7 @@ def read_mass2(filename):
 	print("io.read_mass2:")
 	import numpy as np
 	# read mass file for two selection
+	print(" reading the mass file, {}".format(filename))
 	try:
 		massinfo = open(filename, 'r')
 	except IOError:
