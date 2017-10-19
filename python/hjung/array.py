@@ -45,3 +45,15 @@ def reduce_unitcells_3d_to_1d(unit_cells, axis, structure, trajectory):
 		print("WARNING: unit_cells length may not be assigned correctly!")
 		print("We use the same way for tpr, trr format)! You take risk.")
 		return unit_cells[:,axis]	
+
+def reduce_3d_to_1d(data_3d, axis):
+	import numpy as np
+	n_frames = len(data_3d)
+	n_atoms = len(data_3d[0])
+	data_1d = np.zeros((n_frames,n_atoms))
+	n_frames = len(data_3d)
+	for i_frame in range(len(data_3d)):
+		for i_atom in range(n_atoms):
+			#print("{} {} {}".format(i_frame,i_atom,axis))
+			data_1d[i_frame][i_atom] = data_3d[i_frame][i_atom][axis]
+	return data_1d

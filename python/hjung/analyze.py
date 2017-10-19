@@ -72,10 +72,11 @@ def histo_t_1d(x_t, box_x_t, bin_size):
 # output: histo_t is a new 1d-number profile trajectory
 #		  bin_t is a bin position array for the 1d histogram 
 def histo_t_1d_nbin(x_t, box_x_t, nbin):
+	print("analyze.histo_t_1d_nbin:")
 	import numpy as np
 	# check n_frames of x_t and box_x_t
 	if len(x_t) != len(box_x_t):
-		raise ValueError("# of time frame is not the same for input arrarys")
+		raise ValueError(" # of time frame is not the same for input arrarys")
 	# set number of bins (const) using input and initial box dimension
 	n_bins = nbin
 	# initailize variables

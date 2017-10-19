@@ -34,7 +34,7 @@ fi
 
 ## extract trajectory
 ## for bin size
-python3 ~/Utility/python/massf-prof.py -i traj.trr -s topol.tpr -m $mass_info -select1 $a_select -select2 $b_select -nbin $1 -axis 2 -o a.massf | tee a.massf.log 
-python3 ~/Utility/python/massf-prof.py -i traj.trr -s topol.tpr -m $mass_info2 -select1 $b_select -select2 $a_select -nbin $1 -axis 2 -o b.massf | tee b.massf.log
-
-
+#source activate mdaenv
+python ~/Utility/python/massf-prof.py -i traj.trr -s topol.tpr -m $mass_info -select1 $a_select -select2 $b_select -nbin $1 -axis 2 -o a | tee a.massf.log 
+python ~/Utility/python/massf-prof.py -i traj.trr -s topol.tpr -m $mass_info2 -select1 $b_select -select2 $a_select -nbin $1 -axis 2 -o b | tee b.massf.log
+#source deactivate

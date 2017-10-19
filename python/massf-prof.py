@@ -106,26 +106,7 @@ number2_1d_t_com, bin_1d_t_com = hjung.analyze.histo_t_1d_nbin(coordinates2_1d_c
 print("Done: making number trajectory with respect to bins")
 
 ## read args.mass file
-print("="*30)
-try:
-	massinfo = open(args.mass, 'r')
-except IOError:
-	print("Problem with opening ",args.mass)
-	exit()
-divider = []
-mw = []
-for line in massinfo:
-	line = line.strip()
-	line_m = line.rsplit()
-	divider.append(float(line_m[0]))
-	mw.append(float(line_m[1]))
-massinfo.close()
-divider = np.array(divider,dtype=np.float)
-mw = np.array(mw,dtype=np.float)
-if len(divider) != 2 or len(mw) != 2:
-	ValueError("Wrong format in %s file" %args.mass)
-print("dividers[select1,select2] = %s" %divider)
-print("mw[select1,select2] = %s" %mw)
+mw, divider = hjung.io.read_mass2(args.mass)
 ## Calculate mass fraction of each bins
 mass1_1d_t = number1_1d_t*mw[0]/divider[0]
 mass1_1d_t_com = number1_1d_t_com*mw[0]/divider[0]
@@ -157,12 +138,6 @@ np.savetxt(args.otmass, totalmass_1d_t,
 
 ## Align mass fractions using autocorrelation function
 acf_1d_t_wrap = hjung.analyze.autocorr_1d_t(massfrac_1d_t, 'wrap') 
-#import copy
-#acf_1d_t_wrap_positive = copy.copy(acf_1d_t_wrap)
-#min_acf = np.amin(acf_1d_t_wrap_positive)
-#print("acf min = {}".format(min_acf))
-#if min_acf < 0:
-#	acf_1d_t_wrap_positive = acf_1d_t_wrap_positive - min_acf
 slab_shift = int(len(acf_1d_t_wrap[0])/2.0)
 np.savetxt(args.oacf, acf_1d_t_wrap, 
 	header='spatial autocorr(slab_lag,i_frame) for delta_number, Plot u ($1-%d):2:3 when block_length = %d'	 
