@@ -16,7 +16,9 @@ def com_t_1d_w_data2(x_t, x2_t, box_x_t):
 	for x in x_t:
 		for xi in x:
 			if (xi < 0) or (xi > box_x_t[i_frame]):
-				raise ValueError("position is beyond box. Wrap trajectories within box dimention")
+				xi = np.mod(xi,box_x_t[i_frame])
+				print(" position is beyond box. Wrap trajectories within box dimention")
+				print(" now {} within {}. ".format(xi,box_x_t[i_frame]))
 		i_frame = i_frame + 1
 	# make com trajectory
 	com_t = np.mean(x_t,axis=1)

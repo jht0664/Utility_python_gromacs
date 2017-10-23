@@ -279,7 +279,7 @@ def read_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1, sele
 	if i_frame != n_frames:
 		print(" actual nframes {} in trajectory != the length claimed in header of trajectory {}".format(i_frame, n_frames))
 		print(" saving trajectory is problem (due to limit of disk quota). Size of your data will be {} by force".format(i_frame))
-	print("# frames = {}".format(i_frame))
+	print("# frames will be extracted from trajectory = {} (excludes t=0)".format(i_frame-1))
     # box info 
 	if all(unit_cells[0,:] == unit_cells[1,:]):
 		print("The system may be in NVT ensemble")
@@ -299,9 +299,10 @@ def read_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1, sele
 			else:
 				print("may be in NPT ensemble")
 	if ndata == 1:
-		return data1[0:i_frame-1], data2[0:i_frame-1], unit_cells[0:i_frame-1]
+		#return data1[0:i_frame-1], data2[0:i_frame-1], unit_cells[0:i_frame-1]
+		return data1[1:i_frame], data2[1:i_frame], unit_cells[1:i_frame]
 	else:
-		return data1[:,0:i_frame-1,:,:], data2[:,0:i_frame-1,:,:], unit_cells[0:i_frame-1]		
+		return data1[:,1:i_frame,:,:], data2[:,1:i_frame,:,:], unit_cells[1:i_frame]		
 
 # rename the existing filename if the filename already exists
 # input: filename is a filename what you want to rename if the filename already exists 

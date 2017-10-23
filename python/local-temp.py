@@ -85,9 +85,44 @@ velocity1 = data1[1] # unit = A/ps
 coordinates2 = data2[0] 
 velocity2 = data2[1]
 print("Done: reading trajectory and topology file")
-#for ivel in velocity1: 
-#	for iatom in ivel:
-#		np.square(iatom)
+
+## total average vel for first atom
+#n_frame = len(velocity1)
+#print("total frame = {}".format(n_frame))
+#n_atoms = len(velocity1[n_frame-1])
+#tvel = 0.0
+#tvel2 = 0.0
+#tvel3 = 0.0
+#for i_frame in range(n_frame):
+#	tvel = tvel + velocity1[i_frame][0][0]
+#	tvel2 = tvel2 + velocity1[i_frame][0][1]
+#	tvel3 = tvel3 + velocity1[i_frame][0][2]
+#print("avg temp for atom = {}".format(tvel/float(n_frame)))
+#print("avg temp for atom = {}".format(tvel2/float(n_frame)))
+#print("avg temp for atom = {}".format(tvel3/float(n_frame)))
+
+## just print velocity for first atom
+#n_frame = len(velocity1)
+#n_atoms = len(velocity1[n_frame-1])
+#tvel = []
+#for i_frame in range(n_frame):
+#	tvel.append(velocity1[i_frame][0])
+#tvel = np.array(tvel)
+#np.savetxt('test', tvel, 
+#	header='nbins', fmt='%f', comments='# ')
+
+# total average for last frame
+n_frame = len(velocity1)
+n_atoms1 = len(velocity1[n_frame-1])
+n_atoms2 = len(velocity2[n_frame-1])
+tvel = 0.0
+for ivel in velocity1[0]: 
+	tvel = tvel + np.sum(np.square(ivel/10.0))/3.0
+for ivel in velocity2[0]: 
+	tvel = tvel + np.sum(np.square(ivel/10.0))/3.0
+#print("real temp system = {}".format(tvel/float(n_atoms1+n_atoms2)/(1.38064880*6.022141290/1000.0)))
+ref_temp = tvel/float(n_atoms1+n_atoms2)
+#print("reduced temp system = {}".format(ref_temp)
 
 ## reduce 3d-coordinates to 1d-coordinates
 # complicate way?
@@ -132,57 +167,42 @@ print("System temperature calculation")
 n_frames = len(index_coord1)
 temp_sys_3d = np.zeros((n_frames,args.nbin))
 temp_sys_1d = np.zeros((n_frames,args.nbin))
-temp1_sys_3d = np.zeros((n_frames,args.nbin))
-temp1_sys_1d = np.zeros((n_frames,args.nbin))
-temp2_sys_3d = np.zeros((n_frames,args.nbin))
-temp2_sys_1d = np.zeros((n_frames,args.nbin))
 mod_frame = hjung.io.process_init()
 for i_frame in range(n_frames):
 	i_coord1 = index_coord1[i_frame]
 	i_coord2 = index_coord2[i_frame]
 	n_atoms1 = len(i_coord1)
-	count_natoms1_bin = np.zeros(args.nbin)
-	count_natoms2_bin = np.zeros(args.nbin)
+	count_natoms_bin = np.zeros(args.nbin)
 	# add v**2 data for select1
 	for i_atom in range(n_atoms1):
 		i_bin = int(i_coord1[i_atom])
-		print(i_bin)
-		count_natoms1_bin[i_bin] = count_natoms1_bin[i_bin] + 1.0
+		#print(i_bin)
+		count_natoms_bin[i_bin] = count_natoms_bin[i_bin] + 1.0
 		vxyz = velocity1[i_frame][i_atom]
-		temp1_sys_3d[i_frame][i_bin] = temp1_sys_3d[i_frame][i_bin] + np.sum(np.square(vxyz))/3.0 
+		temp_sys_3d[i_frame][i_bin] = temp_sys_3d[i_frame][i_bin] + np.sum(np.square(vxyz/10.0))/3.0 
 		vz = velocity1[i_frame][i_atom][2]
-		temp1_sys_1d[i_frame][i_bin] = temp1_sys_1d[i_frame][i_bin] + np.square(vz)/3.0
-	# average v**2
-	for i_bin in range(args.nbin):
-		if count_natoms1_bin[i_bin] == 0:
-			raise ValueError("too small bin length. Decrease nbin!")
-		temp1_sys_3d[i_frame][i_bin] = temp1_sys_3d[i_frame][i_bin]/count_natoms1_bin[i_bin]
-		temp1_sys_1d[i_frame][i_bin] = temp1_sys_1d[i_frame][i_bin]/count_natoms1_bin[i_bin]
-
+		temp_sys_1d[i_frame][i_bin] = temp_sys_1d[i_frame][i_bin] + np.square(vz/10.0)/3.0
 	# add v**2 data for select2
 	n_atoms2 = len(i_coord2)
 	for i_atom in range(n_atoms2):
 		i_bin = int(i_coord2[i_atom])
-		count_natoms2_bin[i_bin] = count_natoms2_bin[i_bin] + 1.0
+		count_natoms_bin[i_bin] = count_natoms_bin[i_bin] + 1.0
 		vxyz = velocity2[i_frame][i_atom]
-		temp2_sys_3d[i_frame][i_bin] = temp2_sys_3d[i_frame][i_bin] + np.sum(np.square(vxyz))/3.0
+		temp_sys_3d[i_frame][i_bin] = temp_sys_3d[i_frame][i_bin] + np.sum(np.square(vxyz/10.0))/3.0
 		vz = velocity2[i_frame][i_atom][2]
-		temp2_sys_1d[i_frame][i_bin] = temp2_sys_1d[i_frame][i_bin] + np.square(vz)/3.0
-	# average v**2
+		temp_sys_1d[i_frame][i_bin] = temp_sys_1d[i_frame][i_bin] + np.square(vz/10.0)/3.0
+	# average v**2 to get local temperatures
 	for i_bin in range(args.nbin):
-		if count_natoms2_bin[i_bin] == 0:
-			raise ValueError("too small bin length. Decrease nbin!")
-		temp2_sys_3d[i_frame][i_bin] = temp2_sys_3d[i_frame][i_bin]/count_natoms2_bin[i_bin]
-		temp2_sys_1d[i_frame][i_bin] = temp2_sys_1d[i_frame][i_bin]/count_natoms2_bin[i_bin]
+		if count_natoms_bin[i_bin] == 0:
+			continue
+		temp_sys_3d[i_frame][i_bin] = temp_sys_3d[i_frame][i_bin]/count_natoms_bin[i_bin]
+		temp_sys_1d[i_frame][i_bin] = temp_sys_1d[i_frame][i_bin]/count_natoms_bin[i_bin]
 	# print process
 	mod_frame = hjung.io.process_print(i_frame+1, n_frames, mod_frame)
-temp_sys_3d = temp1_sys_3d + temp2_sys_3d
-temp_sys_1d = temp1_sys_1d + temp2_sys_1d
+ref_temp2 = np.average(temp_sys_3d[0])
+print("system temp at 1st frame from average bins ")
+print("{0:.5f} for ref= {1:.5f} => diff {2:.5f} %".format(ref_temp2,ref_temp,abs(ref_temp2-ref_temp)*100.0/ref_temp))
 temp_sys_2d = temp_sys_3d - temp_sys_1d
-i_frame = n_frames - 1 
-print("{} frame -> sum T_xyz {}, T_z {}, T_xy {}".format(i_frame,np.sum(temp_sys_3d[i_frame]),np.sum(temp_sys_1d[i_frame]),np.sum(temp_sys_2d[i_frame])))
-i_frame = n_frames - 2
-print("{} frame -> sum T_xyz {}, T_z {}, T_xy {}".format(i_frame,np.sum(temp_sys_3d[i_frame]),np.sum(temp_sys_1d[i_frame]),np.sum(temp_sys_2d[i_frame])))
 print("Done: 3d temperature of system")
 np.savetxt(args.otmpv, temp_sys_3d, 
 	header='[%d, %d], total temperature (xyz) in nbins, %d' \
@@ -201,6 +221,9 @@ for i_frame in range(n_frames):
 	diff_sys_3d[i_frame] = temp_sys_3d[i_frame] - np.average(temp_sys_3d[i_frame])
 	diff_sys_2d[i_frame] = temp_sys_2d[i_frame] - np.average(temp_sys_2d[i_frame])
 	diff_sys_1d[i_frame] = temp_sys_1d[i_frame] - np.average(temp_sys_1d[i_frame])
+	if abs(np.sum(diff_sys_3d[i_frame])) > 0.05:
+		print("3d error is big? = ".format(np.sum(diff_sys_3d[i_frame])))
+
 np.savetxt('diff3', diff_sys_3d, 
 	header='[%d, %d], diff total temperature (xyz) in nbins, %d' \
 	%(len(diff_sys_3d),args.nbin,args.nbin), fmt='%f', comments='# ')
@@ -243,8 +266,6 @@ np.savetxt(args.otmpvaxy, temp_sys_2d,
 np.savetxt(args.otmpvaz, temp_sys_1d, 
 	header='[%d, %d], aligned temperature (z) in nbins, %d' \
 	%(len(temp_sys_1d),args.nbin,args.nbin), fmt='%f', comments='# ')
-
-
 
 ## timer
 hjung.time.end_print(start_proc, start_prof)
