@@ -16,9 +16,12 @@ parser.add_argument('-tol', '--tol', default=0.0, nargs='?', type=float,
 	help='tolerance for block average (> 0 and <= 1). No block average (tol=0). # frames to average (tol>1)')
 parser.add_argument('-o', '--output', default='INPUT.avg', nargs='?', 
 	help='output file of block averaged 1D profile')
+parser.add_argument('args', nargs=argparse.REMAINDER)
 parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1')
 # read args
 args = parser.parse_args()
+# check args
+print(" input arguments: {0}".format(args))
 
 ## import modules
 import hjung
@@ -28,8 +31,6 @@ import numpy as np
 # default for args
 if args.output is 'INPUT.avg':
 	args.output = args.input+'.avg'
-args.begin = int(args.begin)
-args.end = int(args.end)
 
 ## Check arguments for log
 print("===============================")

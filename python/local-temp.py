@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # ver 0.1 - coding python by Hyuntae Jung on 10/18/2017
+# ver 0.2 - differences and confirm with gromacs by Hyuntae Jung on 10/22/2017
 
 import argparse
 parser = argparse.ArgumentParser(
@@ -18,16 +19,12 @@ parser.add_argument('-select2', '--select2', nargs='?',
 	help='a file2 with a command-line for select_atoms in MDAnalysis')
 parser.add_argument('-nbin', '--nbin', nargs='?', type=int,
 	help='number of bins')
-parser.add_argument('-tol', '--tol', default=0.0, nargs='?', type=float,
-	help='tolerance for block average (> 0 and < 1). (recommend 1.0 for 1st trial). If 0, no block average. If > 1, # frames to average')
 parser.add_argument('-axis', '--axis', default=2, nargs='?', type=int,
 	help='which axis for histogram (x axis (0), y axis (1), z axis (2))')
-parser.add_argument('-align', '--align', default='YES', nargs='?',
-	help='Run alignment? or not? (YES/NO)')
 parser.add_argument('-o', '--output', default='traj', nargs='?', 
-	help='output prefix for unalign and align mass1 fraction trajectory')
+	help='output prefix for unalign and align local temp. trajectory')
 parser.add_argument('args', nargs=argparse.REMAINDER)
-parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.4')
+parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2')
 # read args
 args = parser.parse_args()
 # check args
@@ -40,20 +37,17 @@ import numpy as np
 
 ## default for args output
 # 3d xyz
-args.otmpd = args.output + '.temp'            # based temperature from delta_dist
-args.otmpda = args.output + '.temp.algin'     # corrected temperature
 args.otmpv = args.output + '.temp.sys'       # based temperature from velocity trajectory
-args.otmpva = args.output + '.temp.sys.align' # corrected temperature?
+args.otmpva = args.output + '.temp.sys.align' # aligned temperature
+args.otmpvd = args.output + '.temp.sys.diff' # diff. temperature
 # 1d z
-args.otmpdz = args.output + '.temp.z'            # based temperature from delta_dist
-args.otmpdaz = args.output + '.temp.z.algin'     # corrected temperature
 args.otmpvz = args.output + '.temp.z.sys'       # based temperature from velocity trajectory
-args.otmpvaz = args.output + '.temp.z.sys.align' # corrected temperature?
+args.otmpvza = args.output + '.temp.z.sys.align' # aligned temperature
+args.otmpvzd = args.output + '.temp.z.sys.diff' # diff. temperature
 # 2d xy
-args.otmpdxy = args.output + '.temp.xy'            # based temperature from delta_dist
-args.otmpdaxy = args.output + '.temp.xy.algin'     # corrected temperature
 args.otmpvxy = args.output + '.temp.xy.sys'       # based temperature from velocity trajectory
-args.otmpvaxy = args.output + '.temp.xy.sys.align' # corrected temperature?
+args.otmpvxya = args.output + '.temp.xy.sys.align' # aligned temperature
+args.otmpvxyd = args.output + '.temp.xy.sys.diff' # diff. temperature
 
 ## check arguments for log
 print("===============================")
@@ -62,16 +56,14 @@ print("str filename     = ", args.structure)
 print("mass info filename = ", args.mass)
 print("select1 filename  = ", args.select1)
 print("select2 filename  = ", args.select2)
-hjung.blockavg.print_init(args.tol)
 print("number of bins   = ", args.nbin)
 print("axis [0:2]       = ", args.axis)
-print("output temp. filenames = ", args.otmpd, args.otmpda, args.otmpv, args.otmpva)
+print("output temp. filenames = ", args.otmpv, args.otmpva, args.otmpvd, args.otmpvz, args.otmpvza, args.otmpvzd, args.otmpvxy, args.otmpvxya, args.otmpvxyd)
 
 ## check vaulable setting
 print("="*30)
 if args.axis < 0 or args.axis > 2:
 	raise ValueError("wrong input of axis for histogram")
-args.tol = hjung.blockavg.check(args.tol)
 print("="*30)
 
 ## timer
@@ -86,6 +78,7 @@ coordinates2 = data2[0]
 velocity2 = data2[1]
 print("Done: reading trajectory and topology file")
 
+### for test ############################
 ## total average vel for first atom
 #n_frame = len(velocity1)
 #print("total frame = {}".format(n_frame))
@@ -111,25 +104,20 @@ print("Done: reading trajectory and topology file")
 #np.savetxt('test', tvel, 
 #	header='nbins', fmt='%f', comments='# ')
 
-# total average for last frame
-n_frame = len(velocity1)
-n_atoms1 = len(velocity1[n_frame-1])
-n_atoms2 = len(velocity2[n_frame-1])
-tvel = 0.0
-for ivel in velocity1[0]: 
-	tvel = tvel + np.sum(np.square(ivel/10.0))/3.0
-for ivel in velocity2[0]: 
-	tvel = tvel + np.sum(np.square(ivel/10.0))/3.0
-#print("real temp system = {}".format(tvel/float(n_atoms1+n_atoms2)/(1.38064880*6.022141290/1000.0)))
-ref_temp = tvel/float(n_atoms1+n_atoms2)
-#print("reduced temp system = {}".format(ref_temp)
+## total average for last frame
+#n_frame = len(velocity1)
+#n_atoms1 = len(velocity1[n_frame-1])
+#n_atoms2 = len(velocity2[n_frame-1])
+#tvel = 0.0
+#for ivel in velocity1[0]: 
+#	tvel = tvel + np.sum(np.square(ivel/10.0))/3.0
+#for ivel in velocity2[0]: 
+#	tvel = tvel + np.sum(np.square(ivel/10.0))/3.0
+##print("real temp system = {}".format(tvel/float(n_atoms1+n_atoms2)/(1.38064880*6.022141290/1000.0)))
+#ref_temp = tvel/float(n_atoms1+n_atoms2)
+##print("reduced temp system = {}".format(ref_temp)
 
 ## reduce 3d-coordinates to 1d-coordinates
-# complicate way?
-#coordinates1_1d = hjung.array.reduce_3d_to_1d(coordinates1,args.axis)
-#velocity1_1d    = hjung.array.reduce_3d_to_1d(velocity1,args.axis)
-#coordinates2_1d = hjung.array.reduce_3d_to_1d(coordinates2,args.axis)
-#velocity2_1d    = hjung.array.reduce_3d_to_1d(velocity2,args.axis)
 coordinates1_1d = coordinates1[:,:,args.axis]
 velocity1_1d = velocity1[:,:,args.axis]
 coordinates2_1d = coordinates2[:,:,args.axis]
@@ -224,15 +212,16 @@ for i_frame in range(n_frames):
 	if abs(np.sum(diff_sys_3d[i_frame])) > 0.05:
 		print("3d error is big? = ".format(np.sum(diff_sys_3d[i_frame])))
 
-np.savetxt('diff3', diff_sys_3d, 
+np.savetxt(args.otmpvd, diff_sys_3d, 
 	header='[%d, %d], diff total temperature (xyz) in nbins, %d' \
 	%(len(diff_sys_3d),args.nbin,args.nbin), fmt='%f', comments='# ')
-np.savetxt('diff2', diff_sys_2d, 
+np.savetxt(args.otmpvxyd, diff_sys_2d, 
 	header='[%d, %d], diff temperature (xy) in nbins, %d' \
 	%(len(diff_sys_2d),args.nbin,args.nbin), fmt='%f', comments='# ')
-np.savetxt('diff1', diff_sys_1d, 
+np.savetxt(args.otmpvzd, diff_sys_1d, 
 	header='[%d, %d], diff temperature (z) in nbins, %d' \
 	%(len(diff_sys_1d),args.nbin,args.nbin), fmt='%f', comments='# ')
+print("Done: difference of local temperatures")
 
 # obtain alignment shift
 print("="*30)
@@ -260,10 +249,10 @@ print("Done: align 3d temperature of system")
 np.savetxt(args.otmpva, temp_sys_3d, 
 	header='[%d, %d], aligned total temperature (xyz) in nbins, %d' \
 	%(len(temp_sys_3d),args.nbin,args.nbin), fmt='%f', comments='# ')
-np.savetxt(args.otmpvaxy, temp_sys_2d, 
+np.savetxt(args.otmpvxya, temp_sys_2d, 
 	header='[%d, %d], aligned temperature (xy) in nbins, %d' \
 	%(len(temp_sys_2d),args.nbin,args.nbin), fmt='%f', comments='# ')
-np.savetxt(args.otmpvaz, temp_sys_1d, 
+np.savetxt(args.otmpvza, temp_sys_1d, 
 	header='[%d, %d], aligned temperature (z) in nbins, %d' \
 	%(len(temp_sys_1d),args.nbin,args.nbin), fmt='%f', comments='# ')
 

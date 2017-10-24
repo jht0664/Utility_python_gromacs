@@ -8,6 +8,7 @@
 # Example: coordinates, unit_cells = read_coord_trr_3d('topol.tpr','traj.trr','b.select')
 
 def read_coord_trr_3d(tpr_filename, trr_filename, select_atoms_filename):
+	print("read_coord_trr_3d: ######### DELETE SOON ##########")
 	# read a line of select command-line in MDAnalysis
 	if select_atoms_filename is not None:
 		try:
@@ -183,6 +184,118 @@ def read_coord_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1
 				print("may be in NPT ensemble")
 				
 	return coordinates1[0:i_frame-1], coordinates2[0:i_frame-1], unit_cells[0:i_frame-1]
+
+def read_trr_3d_select1(tpr_filename, trr_filename, select_atoms_filename, mode):
+	print("read_trr_3d_select2:")
+	# import
+	import MDAnalysis
+	import numpy as np
+	# check the arg, mode
+	outmode = np.zeros(3,dtype=bool) # use true and false in python as 1 and 0
+	if 'pos' in mode:
+		outmode[0] = True
+	if 'vel' in mode:
+		outmode[1] = True
+	if 'forc' in mode:
+		outmode[2] = True
+	if not np.any(outmode): # if all is false
+		raise ValueError(" wrong arg mode {}".format(mode))
+	ndata = sum(bool(x) for x in outmode)
+	print(" output data #sets = {} by your mode setting {} ".format(ndata,mode))
+	# read a line of select command-line for MDAnalysis
+	select_command = []
+	if select_atoms_filename is not None:
+		try:
+			open_file = open(select_atoms_filename, 'r')
+		except IOError:
+			raise IOError(" problem with opening ",select_atoms_filename)
+		select_command_temp = open_file.readline().strip()
+		open_file.close()
+		print(" select written in {}: {}".format(select_atoms_filename,select_command_temp))
+		select_command.append(select_command_temp)
+	else:
+		raise ValueError(" wrong select atom files {}".format(select_atoms_filename))
+	# Read trajectory using MDAnalysis 
+	u = MDAnalysis.Universe(tpr_filename,trr_filename)
+	n_frames = len(u.trajectory)
+	# obtain a set of atom index
+	n_atoms = []
+	atoms = []
+	for iselect in select_command: 	
+		list_atoms = u.select_atoms(iselect).indices
+		if len(list_atoms) == 0:
+			raise ValueError(" No atom is selected. {} may be wrong in grammer.".format(iselect))
+		atoms.append(list_atoms)
+		n_atoms.append(len(list_atoms))
+	print(" selected total #atoms: {}".format(n_atoms))	
+	# initailize variables
+	if ndata > 1:
+		data1 = np.zeros((ndata, n_frames, n_atoms[0], 3))
+	else:
+		data1 = np.zeros((n_frames, n_atoms[0], 3))
+	unit_cells = np.zeros((n_frames, 6))
+	# read trajectory
+	print(" starting reading trajectory...")
+	i_frame = 0
+	mod_frame = process_init()
+	for ts in u.trajectory:
+		try:
+			if ndata == 1:
+				if outmode[0]:
+					tmp = np.array(ts._pos)
+				if outmode[1]:
+					tmp = np.array(ts._velocities)
+				if outmode[2]:	
+					tmp = np.array(ts._forces)
+				data1[i_frame, :, :] = tmp[atoms[0]]
+			else:
+				dataset = 0
+				if outmode[0]:
+					tmp = np.array(ts._pos)
+					data1[dataset, i_frame, :, :] = tmp[atoms[0]]
+					dataset = dataset + 1
+				if outmode[1]:
+					tmp = np.array(ts._velocities)
+					data1[dataset, i_frame, :, :] = tmp[atoms[0]]
+					dataset = dataset + 1
+				if outmode[2]:	
+					tmp = np.array(ts._forces)
+					data1[dataset, i_frame, :, :] = tmp[atoms[0]]
+					dataset = dataset + 1
+				if dataset != ndata:
+					raise ValueError(" weird number of data set reading trajectory. {} {}".format(dataset,ndata))
+			unit_cells[i_frame, :] = ts._unitcell
+		except IndexError:
+			raise ValueError(" There are more coordinates to be read than indicated in the header.")
+		i_frame += 1
+		mod_frame = process_print(i_frame,n_frames,mod_frame)
+	# check consistency; final i_frame should be the same as # frames
+	if i_frame != n_frames:
+		print(" actual nframes {} in trajectory != the length claimed in header of trajectory {}".format(i_frame, n_frames))
+		print(" saving trajectory is problem (due to limit of disk quota). Size of your data will be {} by force".format(i_frame))
+	print("# frames will be extracted from trajectory = {} (excludes t=0)".format(i_frame-1))
+    # box info 
+	if all(unit_cells[0,:] == unit_cells[1,:]):
+		print("The system may be in NVT ensemble")
+	else:
+		# for gromacs (tpr, trr files)
+		# unit_cells = [length_x, length_y, length_z, angles, ...]
+		if 'trr' in trr_filename and 'tpr' in tpr_filename:
+			if unit_cells[0][0] == unit_cells[1][0] and unit_cells[0][1] == unit_cells[1][1]:
+				print("may be in NPAT ensemble")
+			else:
+				print("may be in NPT ensemble")
+		# for openmm (pdb, dcd files)
+		# unit_cells = [length_x, alpha angle, length_y, beta angle, theta angle, length_z]
+		if 'dcd' in trr_filename and 'pdb' in tpr_filename:
+			if unit_cells[0][0] == unit_cells[1][0] and unit_cells[0][2] == unit_cells[1][2]:
+				print("may be in NPAT ensemble")
+			else:
+				print("may be in NPT ensemble")
+	if ndata == 1:
+		return data1[1:i_frame], unit_cells[1:i_frame] #return data1[0:i_frame-1], data2[0:i_frame-1], unit_cells[0:i_frame-1]
+	else:
+		return data1[:,1:i_frame,:,:], unit_cells[1:i_frame] # return data1[0]:pos, data1[1]:force if your mode is "pos force"
 
 def read_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1, select_atoms_filename2, mode):
 	print("read_trr_3d_select2:")

@@ -57,3 +57,31 @@ def reduce_3d_to_1d(data_3d, axis):
 			#print("{} {} {}".format(i_frame,i_atom,axis))
 			data_1d[i_frame][i_atom] = data_3d[i_frame][i_atom][axis]
 	return data_1d
+
+def convert_unitcell_3d(unit_cells, structure, trajectory):
+	import numpy as np
+	print("="*30)
+	print("convert 3d unit cells in universal format")
+	# gromace version
+	if 'tpr' in structure and 'trr' in trajectory:
+		print("We assume the input files are from Gromacs.")
+		return unit_cells
+	elif 'gro' in structure and 'trr' in trajectory:
+		print("We assume the input files are from Gromacs.")
+		return unit_cells
+	# openmm version
+	elif 'pdb' in structure and 'dcd' in input:
+		print("We assume the input files are from OpenMM.")
+		output = np.zeros((len(unit_cells),3))
+		output[:][0] = unit_cells[:,0]
+		output[:][1] = unit_cells[:,2]
+		output[:][2] = unit_cells[:,5]
+		return output
+	# Monte Carlo version
+	elif 'gro' in structure and 'xtc' in trajectory:
+		print("We assume the input files are from Monte Carlo.")
+		return unit_cells
+	else:
+		print("WARNING: unit_cells length may not be assigned correctly!")
+		print("We use the same way for tpr, trr format)! You take risk.")
+		return unit_cells
