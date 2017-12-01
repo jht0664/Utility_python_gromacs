@@ -75,8 +75,17 @@ def dist_beyond_box(unit_t, select_dist):
 # output: box_avg, box_std  
 # Example: box_avg, box_std = box_1d(box_1d)
 def box_1d(box_1d):
+	print("coord.box_1d: ## delete soon ##")
+	import numpy as np
+	box_avg = np.mean(box_1d)
+	box_std = np.std(box_1d)
+	return box_avg, box_std
+
+def box_1d_mode(box_1d, text, mode):
 	print("coord.box_1d: ")
 	import numpy as np
 	box_avg = np.mean(box_1d)
 	box_std = np.std(box_1d)
+	if 'v' in mode:
+		print(" {0} = {1:.5f} +- {2:.5f}".format(text,box_avg,box_std))
 	return box_avg, box_std

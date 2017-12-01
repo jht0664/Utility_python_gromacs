@@ -186,7 +186,7 @@ def read_coord_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1
 	return coordinates1[0:i_frame-1], coordinates2[0:i_frame-1], unit_cells[0:i_frame-1]
 
 def read_trr_3d_select1(tpr_filename, trr_filename, select_atoms_filename, mode):
-	print("read_trr_3d_select2:")
+	print("read_trr_3d_select1:")
 	# import
 	import MDAnalysis
 	import numpy as np
@@ -298,7 +298,7 @@ def read_trr_3d_select1(tpr_filename, trr_filename, select_atoms_filename, mode)
 		return data1[:,1:i_frame,:,:], unit_cells[1:i_frame] # return data1[0]:pos, data1[1]:force if your mode is "pos force"
 
 def read_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1, select_atoms_filename2, mode):
-	print("read_trr_3d_select2:")
+	print("io.read_trr_3d_select2:")
 	# import
 	import MDAnalysis
 	import numpy as np
@@ -392,25 +392,25 @@ def read_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1, sele
 	if i_frame != n_frames:
 		print(" actual nframes {} in trajectory != the length claimed in header of trajectory {}".format(i_frame, n_frames))
 		print(" saving trajectory is problem (due to limit of disk quota). Size of your data will be {} by force".format(i_frame))
-	print("# frames will be extracted from trajectory = {} (excludes t=0)".format(i_frame-1))
+	print(" # frames will be extracted from trajectory = {} (excludes t=0)".format(i_frame-1))
     # box info 
 	if all(unit_cells[0,:] == unit_cells[1,:]):
-		print("The system may be in NVT ensemble")
+		print(" The system may be in NVT ensemble")
 	else:
 		# for gromacs (tpr, trr files)
 		# unit_cells = [length_x, length_y, length_z, angles, ...]
 		if 'trr' in trr_filename and 'tpr' in tpr_filename:
 			if unit_cells[0][0] == unit_cells[1][0] and unit_cells[0][1] == unit_cells[1][1]:
-				print("may be in NPAT ensemble")
+				print(" may be in NPAT ensemble")
 			else:
-				print("may be in NPT ensemble")
+				print(" may be in NPT ensemble")
 		# for openmm (pdb, dcd files)
 		# unit_cells = [length_x, alpha angle, length_y, beta angle, theta angle, length_z]
 		if 'dcd' in trr_filename and 'pdb' in tpr_filename:
 			if unit_cells[0][0] == unit_cells[1][0] and unit_cells[0][2] == unit_cells[1][2]:
-				print("may be in NPAT ensemble")
+				print(" may be in NPAT ensemble")
 			else:
-				print("may be in NPT ensemble")
+				print(" may be in NPT ensemble")
 	if ndata == 1:
 		#return data1[0:i_frame-1], data2[0:i_frame-1], unit_cells[0:i_frame-1]
 		return data1[1:i_frame], data2[1:i_frame], unit_cells[1:i_frame]

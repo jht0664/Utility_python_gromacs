@@ -8,5 +8,5 @@ trans   ## translate part
 
 YES 1000 0.2   # g(r)?, nstep, bin size
 YES 1000       # save trajectory, nstep
-YES -0.0025 5  # save pressure with ratio_dv_v and n_dv, (-0.0025*(from 1 to 5))
+YES -0.0025 -0.0025 5  # save (isotropic) pressure with ratio_dv_v and n_dv, (-0.0025*(from 1 to 5)) using first value. For Tensor, you may choose SUR, instead fo YES, and first value is for xy plane and second value is for z direction.
 YES A B 1000 500 # identity exchange calculation for Hi/fj, Atomname of Solvent, Atomname of Solute, nstep, ntrial

@@ -86,6 +86,7 @@ PROGRAM WR_MCRUN
       if(check_overlap_log) call check_overlap()
 ! properties
       IF(ipres .EQ. 'YES') CALL print_pressure_dV(filename_pres) ! pressure calculation for WR model
+      IF(ipres .EQ. 'SUR') CALL print_surface_tension_dV(filename_presxy,filename_presz) ! surface tension calculation for WR model
       IF(ensemble_pres) then
         call update_dvx() ! modify dvx value success fraction to be around 0.5
         CALL print_density(filename_dens) ! density calculation
@@ -98,7 +99,7 @@ PROGRAM WR_MCRUN
 ! update nsuccess
       write(*,'(A)') " ====== movetypes info ====== "
       do i=1,nmovetypes
-        write(*,'(A,A,I,A,F10.5)') movetype_name(i), &
+        write(*,'(A,A,I5,A,F10.5)') movetype_name(i), &
         " nsucc => ", movetype_i_success(i), &
         ", frac => ", real(movetype_i_success(i))/real(movetype_i_try(i))
         movetype_nsuccess(i) = movetype_nsuccess(i) + movetype_i_success(i)
@@ -127,7 +128,9 @@ PROGRAM WR_MCRUN
   IF(IGR .EQ.'YES') call gr12_save('gr.out',ncon/rdf_nstep)
 
 ! exit
-  call xtcf % close
+  IF(iconfig .EQ. 'YES') then
+    call xtcf % close
+  endif
 ! deallocate
   call movetype_exit
   call pos_exit
@@ -147,6 +150,12 @@ subroutine files_init()
   IF(ipres .EQ. 'YES') then
     filename_pres = 'pressure.out'
     call newfile_del_oldfile(filename_pres)
+  endif
+  IF(ipres .EQ. 'SUR') then
+    filename_presxy = 'pressure.xy.out'
+    call newfile_del_oldfile(filename_presxy)
+    filename_presz = 'pressure.z.out'
+    call newfile_del_oldfile(filename_presz)
   endif
   if(ensemble_pres) then
     filename_dens = 'density.out'

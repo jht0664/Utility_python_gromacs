@@ -31,7 +31,7 @@ SUBROUTINE print_pressure_dV(outputfile)
       ZT = ZT - box(3)*DNINT(ZT/box(3))
       RT = (XT*XT+YT*YT+ZT*ZT) !*pos_scaling2
       DO k=1, n_dv  ! count number of overlapping pairs (finally, double counting)
-        IF(RT*scale_length2(k) < DCOMP) THEN
+        IF(RT*scale_length(k) < DCOMP) THEN
           ompv(id,k) = ompv(id,k) + 1 
           !write(*,*) id,k,ompv(id,k)
         ENDIF
@@ -62,11 +62,102 @@ SUBROUTINE print_pressure_dV(outputfile)
     WRITE(1,'(A,2x,*(E16.8,1x))') "# delta_V's", (ratio_dv_v*i, i=1, n_dv)
   ENDIF
   WRITE(1,'(*(E16.8,1x))') ( print_press(i), i=1,n_dv )
-!  WRITE(*,*) "========= Instance Pressures with virtual volume change ======="
-!  WRITE(*,'(*(E16.8,2x))') ( print_press(i), i=1,n_dv )
+  WRITE(*,*) "========= Instance Pressures with virtual volume change ======="
+  WRITE(*,'(*(E16.8,2x))') ( print_press(i), i=1,n_dv )
   CLOSE(1)
   RETURN
 END SUBROUTINE print_pressure_dV
+
+! surface tension calculation using volume change in NVT ensemble
+SUBROUTINE print_surface_tension_dV(outputfile1, outputfile2)
+  use omp_lib
+  use calc_pres
+  use ints, only: nptot
+  use inp, only : openmp_thread_num
+  use pos
+  use sigmas
+  IMPLICIT NONE
+  CHARACTER(LEN=*) :: outputfile1, outputfile2
+  LOGICAL :: file_exist
+  double precision :: xt, yt, zt, rt, vol, dcomp
+  integer :: id, i, j, k
+  integer, dimension(openmp_thread_num,n_dv) :: ompvxy, ompvz
+
+!  write(*,*) "pressure_dV:"
+  presxy_noverlap = 0
+  presz_noverlap = 0
+  ompvxy = 0
+  ompvz = 0
+! count number of overlap pairs under virtual volume in area
+  DCOMP = sigma_ab**2
+!$omp parallel private (xt, yt, zt, rt, id, i, j, k) shared (ompvxy, ompvz)
+  id = omp_get_thread_num() + 1
+  do i=id, nptot-1, openmp_thread_num
+    do j=i+1, nptot
+      if(typs(i) == typs(j)) cycle
+      xt = x(i) - x(j)
+      yt = y(i) - y(j)
+      zt = z(i) - z(j)
+      XT = XT - box(1)*DNINT(XT/box(1))
+      YT = YT - box(2)*DNINT(YT/box(2))
+      ZT = ZT - box(3)*DNINT(ZT/box(3))
+      DO k=1, n_dv  ! count number of overlapping pairs (finally, double counting)
+        RT = (XT*XT+YT*YT)*scale_length_xy(k)+(ZT*ZT) !*pos_scaling2
+        IF(RT < DCOMP) THEN
+          ompvxy(id,k) = ompvxy(id,k) + 1 
+          !write(*,*) "xy",rt,k,ompvxy(id,k),i,j
+        ENDIF
+        RT = XT*XT+YT*YT+ZT*ZT*scale_length_z(k) !*pos_scaling2
+        IF(RT < DCOMP) THEN
+          ompvz(id,k) = ompvz(id,k) + 1 
+          !write(*,*) "z ",rt,k,ompvz(id,k),i,j
+        ENDIF
+      ENDDO
+    enddo
+  enddo
+!$omp end parallel
+  do k=1, n_dv
+    do j=1, openmp_thread_num
+      presxy_noverlap(k) = presxy_noverlap(k) + ompvxy(j,k)  
+      presz_noverlap(k) = presz_noverlap(k) + ompvz(j,k)  
+    enddo
+  enddo
+  ! calculate pressure of WR model
+  !  beta*Pressure = limit(del_V -> 0) <number density - (number of ovelapping A and B pair) / del_V >_ensemble average
+  !   to remove duplicates by dividing by 2
+  vol = box(1)*box(2)*box(3)*(pos_scaling**3)
+  !vol = box(1)*box(2)*box(3)
+  DO i = 1, n_dv
+    !WRITE(*,*) DBLE(noverlap(i))/(ratio_dv_v*i)/2.0D0
+    print_presxy(i) = DBLE(nptot)/vol - DBLE(presxy_noverlap(i))/(ratio_dv_v*dble(i)*vol)
+    print_presz(i) = DBLE(nptot)/vol - DBLE(presz_noverlap(i))/(ratio_dz_z*dble(i)*vol)
+  ENDDO
+  ! save data1
+  INQUIRE(file=outputfile1, exist=file_exist)
+  IF(file_exist) THEN
+    OPEN(UNIT=1,FILE=outputfile1,status='old', position='append', action='write')
+  ELSE
+    OPEN(UNIT=1,FILE=outputfile1,status='new', action='write')  
+    WRITE(1,'(A,2x,*(E16.8,1x))') "# delta_V's", (ratio_dv_v*i, i=1, n_dv)
+  ENDIF
+  WRITE(1,'(*(E16.8,1x))') ( print_presxy(i), i=1,n_dv )
+  CLOSE(1)
+  ! save data2
+  INQUIRE(file=outputfile2, exist=file_exist)
+  IF(file_exist) THEN
+    OPEN(UNIT=2,FILE=outputfile2,status='old', position='append', action='write')
+  ELSE
+    OPEN(UNIT=2,FILE=outputfile2,status='new', action='write')  
+    WRITE(2,'(A,2x,*(E16.8,1x))') "# delta_V's", (ratio_dz_z*i, i=1, n_dv)
+  ENDIF
+  WRITE(2,'(*(E16.8,1x))') ( print_presz(i), i=1,n_dv )
+  
+  !WRITE(*,*) "========= Instance Pressures with virtual volume change (xy, z) ======="
+  !WRITE(*,'(*(E16.8,2x))') ( print_presxy(i), i=1,n_dv )
+  !WRITE(*,'(*(E16.8,2x))') ( print_presz(i), i=1,n_dv )
+  CLOSE(2)
+  RETURN
+END SUBROUTINE print_surface_tension_dV
 
 SUBROUTINE check_overlap()
   use omp_lib

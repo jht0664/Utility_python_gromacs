@@ -57,7 +57,7 @@ SUBROUTINE try_pres(itype)
   use movetype
   use sigmas
   IMPLICIT NONE
-  double precision :: oldvol, rand, xo, yo, zo, expd2
+  double precision :: oldvol, rand, expd2
   double precision :: delh, boltz, xt, yt, zt, rt
   integer :: itype, i, j
   logical :: success

@@ -145,25 +145,44 @@ SUBROUTINE read_inp(filename)
   READ(1,*) iconfig, traj_nstep ! number of configuration_save skip
   ! printing pressure?, delta_V/V = ratio_dv_v * nwindow_pressure 
   !  (for example, ratio_dv_v = -0.0025 and nwindow_pressure = 5) 
-  READ(1,*) ipres, ratio_dv_v, n_dv
-  if (ipres == 'YES') THEN
+  READ(1,*) ipres, ratio_dv_v, ratio_dz_z, n_dv
+  if ( (ipres == 'YES') .or. (ipres == 'SUR')) THEN
     if (ensemble_pres) then
       write(*,*) "print pressure only works in NVT"
       ipres = 'NO'
     else
       write(*,*) " activate pressure calculation, ratio_dv_v = ", real(ratio_dv_v), &
+                 ", ratio_dz_z (if SUR on) = ", real(ratio_dz_z), &
                  ", n_dv = ", n_dv
-      ALLOCATE(print_press(n_dv),STAT=ierr) 
-      ALLOCATE(scale_length2(n_dv),STAT=ierr)
-      ALLOCATE(pres_noverlap(n_dv),STAT=ierr)
+      if (ipres == 'YES') then ! calculate (isotropic) pressure
+        ALLOCATE(pres_noverlap(n_dv),STAT=ierr)
+        ALLOCATE(scale_length(n_dv),STAT=ierr)
+        ALLOCATE(print_press(n_dv),STAT=ierr) 
+      endif
+      if (ipres == 'SUR') then ! calculate surface tension
+        ALLOCATE(print_presxy(n_dv),STAT=ierr) 
+        ALLOCATE(print_presz(n_dv),STAT=ierr) 
+        ALLOCATE(presxy_noverlap(n_dv),STAT=ierr)
+        ALLOCATE(presz_noverlap(n_dv),STAT=ierr)
+        ALLOCATE(scale_length_xy(n_dv),STAT=ierr)
+        ALLOCATE(scale_length_z(n_dv),STAT=ierr)
+      endif
       ! compute scale_length, delta_l
       DO i = 1, n_dv
-        dvol = 1.0D0+ratio_dv_v*DBLE(i)
+        if (ipres == 'YES') then ! calculate (isotropic) pressure
+          dvol = 1.0D0+ratio_dv_v*DBLE(i)
+          scale_length(i) = dvol**(2.0D0/3.0D0)
+        endif
+        if (ipres == 'SUR') then ! calculate surface tension  
+          dvol = 1.0D0+ratio_dv_v*DBLE(i)
+          scale_length_xy(i) = dvol
+          dvol = 1.0D0+ratio_dz_z*DBLE(i)
+          scale_length_z(i) = dvol**(2.0D0)
+        endif
         if(dvol < 0.0D0) THEN
           write(*,*) "wrong input ratio_dv_v (big number)"
           stop
         endif
-        scale_length2(i) = dvol**(2.0D0/3.0D0)
       ENDDO
     endif
   endif
@@ -283,7 +302,13 @@ subroutine calc_pres_exit()
   use calc_pres
   implicit none
   integer :: ierr
-  DEALLOCATE(print_press,stat=ierr)
   DEALLOCATE(pres_noverlap,STAT=ierr)
-  DEALLOCATE(scale_length2,STAT=ierr)
+  DEALLOCATE(scale_length,STAT=ierr)
+  DEALLOCATE(print_press,STAT=ierr) 
+  DEALLOCATE(print_presxy,STAT=ierr) 
+  DEALLOCATE(print_presz,STAT=ierr) 
+  DEALLOCATE(presxy_noverlap,STAT=ierr)
+  DEALLOCATE(presz_noverlap,STAT=ierr)
+  DEALLOCATE(scale_length_xy,STAT=ierr)
+  DEALLOCATE(scale_length_z,STAT=ierr)
 end subroutine calc_pres_exit

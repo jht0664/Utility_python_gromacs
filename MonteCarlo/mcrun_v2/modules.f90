@@ -27,9 +27,10 @@ MODULE trans
 END MODULE trans
 
 MODULE calc_pres
-  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE, save :: print_press, scale_length2
-  INTEGER, DIMENSION(:), ALLOCATABLE, save :: pres_noverlap
-  DOUBLE PRECISION, SAVE :: ratio_dv_v
+  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE, save :: print_press, print_presxy, print_presz
+  DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE, save :: scale_length, scale_length_xy, scale_length_z
+  INTEGER, DIMENSION(:), ALLOCATABLE, save :: pres_noverlap, presxy_noverlap, presz_noverlap
+  DOUBLE PRECISION, SAVE :: ratio_dv_v, ratio_dz_z
   INTEGER, SAVE :: n_dv
 END MODULE calc_pres
 
@@ -86,7 +87,8 @@ MODULE rdf
 END MODULE rdf
 
 MODULE filenames
-  CHARACTER(LEN=100),save :: filename_pres, filename_dens, filename_ex
+  CHARACTER(LEN=100),save :: filename_pres, filename_presxy, filename_presz
+  CHARACTER(LEN=100),save :: filename_dens, filename_ex
   CHARACTER(LEN=100),save :: filename_traj_gro, filename_nmol
 END MODULE filenames
 

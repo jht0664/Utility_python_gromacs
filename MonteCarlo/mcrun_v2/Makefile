@@ -1,3 +1,14 @@
+## How to compile
+## 1. use ifort
+## make;make install
+##
+## 2. use gfortran
+## make gfort;make finstall
+##
+## Do you want to debug?
+## make debug
+##
+
 OBJS = movetype.o gr12.o ranlux.o xdr.o io.o cell_map.o property.o overlap.o error.o try.o modules.o mcrun.o
 CC = ifort -xSSE4.2 -O3
 FCC = gfortran 
