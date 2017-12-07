@@ -50,12 +50,21 @@ raw_pn_dataset = np.column_stack((raw_pn_avg,raw_pn_std))
 raw_pt_dataset = np.column_stack((raw_pt_avg,raw_pt_std))
 
 ## fit
+from scipy import stats
+
 x = np.arange(1,nwindows+1)
 pn, pn_cov = np.polyfit(x,raw_pn_avg,1,cov=True) # pn[0]: slope, pn[1]: y-intercept
+a, b, pn_r, c, d = stats.linregress(x,raw_pn_avg)
+print("P_N (R2) = {} ".format(pn_r**2)) 
 pt, pt_cov = np.polyfit(x,raw_pt_avg,1,cov=True)
+a, b, pt_r, c, d = stats.linregress(x,raw_pt_avg)
+print("P_T (R2) = {} ".format(pt_r**2))
+
 print("P_N = {} +- {}".format(pn[1], np.sqrt(pn_cov[1][1]))) 
 print("P_T = {} +- {}".format(pt[1], np.sqrt(pt_cov[1][1]))) 
-print("gamma/Lz = {}".format((pn[1] - pt[1])/2.0)) 
+gamma_cov = pn_cov[1][1] + pt_cov[1][1] # see details about adding/substrating two independnt numbers 
+# https://stats.stackexchange.com/questions/112351/standard-deviation-after-subtracting-one-mean-from-another
+print("gamma/Lz = {} +- {}".format((pn[1] - pt[1])/2.0, np.sqrt(gamma_cov)/2.0)) 
 
 ## write
 np.savetxt(args.opn, raw_pn_dataset, 
