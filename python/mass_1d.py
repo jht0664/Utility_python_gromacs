@@ -51,7 +51,7 @@ if args.axis < 0 or args.axis > 2:
 start_proc, start_prof = hjung.time.init()
 
 ## read a topology and a trajectory using module MDAnalysis with selection
-coordinates1, unit_cells = hjung.io.read_trr_3d_select1(args.structure, args.input, args.select, 'pos')
+coordinates, unit_cells = hjung.io.read_trr_3d_select1(args.structure, args.input, args.select, 'pos')
 
 ## reduce 3d-coordinates to 1d-coordinates
 unit_cells = hjung.array.convert_unitcell_3d(unit_cells, args.structure, args.input)
