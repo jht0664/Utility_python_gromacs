@@ -40,7 +40,7 @@ from hjung import *
 import numpy as np
 
 # default for args
-args.omassf = args.output + '.mass'
+args.omass = args.output + '.mass'
 
 ## check vaulable setting
 print("="*30)
