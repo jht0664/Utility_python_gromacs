@@ -40,7 +40,7 @@ import numpy as np
 
 # default for args
 args.oconv = args.input + args.output # save aligned mass fraction profiles
-args.oacf = args.input + '.acf'       # save autocorrelation function
+args.oacf = args.input + '.acfs'       # save autocorrelation function
 args.oremoveframe = args.input + '.removeframe'   # save iframes when multilayers happen 
 args.input = args.input + '.npy'
 
@@ -60,6 +60,9 @@ np.savetxt(args.oacf, acf_1d_t_wrap,
 
 ## get shift array
 step_1d_t_wrap = np.where(acf_1d_t_wrap < 0.0, -1., 1.) # when we define domain size as zero points in acf
+np.savetxt('imsi.step', step_1d_t_wrap, 
+	header='spatial autocorr(slab_lag,i_frame) (%d,%d) for delta_number, Plot u ($1-%d):2:3'	 
+	%(len(step_1d_t_wrap),len(step_1d_t_wrap[0]),slab_shift), fmt='%f', comments='# ')
 align_shift = hjung.analyze.convolve_1d_t(step_1d_t_wrap, mass_1d_t, 'wrap', 'max') 
 
 ## multilayer check
@@ -107,6 +110,8 @@ def main_domain_size_step_fn(acf_1d_t, criteria_massf, ask_half, text_print):
 
 domain_size, multilayer_iframes = main_domain_size_step_fn(acf_1d_t_wrap, 0.5, args.half, "(50%)")
 domain_size, multilayer_iframes = main_domain_size_step_fn(acf_1d_t_wrap, 0.,  args.half, "(0%)")
+if len(multilayer_iframes) > int(len(acf_1d_t_wrap)/2):
+	raise RunTimeError("# frames to have multilayers > half frames of trajectory. Check your trajectory.")
 
 ## remove all of multilayers
 ## remove first half trajectories
