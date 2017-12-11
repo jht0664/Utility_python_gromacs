@@ -110,7 +110,7 @@ def main_domain_size_step_fn(acf_1d_t, criteria_massf, ask_half, text_print):
 
 domain_size, multilayer_iframes = main_domain_size_step_fn(acf_1d_t_wrap, 0.5, args.half, "(50%)")
 domain_size, multilayer_iframes = main_domain_size_step_fn(acf_1d_t_wrap, 0.,  args.half, "(0%)")
-if len(multilayer_iframes) > int(len(acf_1d_t_wrap)/2):
+if len(multilayer_iframes) > int(len(acf_1d_t_wrap)/50):
 	raise RunTimeError("# frames to have multilayers > half frames of trajectory. Check your trajectory.")
 
 ## remove all of multilayers
