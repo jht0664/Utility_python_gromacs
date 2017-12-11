@@ -111,7 +111,7 @@ if 'YES' in args.symmetry:
 	print("erf lamda = {} +- {}".format(erf_opt[3],erf_cov[3][3]))
 else:
 	print("tanh wr = {} +- {}".format(tanh_opt[0],tanh_cov[0][0]))
-	print("tanh wp = {} +- {}".format(tanh_opt[1],tanh_cov[1])[1])
+	print("tanh wp = {} +- {}".format(tanh_opt[1],tanh_cov[1][1]))
 	print("tanh b = {} +- {}".format(tanh_opt[2],tanh_cov[2][2]))
 	print("tanh c = {} +- {}".format(tanh_opt[3],tanh_cov[3][3]))
 	print("tanh lamda = {} +- {}".format(tanh_opt[4],tanh_cov[4][4]))
