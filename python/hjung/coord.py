@@ -31,6 +31,20 @@ def pbc_nojump_t(xyz_t, box_t):
 		i_frame += 1
 	return xyz_t
 
+# move atoms inside simulation box (no jump option)
+# input: xyz is coordinate sets of atoms
+#		[x1, x2, x3, ..]
+#	     box is box length
+# output: a new wrapped coordinate inside box
+def pbc_nojump_1d(x, box_x): 
+	import numpy as np
+	import copy
+	x_out = copy.copy(x)
+	#print(" io.pbc_nojump_1d:")
+	for ix in range(len(x)):
+		x_out[ix] = x[ix] - box_x*np.floor(x[ix]/box_x) # wrap coodinates within unit cell
+	return x_out
+
 # Boolean for Rectangular parallelepiped of unit cell
 # input: unit_t is unit cell info (A of length, degree of angle) of atoms along time (t1, t2, ...)
 #		[[x, y, z, angle_xy, angle_yz, angle_zx], [x, y, z, angle_xy, angle_yz, angle_zx], ...]
