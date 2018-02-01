@@ -165,6 +165,7 @@ def read_trr_3d_select2(tpr_filename, trr_filename, select_atoms_filename1, sele
 	atoms = []
 	for iselect in select_command: 	
 		list_atoms = u.select_atoms(iselect).indices
+		print(" You selected {} atoms for selection {}".format(len(list_atoms),iselect))
 		if len(list_atoms) == 0:
 			raise ValueError(" No atom is selected. {} may be wrong in grammer.".format(iselect))
 		atoms.append(list_atoms)

@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-imf', '--in_massf', default='traj.massf', nargs='?', 
 	help='raw mass fraction profile (npy file format) and exclude .npy in argument')
 parser.add_argument('-itm', '--in_tmass', default='traj.tmass', nargs='?', 
-	help='raw totmal mass profile (npy file format) and exclude .npy in argument')
+	help='raw totmal mass or mass profile (npy file format) and exclude .npy in argument')
 parser.add_argument('-rm', '--remove', default='YES', nargs='?',
 	help='Remove multi-layers trajectory? (YES/any)')
 parser.add_argument('-half', '--half', default='YES', nargs='?',
@@ -128,30 +128,30 @@ center = int(len(align_massfrac_1d_t[0])/2 - 1)
 massf_center = copy.copy(align_massfrac_1d_t[:,center])
 tmass_center = copy.copy(align_totalmass_1d_t[:,center])
 massf_center, tmass_center = remove_data(massf_center,tmass_center,multilayer_iframes,args.half)
-# domain size - massf
-plt.figure()
-dm_s, dm_i, dm_r, dm_p, dm_err = stats.linregress(domain_size, massf_center)
-print("r-squared (domain-massf) = {}".format(dm_r**2.))
-plt.plot(domain_size, massf_center, 'o', label='data')
-plt.plot(domain_size, dm_i + dm_s*domain_size, 'r', label='fit')
-plt.legend()
-plt.savefig(args.odsize+'.dm.png')
-# domain size - tmass
-plt.figure()
-dm_s, dm_i, dm_r, dm_p, dm_err = stats.linregress(domain_size, tmass_center)
-print("r-squared (domain-tmass) = {}".format(dm_r**2.))
-plt.plot(domain_size, tmass_center, 'o', label='data')
-plt.plot(domain_size, dm_i + dm_s*domain_size, 'r', label='fit')
-plt.legend()
-plt.savefig(args.odsize+'.dt.png')
-# tmass - massf
-plt.figure()
-dm_s, dm_i, dm_r, dm_p, dm_err = stats.linregress(tmass_center, massf_center)
-print("r-squared (tmass-massf) = {}".format(dm_r**2.))
-plt.plot(tmass_center, massf_center, 'o', label='data')
-plt.plot(tmass_center, dm_i + dm_s*tmass_center, 'r', label='fit')
-plt.legend()
-plt.savefig(args.odsize+'.tm.png')
+## domain size - massf (not necessary jobs)
+#plt.figure()
+#dm_s, dm_i, dm_r, dm_p, dm_err = stats.linregress(domain_size, massf_center)
+#print("r-squared (domain-massf) = {}".format(dm_r**2.))
+#plt.plot(domain_size, massf_center, 'o', label='data')
+#plt.plot(domain_size, dm_i + dm_s*domain_size, 'r', label='fit')
+#plt.legend()
+#plt.savefig(args.odsize+'.dm.png')
+## domain size - tmass
+#plt.figure()
+#dm_s, dm_i, dm_r, dm_p, dm_err = stats.linregress(domain_size, tmass_center)
+#print("r-squared (domain-tmass) = {}".format(dm_r**2.))
+#plt.plot(domain_size, tmass_center, 'o', label='data')
+#plt.plot(domain_size, dm_i + dm_s*domain_size, 'r', label='fit')
+#plt.legend()
+#plt.savefig(args.odsize+'.dt.png')
+## tmass - massf
+#plt.figure()
+#dm_s, dm_i, dm_r, dm_p, dm_err = stats.linregress(tmass_center, massf_center)
+#print("r-squared (tmass-massf) = {}".format(dm_r**2.))
+#plt.plot(tmass_center, massf_center, 'o', label='data')
+#plt.plot(tmass_center, dm_i + dm_s*tmass_center, 'r', label='fit')
+#plt.legend()
+#plt.savefig(args.odsize+'.tm.png')
 ## save array stacks for output
 domainsize_massf_tmass = np.column_stack((domain_size, massf_center, tmass_center))
 
@@ -168,11 +168,11 @@ if 'YES' in args.half:
 
 ## write
 np.savetxt(args.omassf, align_massfrac_1d_t, 
-	header='%d, %d, aligned mass1 fraction by ACF and molecules in nbins' \
+	header='%d, %d, aligned massf fraction by ACF and molecules in nbins' \
 	%(len(align_massfrac_1d_t),nbin), fmt='%f', comments='# ')
 #np.save(args.omassf, align_massfrac_1d_t) 
 np.savetxt(args.otmass, align_totalmass_1d_t, 
-	header='%d, %d, aligned total mass by ACF and molecules in nbins' \
+	header='%d, %d, aligned (total or selected) mass by ACF and molecules in nbins' \
 	%(len(align_totalmass_1d_t),nbin), fmt='%f', comments='# ')
 #np.save(args.otmass, align_totalmass_1d_t) 
 np.savetxt(args.odsize, domainsize_massf_tmass,

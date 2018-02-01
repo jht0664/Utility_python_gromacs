@@ -69,13 +69,15 @@ def convert_unitcell_3d(unit_cells, structure, trajectory):
 		print(" We assume the input files are from Gromacs.")
 		return unit_cells
 	# openmm version
-	elif 'pdb' in structure and 'dcd' in input:
+	elif 'pdb' in structure and 'dcd' in trajectory:
 		print(" We assume the input files are from OpenMM.")
-		output = np.zeros((len(unit_cells),3))
-		output[:][0] = unit_cells[:,0]
-		output[:][1] = unit_cells[:,2]
-		output[:][2] = unit_cells[:,5]
-		return output
+		# now the unit cell array format is changed in MDAnalysis 0.17.0
+		#output = np.zeros((len(unit_cells),3))
+		#output[:,0] = unit_cells[:,0]
+		#output[:,1] = unit_cells[:,2]
+		#output[:,2] = unit_cells[:,5]
+		#return output
+		return unit_cells
 	# Monte Carlo version
 	elif 'gro' in structure and 'xtc' in trajectory:
 		print(" We assume the input files are from Monte Carlo. If not, check if code works correctly")

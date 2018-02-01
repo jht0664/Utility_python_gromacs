@@ -38,6 +38,8 @@ args = parser.parse_args()
 print(" input arguments: {0}".format(args))
 
 ## import modules
+import sys
+sys.path.append('/home/htjung/Utility/python/')
 import hjung
 from hjung import *
 import numpy as np

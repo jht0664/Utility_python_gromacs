@@ -46,6 +46,10 @@ massfrac_1d = np.load(args.input)
 massfrac_1d = np.transpose(massfrac_1d)
 massfrac_1d_avg = massfrac_1d[0]
 massfrac_1d_std = massfrac_1d[1]
+curve_fit_std_off = False
+if len(np.nonzero(massfrac_1d_std)) != len(massfrac_1d_std):
+	print("mass fraction std elements have zeros. Turned off curve_fit using std.")
+	curve_fit_std_off = True
 nbin = len(massfrac_1d_avg)
 
 ## fitting functional form
@@ -83,8 +87,12 @@ if 'YES' in args.symmetry:
 	tanh_opt, tanh_cov = curve_fit(tanh_symm,x_data,massfrac_1d_avg,p0=[wr,b,c,lamda],sigma=massfrac_1d_std,bounds=(0,[1., nbin, nbin/2., nbin/2.]))
 	erf_opt, erf_cov = curve_fit(erf_symm,x_data,massfrac_1d_avg,p0=[wr,b,c,lamda],sigma=massfrac_1d_std,bounds=(0,[1., nbin, nbin/2., nbin/2.]))
 else:
-	tanh_opt, tanh_cov = curve_fit(tanh_nosymm,x_data,massfrac_1d_avg,p0=[wr,wp,b,c,lamda],sigma=massfrac_1d_std,bounds=(0,[1., 1., nbin, nbin/2., nbin/2.]))
-	erf_opt, erf_cov = curve_fit(tanh_nosymm,x_data,massfrac_1d_avg,p0=[wr,wp,b,c,lamda],sigma=massfrac_1d_std,bounds=(0,[1., 1., nbin, nbin/2., nbin/2.]))
+	if curve_fit_std_off:
+		tanh_opt, tanh_cov = curve_fit(tanh_nosymm,x_data,massfrac_1d_avg,p0=[wr,wp,b,c,lamda],bounds=(0,[1., 1., nbin, nbin/2., nbin/2.]))
+		erf_opt, erf_cov = curve_fit(tanh_nosymm,x_data,massfrac_1d_avg,p0=[wr,wp,b,c,lamda],bounds=(0,[1., 1., nbin, nbin/2., nbin/2.]))
+	else:
+		tanh_opt, tanh_cov = curve_fit(tanh_nosymm,x_data,massfrac_1d_avg,p0=[wr,wp,b,c,lamda],sigma=massfrac_1d_std,bounds=(0,[1., 1., nbin, nbin/2., nbin/2.]))
+		erf_opt, erf_cov = curve_fit(tanh_nosymm,x_data,massfrac_1d_avg,p0=[wr,wp,b,c,lamda],sigma=massfrac_1d_std,bounds=(0,[1., 1., nbin, nbin/2., nbin/2.]))
 
 ## plotting
 if 'YES' in args.show:
