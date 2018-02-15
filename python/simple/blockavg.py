@@ -48,12 +48,12 @@ print("# data = ", len(data))
 # make a list of block length we will do
 import math
 list_block_length = []
-block_length = 2
+block_length = 5
 while True:
 	num_block = math.floor(len(data)/block_length)
 	if num_block > 5:
 		list_block_length.append(block_length)
-		block_length = block_length + 2
+		block_length = block_length * 2
 		continue
 	else:
 		break

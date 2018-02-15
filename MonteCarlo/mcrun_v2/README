@@ -1,0 +1,26 @@
+# Compile and Installation 
+
+1. install xdr library v1.1.4 (ftp://ftp.gromacs.org/pub/contrib/xdrfile-1.1.4.tar.gz)
+
+./configure --prefix=/home/hjung52/xdr/
+make install
+make test
+
+2. edit Makefile and set xdr library path in $XDR variable, e.g.,
+XDR = -L/home/hjung52/xdr/lib -lxdrfile
+
+3. install mcrun.x
+
+3-1. gfortran version
+make gfort
+make finstall
+
+3-2. ifort version
+make
+make install
+
+3-3. for debug
+make debug;make install # ifort
+make fdebug;make fisntall # gfotran
+
+

@@ -31,8 +31,8 @@ def pbc_nojump_t(xyz_t, box_t):
 		i_frame += 1
 	return xyz_t
 
-# move atoms inside simulation box (no jump option)
-# input: xyz is coordinate sets of atoms
+# wrap atoms within simulation box (no jump option)
+# input: x is coordinate sets of atoms
 #		[x1, x2, x3, ..]
 #	     box is box length
 # output: a new wrapped coordinate inside box
@@ -44,6 +44,43 @@ def pbc_nojump_1d(x, box_x):
 	for ix in range(len(x)):
 		x_out[ix] = x[ix] - box_x*np.floor(x[ix]/box_x) # wrap coodinates within unit cell
 	return x_out
+
+# wrap atoms within simulation box (no jump option)
+# input: x is coordinate sets of atoms
+#		[ [x1, y1, z1], [x2, y2, z2], ...]
+#	     box_xyz is box dimension
+# output: a new wrapped coordinate inside box
+def pbc_nojump_3d(xyz, box_xyz): 
+	import numpy as np
+	import copy
+	xyz_out = copy.copy(xyz)
+	#print(" io.pbc_nojump_1d:")
+	for i_atom in range(len(xyz)):
+		xyz_out[i_atom,0] = xyz[i_atom,0] - box_xyz[0]*np.floor(xyz[i_atom,0]/box_xyz[0]) # wrap coodinates within unit cell
+		xyz_out[i_atom,1] = xyz[i_atom,1] - box_xyz[1]*np.floor(xyz[i_atom,1]/box_xyz[1]) # wrap coodinates within unit cell
+		xyz_out[i_atom,2] = xyz[i_atom,2] - box_xyz[2]*np.floor(xyz[i_atom,2]/box_xyz[2]) # wrap coodinates within unit cell
+	return xyz_out
+
+# wrap atoms within simulation box (no jump option)
+# test version because it is difficult to make all situations 
+#  it would be slower than others because of comparison.
+# input: x is coordinate sets of atoms
+#		[ [x1, y1, z1], [x2, y2, z2], ...]
+#	     box_xyz is box dimension
+# output: a new wrapped coordinate inside box
+def pbc_nojump_3d_test(xyz, box_xyz): 
+	import numpy as np
+	import copy
+	xyz_out = copy.copy(xyz)
+	temp = np.zeros(3)
+	#print(" io.pbc_nojump_1d:")
+	for i_atom in range(len(xyz)):
+		for ix in range(3):
+			temp[0] = xyz[i_atom,ix] - box_xyz[ix]*np.floor(xyz[i_atom,ix]/box_xyz[ix]) # wrap coodinates within unit cell
+			temp[1] = xyz[i_atom,ix] - box_xyz[ix]*np.trunc(xyz[i_atom,ix]/box_xyz[ix]) # wrap coodinates within unit cell
+			temp[2] = xyz[i_atom,ix] - box_xyz[ix]*np.ceil(xyz[i_atom,ix]/box_xyz[ix]) # wrap coodinates within unit cell
+			xyz_out[i_atom,ix] = np.amin(np.absolute(temp))
+	return xyz_out
 
 # Boolean for Rectangular parallelepiped of unit cell
 # input: unit_t is unit cell info (A of length, degree of angle) of atoms along time (t1, t2, ...)

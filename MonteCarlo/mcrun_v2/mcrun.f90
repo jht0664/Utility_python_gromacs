@@ -75,13 +75,13 @@ PROGRAM WR_MCRUN
       call save_ic('composite.tmp') ! temporary ic file
 !     call energy_write
 ! total time
-      call time_marker(inter_time2)
-      inter_time1 = inter_time2 - inter_time1
-      if(inter_time1 > 1.0D0 )  then
-        speed = dble(nskip*36)/10000.0D0/dble(inter_time1)
-        write(*,'(a,F10.5,1x,a,F10.3,a)') " >> total speed  = ", speed, " (10^6 steps/hours) "
-      endif
-      inter_time1 = inter_time2 ! update time
+!      call time_marker(inter_time2)
+!      inter_time1 = inter_time2 - inter_time1
+!      if(inter_time1 > 1.0D0 )  then
+!        speed = dble(nskip*36)/10000.0D0/dble(inter_time1)
+!        write(*,'(a,F10.5,1x,a,F10.3,a)') " >> total speed  = ", speed, " (10^6 steps/hours) "
+!      endif
+!      inter_time1 = inter_time2 ! update time
 ! check overlap
       if(check_overlap_log) call check_overlap()
 ! properties
@@ -97,11 +97,11 @@ PROGRAM WR_MCRUN
       endif
       IF((iex .EQ. 'YES')) CALL print_hifj(filename_ex) ! hi/fj calculation
 ! update nsuccess
-      write(*,'(A)') " ====== movetypes info ====== "
+!      write(*,'(A)') " ====== movetypes info ====== "
       do i=1,nmovetypes
-        write(*,'(A,A,I5,A,F10.5)') movetype_name(i), &
-        " nsucc => ", movetype_i_success(i), &
-        ", frac => ", real(movetype_i_success(i))/real(movetype_i_try(i))
+!        write(*,'(A,A,I5,A,F10.5)') movetype_name(i), &
+!        " nsucc => ", movetype_i_success(i), &
+!        ", frac => ", real(movetype_i_success(i))/real(movetype_i_try(i))
         movetype_nsuccess(i) = movetype_nsuccess(i) + movetype_i_success(i)
         movetype_ntry(i) = movetype_ntry(i) + movetype_i_try(i)
         movetype_i_success(i) = 0

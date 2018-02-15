@@ -76,8 +76,8 @@ step_up_down[:,1] = domain_info[:,4]
 domain_size = domain_info[:,5]
 
 def reduce_traj_output(file_gro, file_xtc, file_select1, file_select2, list_frames):
-	coordinates1, coordinates2, unit_cells = hjung.io.read_trr_3d_select2(args.structure, args.input, args.select1, args.select2, 'pos')
-	unit_cells = hjung.array.convert_unitcell_3d(unit_cells, args.structure, args.input)
+	coordinates1, coordinates2, unit_cells = hjung.io.read_trr_3d_select2(file_gro, file_xtc, file_select1, file_select2, 'pos')
+	unit_cells = hjung.array.convert_unitcell_3d(unit_cells, file_gro, file_xtc)
 	return coordinates1[list_frames], coordinates2[list_frames], unit_cells[list_frames]
 
 # read a topology and a trajectory using module MDAnalysis with selection
