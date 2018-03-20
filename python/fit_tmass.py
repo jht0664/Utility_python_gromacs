@@ -106,8 +106,8 @@ if 'YES' in args.show:
 if 'YES' in args.symmetry:
 	print("norm. factor (peak value) = {} +- {}".format(gaus_opt[0],gaus_cov[0][0]))
 	#print("norm. var = {} +- {}".format(gaus_opt[1],gaus_cov[1][1]))
-	print("interface pos1 = {} +- {}".format(gaus_opt[2],gaus_cov[2][2]))
-	print("interface pos2 = {} +- {}".format(gaus_opt[3],gaus_cov[3][3]))
+	print("peak at interface pos1 = {} +- {}".format(tmass_1d_avg(int(gaus_opt[2])),tmass_1d_std(int(gaus_opt[2]))))
+	print("peak at interface pos2 = {} +- {}".format(tmass_1d_avg(int(gaus_opt[3])),tmass_1d_std(int(gaus_opt[3]))))
 	print("bulk tmass = {} +- {}".format(gaus_opt[4],gaus_cov[4][4]))
 #else:
 	#print("tanh wr = {} +- {}".format(tanh_opt[0],tanh_cov[0][0]))
