@@ -69,6 +69,7 @@ SUBROUTINE print_pressure_dV(outputfile)
 END SUBROUTINE print_pressure_dV
 
 ! surface tension calculation using volume change in NVT ensemble
+! be aware that surface tension distribution code does NOT consider using openmp
 SUBROUTINE print_surface_tension_dV(outputfile1, outputfile2)
   use omp_lib
   use calc_pres
@@ -82,12 +83,21 @@ SUBROUTINE print_surface_tension_dV(outputfile1, outputfile2)
   double precision :: xt, yt, zt, rt, vol, dcomp
   integer :: id, i, j, k
   integer, dimension(openmp_thread_num,n_dv) :: ompvxy, ompvz
+  integer, parameter :: distr_nbin = 200
+  integer :: distr_ibin 
+  double precision :: distr_binsize, zcen, zpos
+  integer, dimension(n_dv,distr_nbin) :: vxy_z, vz_z
+  double precision, dimension(n_dv,distr_nbin) :: distr_xy, distr_z
+  CHARACTER(LEN=100) :: file3, file4
 
 !  write(*,*) "pressure_dV:"
   presxy_noverlap = 0
   presz_noverlap = 0
   ompvxy = 0
   ompvz = 0
+  distr_binsize = box(3)/DBLE(distr_nbin)
+  vxy_z = 0
+  vz_z = 0
 ! count number of overlap pairs under virtual volume in area
   DCOMP = sigma_ab**2
 !$omp parallel private (xt, yt, zt, rt, id, i, j, k) shared (ompvxy, ompvz)
@@ -106,10 +116,20 @@ SUBROUTINE print_surface_tension_dV(outputfile1, outputfile2)
         IF(RT < DCOMP) THEN
           ompvxy(id,k) = ompvxy(id,k) + 1 
           !write(*,*) "xy",rt,k,ompvxy(id,k),i,j
+          zpos = z(i) - box(3)*DNINT(z(i)/box(3)-0.50D0) 
+          zcen = zpos + dabs(ZT)
+          zcen = zcen - box(3)*DNINT(zcen/box(3)-0.50D0)
+          distr_ibin = int(zcen/distr_binsize) + 1
+          vxy_z(k,distr_ibin) = vxy_z(k,distr_ibin) + 1
         ENDIF
         RT = XT*XT+YT*YT+ZT*ZT*scale_length_z(k) !*pos_scaling2
         IF(RT < DCOMP) THEN
           ompvz(id,k) = ompvz(id,k) + 1 
+          zpos = z(i) - box(3)*DNINT(z(i)/box(3)-0.50D0) 
+          zcen = zpos + dabs(ZT)
+          zcen = zcen - box(3)*DNINT(zcen/box(3)-0.50D0)
+          distr_ibin = int(zcen/distr_binsize) + 1
+          vz_z(k,distr_ibin) = vz_z(k,distr_ibin) + 1
           !write(*,*) "z ",rt,k,ompvz(id,k),i,j
         ENDIF
       ENDDO
@@ -131,6 +151,10 @@ SUBROUTINE print_surface_tension_dV(outputfile1, outputfile2)
     !WRITE(*,*) DBLE(noverlap(i))/(ratio_dv_v*i)/2.0D0
     print_presxy(i) = DBLE(nptot)/vol - DBLE(presxy_noverlap(i))/(ratio_dv_v*dble(i)*vol)
     print_presz(i) = DBLE(nptot)/vol - DBLE(presz_noverlap(i))/(ratio_dz_z*dble(i)*vol)
+    DO j = 1, distr_nbin
+      distr_xy(i,j) = DBLE(nptot)/vol - DBLE(vxy_z(i,j))/(ratio_dv_v*dble(i)*vol)
+      distr_z(i,j) = DBLE(nptot)/vol - DBLE(vz_z(i,j))/(ratio_dv_v*dble(i)*vol)
+    ENDDO
   ENDDO
   ! save data1
   INQUIRE(file=outputfile1, exist=file_exist)
@@ -151,11 +175,38 @@ SUBROUTINE print_surface_tension_dV(outputfile1, outputfile2)
     WRITE(2,'(A,2x,*(E16.8,1x))') "# delta_V's", (ratio_dz_z*i, i=1, n_dv)
   ENDIF
   WRITE(2,'(*(E16.8,1x))') ( print_presz(i), i=1,n_dv )
+  CLOSE(2)
+
+  ! save data1
+  file3 = 'surf_dist_xy_z.out'
+  INQUIRE(file=file3, exist=file_exist)
+  IF(file_exist) THEN
+    OPEN(UNIT=3,FILE=file3,status='old', position='append', action='write')
+  ELSE
+    OPEN(UNIT=3,FILE=file3,status='new', action='write')  
+    !WRITE(3,'(A,2x,*(E16.8,1x))') "# delta_V's", (ratio_dv_v*i, i=1, n_dv)
+  ENDIF
+  do i = 1, n_dv
+    WRITE(3,'(*(E16.8,1x))') ( distr_xy(i,j), j=1, distr_nbin)
+  enddo
+  CLOSE(3)
+  ! save data2
+  file4 = 'surf_dist_z_z.out'
+  INQUIRE(file=file4,exist=file_exist)
+  IF(file_exist) THEN
+    OPEN(UNIT=4,FILE=file4,status='old', position='append', action='write')
+  ELSE
+    OPEN(UNIT=4,FILE=file4,status='new', action='write')  
+    !WRITE(4,'(A,2x,*(E16.8,1x))') "# delta_V's", (ratio_dz_z*i, i=1, n_dv)
+  ENDIF
+  do i = 1, n_dv
+    WRITE(4,'(*(E16.8,1x))') ( distr_z(i,j), j=1, distr_nbin)
+  enddo
+  CLOSE(4)
   
   !WRITE(*,*) "========= Instance Pressures with virtual volume change (xy, z) ======="
   !WRITE(*,'(*(E16.8,2x))') ( print_presxy(i), i=1,n_dv )
   !WRITE(*,'(*(E16.8,2x))') ( print_presz(i), i=1,n_dv )
-  CLOSE(2)
   RETURN
 END SUBROUTINE print_surface_tension_dV
 

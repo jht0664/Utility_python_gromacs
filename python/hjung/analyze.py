@@ -347,13 +347,15 @@ def autocorr_1d_t(data_1d_t,setmode):
 	import numpy as np
 	from scipy import ndimage
 
-	acf_data = []
+	acf_data = np.zeros(np.shape(data_1d_t))
+	itime = 0
 	for data_1d in data_1d_t:
 		delta_data_1d = data_1d - data_1d.mean()
 		acf_data_1d = ndimage.correlate(delta_data_1d,delta_data_1d,mode=setmode)
 		acf_data_1d /= (data_1d.var()*len(delta_data_1d)) # normalize
-		acf_data.append(acf_data_1d)	
-	return np.array(acf_data)
+		acf_data[itime] = acf_data_1d
+		itime += 1
+	return acf_data
 
 # 1D auto-correlation function using fft
 def autocorr_1d_fft(data_1d):

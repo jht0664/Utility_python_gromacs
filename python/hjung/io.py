@@ -458,3 +458,58 @@ def read_mass2(filename):
 	print(" dividers[select1,select2] = {}".format(divider))
 	print(" mw[select1,select2] = {}".format(mw))
 	return mw, divider
+
+# read a file simply
+# input: 
+#	inputfile input file name
+#	begin     beginning i-frame
+#   end       end i-frame 
+# output: 
+#	data      1d or 2d data array 
+# Example: data = read_simple(filename,-1,-1)
+def read_simple(inputfile,begin,end):
+	print("io.read_simple:")
+	import numpy as np
+	## load rdf files
+	if '.npy' in inputfile:
+		data = np.load(inputfile)
+		ftype='npy'
+	elif '.txt': # assume txt input file
+		try:
+			xvg = open(inputfile, 'r')
+		except IOError:
+			print(" Problem with opening {}".format(inputfile))
+			exit()
+		data = []
+		for line in xvg:
+			line = line.strip()
+			if not line or line.startswith('#') or line.startswith('@'): # line is blank or comment line
+				continue
+			data.append(float(line))
+		xvg.close()
+		ftype='txt'
+		data = np.array(data)
+	else:
+		data = np.loadtxt(inputfile,comments='#',unpack=True)
+		ftype='loadtxt'
+	# refine size of datas
+	n_frames = data.shape[0]
+	if begin == -1:
+		begin = int(n_frames/2)
+	if end == -1:
+		end = n_frames
+	elif end <= begin:
+		raise ValueError(" you may set wrong begin and end to read")
+	data = data[begin:end]
+	n_frames = data.shape[0]
+
+	# refine
+	if len(data.shape) > 1:
+		n_species = data.shape[1] # number of independent molecules to average # 2d data
+	else:
+		n_species = 1 # 1d data
+	print(" total {} frames and {} species in {} file {}".format(
+		n_frames,n_species,str(ftype),inputfile))
+	
+	return data
+	

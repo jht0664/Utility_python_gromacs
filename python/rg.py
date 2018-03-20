@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
-# ver 0.1 - copy from rdf_itf.py (v0.1) and modify codes on 2/3/2018
 
 import argparse
 parser = argparse.ArgumentParser(
 	formatter_class=argparse.ArgumentDefaultsHelpFormatter, 
-	description='calculation radius of gyration (Rg) of molecules you select')
+	description='calculation radius of gyration using MDAnalysis')
 ## args
 parser.add_argument('-i', '--input', default='traj.trr', nargs='?', 
 	help='input trajectory file')
 parser.add_argument('-s', '--structure', default='topol.tpr', nargs='?', 
 	help='.tpr structure file')
-parser.add_argument('-b_rid', '--b_rid', nargs='?', type=int,
-	help='beginning of residu id of target molecules (starting 1)')
-parser.add_argument('-nres', '--nres', nargs='?', type=int,
-	help='number of residues of a single molecule')
+parser.add_argument('-select', '--select', nargs='?',
+	help='selection of each molecule')
 parser.add_argument('-nmol', '--nmol', nargs='?', type=int,
-	help='number of molecules you select')
+	help='# molecules')
+parser.add_argument('-b', '--begin', default=-1, nargs='?', type=int,
+	help='begining frame (-1: last half trajectory)')
 parser.add_argument('-o', '--output', default='pol.rg', nargs='?', 
 	help='output filename for Rg files')
 parser.add_argument('args', nargs=argparse.REMAINDER)
@@ -36,70 +35,48 @@ import numpy as np
 ## timer
 start_proc, start_prof = hjung.time.init()
 
-# initialize processing bar
-# output: process tiem and wall time
-# Example: mod_frame = process_init()
-def process_init():
-	print("io.process_init: ")
-	return 10 # initial mode number = 10
-
-# print process bar
-# input: itime, current time
-#        ftime, final time
-#        mod_time, frequency of printing.
-# output: mod_time, new or old printing frequency 
-# Example: mod_frame = process_print(itime+1, ftime, mod_frame)
-def process_print(itime, ftime, mod_time):
-	if itime%mod_time == 0:
-		print("... {0} th frame reading ({1:.0%}) ...".format(itime,itime/ftime))
-		if (itime/mod_time)%10 == 0:
-			mod_time = mod_time*10
-	return mod_time
-
+# read trajectory
 u = mda.Universe(args.structure,args.input)
 n_frames = len(u.trajectory)
+skip_frames = 0
+if args.begin == -1:
+	skip_frames = int(n_frames/2)
+	print(" skip {} frames".format(skip_frames))
+else:
+	skip_frames = args.begin
+if args.begin >= n_frames:
+	raise ValueError("wrong args.begin because of > n_frames")
+n_frames = n_frames - skip_frames
+atomtxt = open(args.select).read()
+#hjung.polymer.check_traj_connectivity(u,str(atomtxt),args.nmol,1.8,'random')
+select_mol = u.select_atoms(str(atomtxt))
+if len(select_mol)%args.nmol != 0:
+	raise ValueError("wrong # molecules, (args.nmol, select_mol) {} {} ".format(args.nmol, len(select_mol)))
+n_deg = int(len(select_mol)/args.nmol)
+print("assume {} atoms you select per molecule".format(n_deg))
+
+# calculation of Rg
 data_rg = np.zeros((n_frames,args.nmol))
 i_frame = 0
-imod = process_init()
-for ts in u.trajectory:
-	i_rid = args.b_rid
+imod = hjung.time.process_init()
+for ts in u.trajectory[skip_frames:]:
 	for i_mol in range(args.nmol):
-		mol = u.select_atoms('resid '+str(i_rid)+'-'+str(i_rid+args.nres-1))
+		mol = select_mol.atoms[n_deg*i_mol:n_deg*(i_mol+1)]
 		data_rg[i_frame,i_mol] =  mol.radius_of_gyration()
-		i_rid = i_rid + args.nres
 	i_frame = i_frame + 1
-	imod = process_print(i_frame, n_frames, imod)
-print("read from resid {} to resid {} for {} frames".format(args.b_rid,i_rid-1,n_frames))
-#
-#      xt = x(i) - x(j)
-#      yt = y(i) - y(j)
-#      zt = z(i) - z(j)
-#      XT = XT - box(1)*DNINT(XT/box(1))
-#      YT = YT - box(2)*DNINT(YT/box(2))
-#      ZT = ZT - box(3)*DNINT(ZT/box(3))
-#      RT = (XT*XT+YT*YT+ZT*ZT) !*pos_scaling2
-#      DO k=1, n_dv  ! count number of overlapping pairs (finally, double counting)
-#        IF(RT*scale_length(k) < DCOMP) THEN
-#          ompv(id,k) = ompv(id,k) + 1 
-#          !write(*,*) id,k,ompv(id,k)
-#        ENDIF
-#      ENDDO
+	imod = hjung.time.process_print(i_frame, n_frames, imod)
 
 # save raw rg data file
 np.savetxt(args.output, data_rg, 
-	header='Rg (mean = {} +- {} with {} frames'.format(np.mean(data_rg),np.std(data_rg),n_frames), fmt='%f', comments='# ')
+	header='Rg for each molecules (mean = {} +- {}) with {} frames'.format(np.mean(data_rg),np.std(data_rg),n_frames), fmt='%f', comments='# ')
 np.save(args.output, data_rg)
-print("Rg = {} +- {}".format(np.mean(data_rg),np.std(data_rg)))
-print(" saved rg files")
+print("average Rg = {} +- {}".format(np.mean(data_rg),np.std(data_rg)))
 
 # save avg file
 data_rg_tavg = np.column_stack((np.mean(data_rg, axis=0),np.std(data_rg, axis=0)))
-np.savetxt(args.output+'.tavg', data_rg_tavg, 
+np.savetxt(args.output+'.avg', data_rg_tavg, 
 	header='averaged Rg for each molecule with {} frames'.format(n_frames), fmt='%f', comments='# ')
-data_rg_mavg = np.column_stack((np.mean(data_rg, axis=1),np.std(data_rg, axis=1)))
-np.savetxt(args.output+'.mavg', data_rg_mavg, 
-	header='averaged Rg for each frame with {} molecules'.format(args.nmol), fmt='%f', comments='# ')
-print(" saved average rg files")
+
 
 ## timer
 hjung.time.end_print(start_proc, start_prof)

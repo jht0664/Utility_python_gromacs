@@ -26,7 +26,7 @@ SUBROUTINE overlap(ITRY,coord_new,to,action,overlap_q)
   endif
 ! initialize (not necessary, it slows down to half)
   overlap_q = .false.
-  X1 = coord_new(1) - box(1)*DNINT(coord_new(1)/box(1)-0.50D0)
+  X1 = coord_new(1) - box(1)*DNINT(coord_new(1)/box(1)-0.50D0) ! to get positive values if coord_new is negtaive
   Y1 = coord_new(2) - box(2)*DNINT(coord_new(2)/box(2)-0.50D0) 
   Z1 = coord_new(3) - box(3)*DNINT(coord_new(3)/box(3)-0.50D0) 
   ICELL = 1 + INT( X1*CELLX ) &
