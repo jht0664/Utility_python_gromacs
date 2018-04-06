@@ -26,7 +26,7 @@ import numpy as np
 from scipy import ndimage
 
 # default for args
-args.output = args.output + '.time_acf'
+args.output = args.output.replace('.npy','') + '.time_acf'
 
 ## timer
 start_proc, start_prof = hjung.time.init()
