@@ -217,7 +217,7 @@ if n_vacant_times != 0:
 # delete frames which has continously vacant cells
 #print(skip_frame_list)
 if len(skip_frame_list) > 0:
-	print("remove {} and {} frames which has continuously vacant cells or multi domains...".format(n_vacant_avg_times,len(skip_frame_list)-n_vacant_avg_times))
+	print("remove {} frames which has continuously vacant cells...".format(len(skip_frame_list)))
 	skip_frame_list = np.array(skip_frame_list)
 	intrinsic_mf_profile = np.delete(intrinsic_mf_profile,skip_frame_list,axis=0)
 	intrinsic_tm_profile = np.delete(intrinsic_tm_profile,skip_frame_list,axis=0)
