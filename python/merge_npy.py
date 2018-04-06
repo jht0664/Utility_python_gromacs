@@ -22,20 +22,20 @@ import copy
 import numpy as np
 
 start = 0
-with open(args.output,'wb') as f_handle:
-	npyfiles = glob.glob("*.npy")
-	npyfiles.sort()
-	n_files = len(npyfiles)
-	for npyfile in npyfiles:
-		# get path
-		filepath = os.path.join('./', npyfile)
-		# load file
-		tmp_npy = np.load(filepath)
-		if 'merge_array' not in locals():
-			ntimes = tmp_npy.shape[0] * n_files
-			merge_array = np.zeros((ntimes,tmp_npy.shape[1]))
-		else:
-			merge_array[start:start+len(tmp_npy)] = copy.copy(tmp_npy)
-			start = start+len(tmp_npy)
-	np.save(f_handle,merge_array)
-print(merge_array.shape)
+npyfiles = glob.glob("*.npy")
+npyfiles.sort()
+n_files = len(npyfiles)
+for npyfile in npyfiles:
+	# get path
+	filepath = os.path.join('./', npyfile)
+	# load file
+	tmp_npy = np.load(filepath)
+	if 'merge_array' not in locals():
+		ntimes = tmp_npy.shape[0] * n_files
+		merge_array = np.zeros((ntimes,tmp_npy.shape[1]))
+	else:
+		merge_array[start:start+len(tmp_npy)] = copy.copy(tmp_npy)
+		start = start+len(tmp_npy)
+np.savetxt(args.output,merge_array)
+np.save(args.output,merge_array)
+print(" total merged npy file = {}".format(merge_array.shape))
