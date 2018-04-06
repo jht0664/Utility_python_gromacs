@@ -38,6 +38,7 @@ for npyfile in npyfiles:
 		ntimes = tmp_npy.shape[0] * n_files
 		merge_array = np.zeros((ntimes,tmp_npy.shape[1]))
 	else:
+		print(start,len(tmp_npy))
 		merge_array[start:start+len(tmp_npy)] = copy.copy(tmp_npy)
 		start = start+len(tmp_npy)
 np.savetxt(args.output,merge_array)
