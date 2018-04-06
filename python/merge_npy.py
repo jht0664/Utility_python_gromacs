@@ -24,7 +24,11 @@ import numpy as np
 start = 0
 npyfiles = glob.glob("*.npy")
 npyfiles.sort()
+print(npyfiles)
 n_files = len(npyfiles)
+print(n_files)
+if n_files < 1:
+	raise ValueError("no .npy files")
 for npyfile in npyfiles:
 	# get path
 	filepath = os.path.join('./', npyfile)
