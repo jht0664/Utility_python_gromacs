@@ -80,7 +80,7 @@ x_data = np.linspace(1, nbin, num=nbin, endpoint=True)
 if 'YES' in args.symmetry:
 	gaus_opt, gaus_cov = curve_fit(gaus_symm,x_data,tmass_1d_avg,
 		p0=[pref,gaus_var,itf_pos1,itf_pos2,bulk_tmass],sigma=tmass_1d_std,
-		bounds=([0,0,0,nbin/2.,0],[100, nbin/4., nbin/2., nbin, 100])) # maybe option bounds makes error to fit
+		bounds=([0,0,0,nbin/2.,0],[np.min(tmass_1d_avg)*10, nbin/4., nbin/2., nbin, np.max(tmass_1d_avg)*10])) # maybe option bounds makes error to fit
 else:
 	raise ValueError("not supported yet for asymmetric profile")
 	#if curve_fit_std_off:
@@ -106,8 +106,8 @@ if 'YES' in args.show:
 if 'YES' in args.symmetry:
 	print("norm. factor (peak value) = {} +- {}".format(gaus_opt[0],gaus_cov[0][0]))
 	#print("norm. var = {} +- {}".format(gaus_opt[1],gaus_cov[1][1]))
-	print("peak at interface pos1 = {} +- {}".format(tmass_1d_avg(int(gaus_opt[2])),tmass_1d_std(int(gaus_opt[2]))))
-	print("peak at interface pos2 = {} +- {}".format(tmass_1d_avg(int(gaus_opt[3])),tmass_1d_std(int(gaus_opt[3]))))
+	print("peak at interface pos1 = {} +- {}".format(gaus_opt[4]-tmass_1d_avg[int(gaus_opt[2])],tmass_1d_std[int(gaus_opt[2])]))
+	print("peak at interface pos2 = {} +- {}".format(gaus_opt[4]-tmass_1d_avg[int(gaus_opt[3])],tmass_1d_std[int(gaus_opt[3])]))
 	print("bulk tmass = {} +- {}".format(gaus_opt[4],gaus_cov[4][4]))
 #else:
 	#print("tanh wr = {} +- {}".format(tanh_opt[0],tanh_cov[0][0]))

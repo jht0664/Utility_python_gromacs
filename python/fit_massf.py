@@ -46,6 +46,8 @@ massfrac_1d = np.load(args.input)
 massfrac_1d = np.transpose(massfrac_1d)
 massfrac_1d_avg = massfrac_1d[0]
 massfrac_1d_std = massfrac_1d[1]
+#print(massfrac_1d_avg)
+#print(massfrac_1d_std)
 curve_fit_std_off = False
 if len(np.nonzero(massfrac_1d_std)) != len(massfrac_1d_std):
 	print("mass fraction std elements have zeros. Turned off curve_fit using std.")
@@ -63,9 +65,9 @@ def tanh_symm(x, wr, b, c, lamda):
 def erf_symm(x, wr, b, c, lamda):
 	return 1.0-wr+0.50*(2.0*wr-1.0)*(erf((x-b+c)/lamda)-erf((x-b-c)/lamda))
 def tanh_nosymm(x, wr, wp, b, c, lamda):
-	return wp+0.50*(wr-wp)*(2.0*wr-1.0)*(np.tanh((x-b+c)/lamda)-np.tanh((x-b-c)/lamda))
+	return wp+0.50*(wr-wp)*(np.tanh((x-b+c)/lamda)-np.tanh((x-b-c)/lamda))
 def erf_nosymm(x, wr, wp, b, c, lamda):
-	return wp+0.50*(wr-wp)*(2.0*wr-1.0)*(erf((x-b+c)/lamda)-erf((x-b-c)/lamda))
+	return wp+0.50*(wr-wp)*(erf((x-b+c)/lamda)-erf((x-b-c)/lamda))
 
 ## initial guess
 if 'CENTER' in args.guess:

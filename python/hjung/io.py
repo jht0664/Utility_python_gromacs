@@ -475,20 +475,23 @@ def read_simple(inputfile,begin,end):
 		data = np.load(inputfile)
 		ftype='npy'
 	elif '.txt': # assume txt input file
-		try:
-			xvg = open(inputfile, 'r')
-		except IOError:
-			print(" Problem with opening {}".format(inputfile))
-			exit()
-		data = []
-		for line in xvg:
-			line = line.strip()
-			if not line or line.startswith('#') or line.startswith('@'): # line is blank or comment line
-				continue
-			data.append(float(line))
-		xvg.close()
+		## you may use basic open and append functions
+		#try:
+		#	xvg = open(inputfile, 'r')
+		#except IOError:
+		#	print(" Problem with opening {}".format(inputfile))
+		#	exit()
+		#data = []
+		#for line in xvg:
+		#	line = line.strip()
+		#	if not line or line.startswith('#') or line.startswith('@'): # line is blank or comment line
+		#		continue
+		#	data.append(float(line.split(' ')[0])) # to get numbers in the first column
+		#xvg.close()
+		#data = np.array(data)
+		## or use np library
+		data = np.loadtxt(inputfile)
 		ftype='txt'
-		data = np.array(data)
 	else:
 		data = np.loadtxt(inputfile,comments='#',unpack=True)
 		ftype='loadtxt'

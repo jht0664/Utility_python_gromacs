@@ -35,6 +35,7 @@ def check_traj_connectivity(mda_system,select,nmol,cutoff,mode):
 		set_tx = u.trajectory[0]
 		print(" active FIRST mode")
 	# check
+	i_frame = 0
 	for ts in set_tx:
 		for i_mol in range(nmol):
 			# check the validity of atomic positions 
@@ -43,10 +44,12 @@ def check_traj_connectivity(mda_system,select,nmol,cutoff,mode):
 				dist = euclidean(select_mol.positions[inum], select_mol.positions[inum+1])
 				if dist > cutoff:
 					print(" maybe due to the wrapped trajectory setting or too small cutoff.")
+					print(" please check wrapping option like gmx trjconv -pbc mol for Gromacs trajectory.")
 					raise RuntimeError("[{}th frame] {}th polymer ({}th atom) dist. = {} > cutoff {}".format(i_frame,i_mol,i_atom, dist, cutoff))
 				if dist > dist_max:
 					dist_max = dist
 				if dist < dist_min:
 					dist_min = dist
+		i_frame = i_frame + 1
 	print(" passed! with distance [{:.3f},{:.3f}] under {:.3f} cut-off".format(dist_min,dist_max,cutoff))
 	return

@@ -88,9 +88,64 @@ def histo_t_1d_nbin(x_t, box_x_t, nbin):
 	# make histogram trajectory
 	i_frame = 0
 	for x in x_t:
+		#if (np.amax(x) > box_x_t[i_frame]) or (np.amin(x) < 0.0):
+		#	print(" ##### at frame {}, index of max = {}, index of min = {}".format(i_frame,np.argmax(x),np.argmin(x)))
+		#	print("Be aware of maximum value over (or less) box size, due to {} > {} (box), or {} < {} (box)##### ".format(np.amax(x),box_x_t[i_frame],np.amin(x),0.0))
 		histo_t[i_frame], bin_t[i_frame] = np.histogram(x, bins=n_bins, range=(0,box_x_t[i_frame]))
+		if np.sum(histo_t[i_frame]) != len(x):
+			loss_ratio = 100*float(len(x)-np.sum(histo_t[i_frame]))/float(len(x))
+			if loss_ratio > 0.1: # loss data > 0.1 %, print warning
+				print(" WARNING loss of data = {} % ".format(loss_ratio))
 		i_frame += 1
 	return histo_t, bin_t
+
+# we make average distribution of y values with respect to x values in a given bin_1d array
+# input: x_t is 1d-coordinate of atoms along time (t1, t2, ...)
+#			[[x1(t0), x2(t0), x3(t0), ...], [x1(t1), x2(t1), x3(t1)], ...]
+#        y_t is properties (such as orientational parameter) of atoms along time (t1, t2, ...)
+#           [[y1(t0), y2(t0), y3(t0), ...], [y1(t1), y2(t1), y3(t1)], ...]
+#           where the order should be matched with x_t because order means residue id
+#        bin_1d_t is bin array from np.histogram
+#           
+def histo_xy_t_1d_wbin(x_t, y_t, bin_1d_t):
+	print("analyze.histo_xy_t_1d_wbin:")
+	import numpy as np
+	# check sizes
+	if len(x_t) != len(y_t):
+		raise ValueError(" # of time frame is not the same for input arrarys1")
+	if len(y_t) != len(bin_1d_t):
+		raise ValueError(" # of time frame is not the same for input arrarys2")	
+	n_frames = len(x_t)
+	if len(x_t[0]) != len(y_t[0]):
+		raise ValueError(" # of atoms (or molecules) is not the same for input arrarys")
+	n_bins = len(bin_1d_t[0]) - 1
+	bin_sizes = bin_1d_t[:,1] - bin_1d_t[:,0]
+	# check possible errors
+	if np.amin(x_t) < 0:
+		raise ValueError(" not support for negative values for x's")
+	if np.amax(x_t) > np.amax(bin_1d_t[:,-1]):
+		raise ValueError(" not support for values for x's beyond bin range")
+	if np.amin(bin_1d_t) < 0:
+		raise ValueError(" not support for negative values for bins")
+	# initialize variables
+	histo_t = np.zeros((n_frames, n_bins))
+	# calc. histogram for y's
+	for i_frame in range(n_frames):
+		histo_t_count = np.zeros(n_bins,dtype=int)
+		# find histogram index from x values
+		x_index = (x_t[i_frame]/bin_sizes[i_frame]).astype(int)
+		for i_mol in range(len(x_index)):
+			if x_index[i_mol] == n_bins:
+				histo_index = n_bins - 1
+			else:
+				histo_index = x_index[i_mol]
+			histo_t[i_frame,histo_index] = histo_t[i_frame,histo_index] + y_t[i_frame,i_mol] 
+			histo_t_count[histo_index] = histo_t_count[histo_index] + 1
+		# average
+		for ibin in range(n_bins):
+			if histo_t_count[ibin] != 0:
+				histo_t[i_frame,ibin] = histo_t[i_frame,ibin]/histo_t_count[ibin]
+	return histo_t
 
 # make 1D histograms every single frame using 1d-coordinates with preset nbin
 # input: x_t is 1d-coordinate of atoms along time (t1, t2, ...)
@@ -429,6 +484,7 @@ def convolve_1d_t(data1_1d_t, data2_1d_t, setmode, minmax):
 	print("analyze.convolve_1d_t:")
 	import numpy as np
 	from scipy import ndimage
+	import copy
 	# check minmax argument
 	if (minmax != 'max') and (minmax != 'min'):
 		raise ValueError(" Error: wrong arugment on minmax")
@@ -447,11 +503,11 @@ def convolve_1d_t(data1_1d_t, data2_1d_t, setmode, minmax):
 		raise ValueError(" Error: datas are not homogeneous shape.")
 	
 	# Do convolution at the same time frame
-	convolve_data = []
+	convolve_data = np.full_like(data1_1d_t,0.)
 	for iframe in range(len_data1):
 		convolve_temp = ndimage.convolve(data1_1d_t[iframe],data2_1d_t[iframe],mode=setmode)
 		# Not neccesary normalization
-		convolve_data.append(convolve_temp)
+		convolve_data[iframe] = copy.copy(convolve_temp)
 	# keep in mind that the x-range of convolve_data starts 0 to size_data
 	if minmax == 'min':
 		output = np.argmin(convolve_data, axis=1)
