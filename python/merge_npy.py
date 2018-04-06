@@ -19,6 +19,7 @@ print(" input arguments: {0}".format(args))
 import glob
 import os
 import copy
+import numpy as np
 
 start = 0
 with open(args.output,'wb') as f_handle:
