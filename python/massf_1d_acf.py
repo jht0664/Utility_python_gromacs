@@ -36,6 +36,7 @@ data_1d_t = np.load(args.input)
 n_frames = len(data_1d_t)
 data_t_1d = np.transpose(data_1d_t)
 nbins = len(data_t_1d)
+print(n_frames,nbins)
 
 del_data = data_t_1d - np.mean(data_t_1d,axis=1).reshape((nbins,-1))
 norm = np.sum(del_data**2,axis=1)

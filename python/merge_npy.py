@@ -37,10 +37,9 @@ for npyfile in npyfiles:
 	if 'merge_array' not in locals():
 		ntimes = tmp_npy.shape[0] * n_files
 		merge_array = np.zeros((ntimes,tmp_npy.shape[1]))
-	else:
-		print(start,len(tmp_npy))
-		merge_array[start:start+len(tmp_npy)] = copy.copy(tmp_npy)
-		start = start+len(tmp_npy)
+	print(start,len(tmp_npy))
+	merge_array[start:start+len(tmp_npy)] = copy.copy(tmp_npy)
+	start = start+len(tmp_npy)
 merge_array_reduced = np.delete(merge_array,np.arange(start,ntimes),axis=0)
 np.savetxt(args.output,merge_array_reduced)
 np.save(args.output,merge_array_reduced)
