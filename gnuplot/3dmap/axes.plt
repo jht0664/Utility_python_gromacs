@@ -1,5 +1,5 @@
 # Axes style
-set pm3d map
+set pm3d map interpolate 2,2
 set style line 101 lc rgb '#000000' lt 1
 set style line 102 lc rgb '#808080' lt 1
 set border 31 front ls 101 lw 2

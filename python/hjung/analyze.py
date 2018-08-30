@@ -91,7 +91,8 @@ def histo_t_1d_nbin(x_t, box_x_t, nbin):
 		#if (np.amax(x) > box_x_t[i_frame]) or (np.amin(x) < 0.0):
 		#	print(" ##### at frame {}, index of max = {}, index of min = {}".format(i_frame,np.argmax(x),np.argmin(x)))
 		#	print("Be aware of maximum value over (or less) box size, due to {} > {} (box), or {} < {} (box)##### ".format(np.amax(x),box_x_t[i_frame],np.amin(x),0.0))
-		histo_t[i_frame], bin_t[i_frame] = np.histogram(x, bins=n_bins, range=(0,box_x_t[i_frame]))
+		wrap_x = np.mod(x,box_x_t[i_frame])
+		histo_t[i_frame], bin_t[i_frame] = np.histogram(wrap_x, bins=n_bins, range=(0,box_x_t[i_frame]))
 		if np.sum(histo_t[i_frame]) != len(x):
 			loss_ratio = 100*float(len(x)-np.sum(histo_t[i_frame]))/float(len(x))
 			if loss_ratio > 0.1: # loss data > 0.1 %, print warning
@@ -594,4 +595,63 @@ def diff_com_conv_w_data4(data11_1d_t, data12_1d_t, data21_1d_t, data22_1d_t, se
 	diff_data2_1d_t = data12_1d_t - data22_1d_t
 
 	return diff_data1_1d_t, diff_data2_1d_t
+
+# fast version of einstein relation calculation using custom_func form
+# input: data is a array to input 
+#         [ [[x1(t1),y1(t1),z1(t1)], [x2(t1),y2(t1),z2(t1)],...], [x1(t2),y1(t2),z1(t2)], [x2(t2),y2(t2),z2(t2)],...]]
+#        func1  is a defined function in python
+#        mode   is (None, idx)
+# output: result is a array using time delay
+#         result[0] = x1(t2) - x1(t1), x2(t2) - x2(t1), ...
+#         result[1] = x1(t3) - x1(t1), x2(t3) - x2(t1), ...
+#     ... result[.] = x1(t3) - x1(t2), x2(t3) - x2(t2), ...
+#     .. result[..] = x1(t4) - x1(t3), x2(t4) - x2(t3), ...
+#       not only for x but also y and z...
+# Example: def pbc(a,box): return a - box*np.around(a/box-0.5); einstein_time_relation(data,pbc,box)
+def pbc(a,box):
+	import numpy as np
+	return a - np.around(a/box-0.5)*box
+
+def einstein_time_relation(data,func1=None,func1_var1=None,mode=None):
+	import numpy as np
+
+	data_size = len(data)
+	N = data_size*(data_size-1)//2
+	idx = np.concatenate(( [0], np.arange(data_size-1,0,-1).cumsum() ))
+	start, stop = idx[:-1], idx[1:]
+	if len(data.shape) != 1:
+		out = np.empty((N,data.shape[1]),dtype=data.dtype)
+	else:
+		out = np.empty(N,dtype=data.dtype)
+	if func1 is None:
+		for j,i in enumerate(range(data_size-1)):
+			out[start[j]:stop[j]] = data[i+1:] - data[i,None]
+	else:
+		for j,i in enumerate(range(data_size-1)):
+			out[start[j]:stop[j]] = pbc(data[i+1:] - data[i,None],func1_var1)
+	if mode is None:
+		return out
+	elif 'idx' in mode:
+		return out, idx
+
+# generate dt list for msd, viscosity, and dynamical properties
+# input:
+# 	max_dt the maximum value of dt, i.e. nframes 
+def gen_dt_list(max_dt):
+	import numpy as np
+
+	list_dt = []
+	basic_list = np.arange(1,10)
+	while True: 
+		if basic_list[0] >= max_dt:
+			break
+		for element in basic_list:
+			if element < max_dt:
+				list_dt.append(element)
+			else:
+				break
+		basic_list = basic_list*10
+	
+	basic_list = np.array(list_dt,dtype=int)
+	return basic_list
 

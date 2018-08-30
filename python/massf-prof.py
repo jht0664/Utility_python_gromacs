@@ -52,18 +52,6 @@ args.otalign = args.otmass + '.align'
 args.diffm = args.output + '.massf.diff'
 args.difft = args.output + '.tmass.diff'
 
-## Check arguments for log
-print("===============================")
-print("input filename   = ", args.input)
-print("str filename     = ", args.structure)
-print("mass info filename = ", args.mass)
-print("select1 filename  = ", args.select1)
-print("select2 filename  = ", args.select2)
-hjung.blockavg.print_init(args.tol)
-print("number of bins   = ", args.nbin)
-print("axis [0:2]       = ", args.axis)
-print("output mass frac filenames = ", args.omassf, args.oacf, args.ofalign, args.otmass, args.otalign)
-
 ## check vaulable setting
 print("="*30)
 if args.axis < 0 or args.axis > 2:

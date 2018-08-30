@@ -76,6 +76,14 @@ mw, divider = hjung.io.read_mass2(args.mass)
 mass1_1d_t = np.array(number1_1d_t*mw[0]/divider[0],dtype=np.float)
 mass2_1d_t = np.array(number2_1d_t*mw[1]/divider[1],dtype=np.float)
 totalmass_1d_t = mass1_1d_t + mass2_1d_t
+
+# remove frames where has at least one empty cell
+remove_frame_list = np.where(totalmass_1d_t <= 0)[0]
+n_frames_rem = len(remove_frame_list)
+if n_frames_rem > 0:
+	print("Remove {0} frames ({1:.3f}%) which has enpty cell.".format(n_frames_rem, float(n_frames_rem)/float(len(totalmass_1d_t))))
+	mass1_1d_t     = np.delete(mass1_1d_t,remove_frame_list,axis=0)
+	totalmass_1d_t = np.delete(totalmass_1d_t,remove_frame_list,axis=0)
 massfrac_1d_t = np.divide(mass1_1d_t,totalmass_1d_t)
 
 ## save number histogram trajectory
