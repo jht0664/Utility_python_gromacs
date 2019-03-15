@@ -1,0 +1,10 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+ ========================
+ Reading Input File, test.gro
+ Warning: index is not the same as array index
+ ========================
+ Calculating distances of pair atoms
+ ========================
+ writing structure factor
+ Writing sq.xvg COMPLETE

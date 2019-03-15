@@ -1,0 +1,15 @@
+#PBS -S /bin/csh
+#PBS -l nodes=1:ppn=1
+#PBS -N sq-won
+#PBS -l walltime=96:00:00
+
+setenv LD_LIBRARY_PATH
+setenv LD_LIBRARY_PATH /share/apps/gcc/4.9.1/rtf/lib64:$LD_LIBRARY_PATH
+
+cd /home/htjung/sq
+
+./structure_code/main_structure confout.gro traj > log2
+
+exit 0
+
+

@@ -1,0 +1,16 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+ ========================
+ Reading Input File, confout.gro
+ Reading         4000 th line
+ Reading         8000 th line
+ Reading        12000 th line
+ Reading        16000 th line
+ Reading        20000 th line
+ Reading        24000 th line
+ Reading        28000 th line
+ Reading        32000 th line
+ Reading        36000 th line
+ ========================
+ Calculating distances of pair atoms
+Terminated

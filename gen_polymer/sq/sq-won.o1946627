@@ -1,0 +1,417 @@
+Warning: no access to tty (Bad file descriptor).
+Thus no job control in this shell.
+ ========================
+ Reading Input File, confout.gro
+ Reading         4000 th line
+ Reading         8000 th line
+ Reading        12000 th line
+ Reading        16000 th line
+ Reading        20000 th line
+ Reading        24000 th line
+ Reading        28000 th line
+ Reading        32000 th line
+ Reading        36000 th line
+ Warning: index is not the same as array index
+ ========================
+ Calculating distances of pair atoms
+ Calculating neighbor distance from          100 th atom
+ Calculating neighbor distance from          200 th atom
+ Calculating neighbor distance from          300 th atom
+ Calculating neighbor distance from          400 th atom
+ Calculating neighbor distance from          500 th atom
+ Calculating neighbor distance from          600 th atom
+ Calculating neighbor distance from          700 th atom
+ Calculating neighbor distance from          800 th atom
+ Calculating neighbor distance from          900 th atom
+ Calculating neighbor distance from         1000 th atom
+ Calculating neighbor distance from         1100 th atom
+ Calculating neighbor distance from         1200 th atom
+ Calculating neighbor distance from         1300 th atom
+ Calculating neighbor distance from         1400 th atom
+ Calculating neighbor distance from         1500 th atom
+ Calculating neighbor distance from         1600 th atom
+ Calculating neighbor distance from         1700 th atom
+ Calculating neighbor distance from         1800 th atom
+ Calculating neighbor distance from         1900 th atom
+ Calculating neighbor distance from         2000 th atom
+ Calculating neighbor distance from         2100 th atom
+ Calculating neighbor distance from         2200 th atom
+ Calculating neighbor distance from         2300 th atom
+ Calculating neighbor distance from         2400 th atom
+ Calculating neighbor distance from         2500 th atom
+ Calculating neighbor distance from         2600 th atom
+ Calculating neighbor distance from         2700 th atom
+ Calculating neighbor distance from         2800 th atom
+ Calculating neighbor distance from         2900 th atom
+ Calculating neighbor distance from         3000 th atom
+ Calculating neighbor distance from         3100 th atom
+ Calculating neighbor distance from         3200 th atom
+ Calculating neighbor distance from         3300 th atom
+ Calculating neighbor distance from         3400 th atom
+ Calculating neighbor distance from         3500 th atom
+ Calculating neighbor distance from         3600 th atom
+ Calculating neighbor distance from         3700 th atom
+ Calculating neighbor distance from         3800 th atom
+ Calculating neighbor distance from         3900 th atom
+ Calculating neighbor distance from         4000 th atom
+ Calculating neighbor distance from         4100 th atom
+ Calculating neighbor distance from         4200 th atom
+ Calculating neighbor distance from         4300 th atom
+ Calculating neighbor distance from         4400 th atom
+ Calculating neighbor distance from         4500 th atom
+ Calculating neighbor distance from         4600 th atom
+ Calculating neighbor distance from         4700 th atom
+ Calculating neighbor distance from         4800 th atom
+ Calculating neighbor distance from         4900 th atom
+ Calculating neighbor distance from         5000 th atom
+ Calculating neighbor distance from         5100 th atom
+ Calculating neighbor distance from         5200 th atom
+ Calculating neighbor distance from         5300 th atom
+ Calculating neighbor distance from         5400 th atom
+ Calculating neighbor distance from         5500 th atom
+ Calculating neighbor distance from         5600 th atom
+ Calculating neighbor distance from         5700 th atom
+ Calculating neighbor distance from         5800 th atom
+ Calculating neighbor distance from         5900 th atom
+ Calculating neighbor distance from         6000 th atom
+ Calculating neighbor distance from         6100 th atom
+ Calculating neighbor distance from         6200 th atom
+ Calculating neighbor distance from         6300 th atom
+ Calculating neighbor distance from         6400 th atom
+ Calculating neighbor distance from         6500 th atom
+ Calculating neighbor distance from         6600 th atom
+ Calculating neighbor distance from         6700 th atom
+ Calculating neighbor distance from         6800 th atom
+ Calculating neighbor distance from         6900 th atom
+ Calculating neighbor distance from         7000 th atom
+ Calculating neighbor distance from         7100 th atom
+ Calculating neighbor distance from         7200 th atom
+ Calculating neighbor distance from         7300 th atom
+ Calculating neighbor distance from         7400 th atom
+ Calculating neighbor distance from         7500 th atom
+ Calculating neighbor distance from         7600 th atom
+ Calculating neighbor distance from         7700 th atom
+ Calculating neighbor distance from         7800 th atom
+ Calculating neighbor distance from         7900 th atom
+ Calculating neighbor distance from         8000 th atom
+ Calculating neighbor distance from         8100 th atom
+ Calculating neighbor distance from         8200 th atom
+ Calculating neighbor distance from         8300 th atom
+ Calculating neighbor distance from         8400 th atom
+ Calculating neighbor distance from         8500 th atom
+ Calculating neighbor distance from         8600 th atom
+ Calculating neighbor distance from         8700 th atom
+ Calculating neighbor distance from         8800 th atom
+ Calculating neighbor distance from         8900 th atom
+ Calculating neighbor distance from         9000 th atom
+ Calculating neighbor distance from         9100 th atom
+ Calculating neighbor distance from         9200 th atom
+ Calculating neighbor distance from         9300 th atom
+ Calculating neighbor distance from         9400 th atom
+ Calculating neighbor distance from         9500 th atom
+ Calculating neighbor distance from         9600 th atom
+ Calculating neighbor distance from         9700 th atom
+ Calculating neighbor distance from         9800 th atom
+ Calculating neighbor distance from         9900 th atom
+ Calculating neighbor distance from        10000 th atom
+ Calculating neighbor distance from        10100 th atom
+ Calculating neighbor distance from        10200 th atom
+ Calculating neighbor distance from        10300 th atom
+ Calculating neighbor distance from        10400 th atom
+ Calculating neighbor distance from        10500 th atom
+ Calculating neighbor distance from        10600 th atom
+ Calculating neighbor distance from        10700 th atom
+ Calculating neighbor distance from        10800 th atom
+ Calculating neighbor distance from        10900 th atom
+ Calculating neighbor distance from        11000 th atom
+ Calculating neighbor distance from        11100 th atom
+ Calculating neighbor distance from        11200 th atom
+ Calculating neighbor distance from        11300 th atom
+ Calculating neighbor distance from        11400 th atom
+ Calculating neighbor distance from        11500 th atom
+ Calculating neighbor distance from        11600 th atom
+ Calculating neighbor distance from        11700 th atom
+ Calculating neighbor distance from        11800 th atom
+ Calculating neighbor distance from        11900 th atom
+ Calculating neighbor distance from        12000 th atom
+ Calculating neighbor distance from        12100 th atom
+ Calculating neighbor distance from        12200 th atom
+ Calculating neighbor distance from        12300 th atom
+ Calculating neighbor distance from        12400 th atom
+ Calculating neighbor distance from        12500 th atom
+ Calculating neighbor distance from        12600 th atom
+ Calculating neighbor distance from        12700 th atom
+ Calculating neighbor distance from        12800 th atom
+ Calculating neighbor distance from        12900 th atom
+ Calculating neighbor distance from        13000 th atom
+ Calculating neighbor distance from        13100 th atom
+ Calculating neighbor distance from        13200 th atom
+ Calculating neighbor distance from        13300 th atom
+ Calculating neighbor distance from        13400 th atom
+ Calculating neighbor distance from        13500 th atom
+ Calculating neighbor distance from        13600 th atom
+ Calculating neighbor distance from        13700 th atom
+ Calculating neighbor distance from        13800 th atom
+ Calculating neighbor distance from        13900 th atom
+ Calculating neighbor distance from        14000 th atom
+ Calculating neighbor distance from        14100 th atom
+ Calculating neighbor distance from        14200 th atom
+ Calculating neighbor distance from        14300 th atom
+ Calculating neighbor distance from        14400 th atom
+ Calculating neighbor distance from        14500 th atom
+ Calculating neighbor distance from        14600 th atom
+ Calculating neighbor distance from        14700 th atom
+ Calculating neighbor distance from        14800 th atom
+ Calculating neighbor distance from        14900 th atom
+ Calculating neighbor distance from        15000 th atom
+ Calculating neighbor distance from        15100 th atom
+ Calculating neighbor distance from        15200 th atom
+ Calculating neighbor distance from        15300 th atom
+ Calculating neighbor distance from        15400 th atom
+ Calculating neighbor distance from        15500 th atom
+ Calculating neighbor distance from        15600 th atom
+ Calculating neighbor distance from        15700 th atom
+ Calculating neighbor distance from        15800 th atom
+ Calculating neighbor distance from        15900 th atom
+ Calculating neighbor distance from        16000 th atom
+ Calculating neighbor distance from        16100 th atom
+ Calculating neighbor distance from        16200 th atom
+ Calculating neighbor distance from        16300 th atom
+ Calculating neighbor distance from        16400 th atom
+ Calculating neighbor distance from        16500 th atom
+ Calculating neighbor distance from        16600 th atom
+ Calculating neighbor distance from        16700 th atom
+ Calculating neighbor distance from        16800 th atom
+ Calculating neighbor distance from        16900 th atom
+ Calculating neighbor distance from        17000 th atom
+ Calculating neighbor distance from        17100 th atom
+ Calculating neighbor distance from        17200 th atom
+ Calculating neighbor distance from        17300 th atom
+ Calculating neighbor distance from        17400 th atom
+ Calculating neighbor distance from        17500 th atom
+ Calculating neighbor distance from        17600 th atom
+ Calculating neighbor distance from        17700 th atom
+ Calculating neighbor distance from        17800 th atom
+ Calculating neighbor distance from        17900 th atom
+ Calculating neighbor distance from        18000 th atom
+ Calculating neighbor distance from        18100 th atom
+ Calculating neighbor distance from        18200 th atom
+ Calculating neighbor distance from        18300 th atom
+ Calculating neighbor distance from        18400 th atom
+ Calculating neighbor distance from        18500 th atom
+ Calculating neighbor distance from        18600 th atom
+ Calculating neighbor distance from        18700 th atom
+ Calculating neighbor distance from        18800 th atom
+ Calculating neighbor distance from        18900 th atom
+ Calculating neighbor distance from        19000 th atom
+ Calculating neighbor distance from        19100 th atom
+ Calculating neighbor distance from        19200 th atom
+ Calculating neighbor distance from        19300 th atom
+ Calculating neighbor distance from        19400 th atom
+ Calculating neighbor distance from        19500 th atom
+ Calculating neighbor distance from        19600 th atom
+ Calculating neighbor distance from        19700 th atom
+ Calculating neighbor distance from        19800 th atom
+ Calculating neighbor distance from        19900 th atom
+ Calculating neighbor distance from        20000 th atom
+ Calculating neighbor distance from        20100 th atom
+ Calculating neighbor distance from        20200 th atom
+ Calculating neighbor distance from        20300 th atom
+ Calculating neighbor distance from        20400 th atom
+ Calculating neighbor distance from        20500 th atom
+ Calculating neighbor distance from        20600 th atom
+ Calculating neighbor distance from        20700 th atom
+ Calculating neighbor distance from        20800 th atom
+ Calculating neighbor distance from        20900 th atom
+ Calculating neighbor distance from        21000 th atom
+ Calculating neighbor distance from        21100 th atom
+ Calculating neighbor distance from        21200 th atom
+ Calculating neighbor distance from        21300 th atom
+ Calculating neighbor distance from        21400 th atom
+ Calculating neighbor distance from        21500 th atom
+ Calculating neighbor distance from        21600 th atom
+ Calculating neighbor distance from        21700 th atom
+ Calculating neighbor distance from        21800 th atom
+ Calculating neighbor distance from        21900 th atom
+ Calculating neighbor distance from        22000 th atom
+ Calculating neighbor distance from        22100 th atom
+ Calculating neighbor distance from        22200 th atom
+ Calculating neighbor distance from        22300 th atom
+ Calculating neighbor distance from        22400 th atom
+ Calculating neighbor distance from        22500 th atom
+ Calculating neighbor distance from        22600 th atom
+ Calculating neighbor distance from        22700 th atom
+ Calculating neighbor distance from        22800 th atom
+ Calculating neighbor distance from        22900 th atom
+ Calculating neighbor distance from        23000 th atom
+ Calculating neighbor distance from        23100 th atom
+ Calculating neighbor distance from        23200 th atom
+ Calculating neighbor distance from        23300 th atom
+ Calculating neighbor distance from        23400 th atom
+ Calculating neighbor distance from        23500 th atom
+ Calculating neighbor distance from        23600 th atom
+ Calculating neighbor distance from        23700 th atom
+ Calculating neighbor distance from        23800 th atom
+ Calculating neighbor distance from        23900 th atom
+ Calculating neighbor distance from        24000 th atom
+ Calculating neighbor distance from        24100 th atom
+ Calculating neighbor distance from        24200 th atom
+ Calculating neighbor distance from        24300 th atom
+ Calculating neighbor distance from        24400 th atom
+ Calculating neighbor distance from        24500 th atom
+ Calculating neighbor distance from        24600 th atom
+ Calculating neighbor distance from        24700 th atom
+ Calculating neighbor distance from        24800 th atom
+ Calculating neighbor distance from        24900 th atom
+ Calculating neighbor distance from        25000 th atom
+ Calculating neighbor distance from        25100 th atom
+ Calculating neighbor distance from        25200 th atom
+ Calculating neighbor distance from        25300 th atom
+ Calculating neighbor distance from        25400 th atom
+ Calculating neighbor distance from        25500 th atom
+ Calculating neighbor distance from        25600 th atom
+ Calculating neighbor distance from        25700 th atom
+ Calculating neighbor distance from        25800 th atom
+ Calculating neighbor distance from        25900 th atom
+ Calculating neighbor distance from        26000 th atom
+ Calculating neighbor distance from        26100 th atom
+ Calculating neighbor distance from        26200 th atom
+ Calculating neighbor distance from        26300 th atom
+ Calculating neighbor distance from        26400 th atom
+ Calculating neighbor distance from        26500 th atom
+ Calculating neighbor distance from        26600 th atom
+ Calculating neighbor distance from        26700 th atom
+ Calculating neighbor distance from        26800 th atom
+ Calculating neighbor distance from        26900 th atom
+ Calculating neighbor distance from        27000 th atom
+ Calculating neighbor distance from        27100 th atom
+ Calculating neighbor distance from        27200 th atom
+ Calculating neighbor distance from        27300 th atom
+ Calculating neighbor distance from        27400 th atom
+ Calculating neighbor distance from        27500 th atom
+ Calculating neighbor distance from        27600 th atom
+ Calculating neighbor distance from        27700 th atom
+ Calculating neighbor distance from        27800 th atom
+ Calculating neighbor distance from        27900 th atom
+ Calculating neighbor distance from        28000 th atom
+ Calculating neighbor distance from        28100 th atom
+ Calculating neighbor distance from        28200 th atom
+ Calculating neighbor distance from        28300 th atom
+ Calculating neighbor distance from        28400 th atom
+ Calculating neighbor distance from        28500 th atom
+ Calculating neighbor distance from        28600 th atom
+ Calculating neighbor distance from        28700 th atom
+ Calculating neighbor distance from        28800 th atom
+ Calculating neighbor distance from        28900 th atom
+ Calculating neighbor distance from        29000 th atom
+ Calculating neighbor distance from        29100 th atom
+ Calculating neighbor distance from        29200 th atom
+ Calculating neighbor distance from        29300 th atom
+ Calculating neighbor distance from        29400 th atom
+ Calculating neighbor distance from        29500 th atom
+ Calculating neighbor distance from        29600 th atom
+ Calculating neighbor distance from        29700 th atom
+ Calculating neighbor distance from        29800 th atom
+ Calculating neighbor distance from        29900 th atom
+ Calculating neighbor distance from        30000 th atom
+ Calculating neighbor distance from        30100 th atom
+ Calculating neighbor distance from        30200 th atom
+ Calculating neighbor distance from        30300 th atom
+ Calculating neighbor distance from        30400 th atom
+ Calculating neighbor distance from        30500 th atom
+ Calculating neighbor distance from        30600 th atom
+ Calculating neighbor distance from        30700 th atom
+ Calculating neighbor distance from        30800 th atom
+ Calculating neighbor distance from        30900 th atom
+ Calculating neighbor distance from        31000 th atom
+ Calculating neighbor distance from        31100 th atom
+ Calculating neighbor distance from        31200 th atom
+ Calculating neighbor distance from        31300 th atom
+ Calculating neighbor distance from        31400 th atom
+ Calculating neighbor distance from        31500 th atom
+ Calculating neighbor distance from        31600 th atom
+ Calculating neighbor distance from        31700 th atom
+ Calculating neighbor distance from        31800 th atom
+ Calculating neighbor distance from        31900 th atom
+ Calculating neighbor distance from        32000 th atom
+ Calculating neighbor distance from        32100 th atom
+ Calculating neighbor distance from        32200 th atom
+ Calculating neighbor distance from        32300 th atom
+ Calculating neighbor distance from        32400 th atom
+ Calculating neighbor distance from        32500 th atom
+ Calculating neighbor distance from        32600 th atom
+ Calculating neighbor distance from        32700 th atom
+ Calculating neighbor distance from        32800 th atom
+ Calculating neighbor distance from        32900 th atom
+ Calculating neighbor distance from        33000 th atom
+ Calculating neighbor distance from        33100 th atom
+ Calculating neighbor distance from        33200 th atom
+ Calculating neighbor distance from        33300 th atom
+ Calculating neighbor distance from        33400 th atom
+ Calculating neighbor distance from        33500 th atom
+ Calculating neighbor distance from        33600 th atom
+ Calculating neighbor distance from        33700 th atom
+ Calculating neighbor distance from        33800 th atom
+ Calculating neighbor distance from        33900 th atom
+ Calculating neighbor distance from        34000 th atom
+ Calculating neighbor distance from        34100 th atom
+ Calculating neighbor distance from        34200 th atom
+ Calculating neighbor distance from        34300 th atom
+ Calculating neighbor distance from        34400 th atom
+ Calculating neighbor distance from        34500 th atom
+ Calculating neighbor distance from        34600 th atom
+ Calculating neighbor distance from        34700 th atom
+ Calculating neighbor distance from        34800 th atom
+ Calculating neighbor distance from        34900 th atom
+ Calculating neighbor distance from        35000 th atom
+ Calculating neighbor distance from        35100 th atom
+ Calculating neighbor distance from        35200 th atom
+ Calculating neighbor distance from        35300 th atom
+ Calculating neighbor distance from        35400 th atom
+ Calculating neighbor distance from        35500 th atom
+ Calculating neighbor distance from        35600 th atom
+ Calculating neighbor distance from        35700 th atom
+ Calculating neighbor distance from        35800 th atom
+ Calculating neighbor distance from        35900 th atom
+ Calculating neighbor distance from        36000 th atom
+ Calculating neighbor distance from        36100 th atom
+ Calculating neighbor distance from        36200 th atom
+ Calculating neighbor distance from        36300 th atom
+ Calculating neighbor distance from        36400 th atom
+ Calculating neighbor distance from        36500 th atom
+ Calculating neighbor distance from        36600 th atom
+ Calculating neighbor distance from        36700 th atom
+ Calculating neighbor distance from        36800 th atom
+ Calculating neighbor distance from        36900 th atom
+ Calculating neighbor distance from        37000 th atom
+ Calculating neighbor distance from        37100 th atom
+ Calculating neighbor distance from        37200 th atom
+ Calculating neighbor distance from        37300 th atom
+ Calculating neighbor distance from        37400 th atom
+ Calculating neighbor distance from        37500 th atom
+ Calculating neighbor distance from        37600 th atom
+ ========================
+ writing structure factor
+-19144.835938*************
+-21677.701172*************
+ -9183.478516861445.375000
+-15343.176758369598.562500
+-17041.134766205024.218750
+ -7795.112305159350.453125
+ -7764.929199129534.164062
+ 31511.167969 92405.179688
+ 58621.441406 58629.769531
+ 21318.162109 74045.085938
+  5401.825195  6083.278809
+ 30877.822266 39466.925781
+-13469.366211 53382.187500
+-49555.132812 49713.925781
+-19373.230469 23889.970703
+  -499.255768 23356.435547
+ -8966.178711 18036.195312
+  4704.054688 64046.746094
+-22573.855469 33071.562500
+-11068.883789 12664.563477
+-11567.091797 12570.332031
+-14670.759766 35242.500000
+ Writing sq.xvg COMPLETE
